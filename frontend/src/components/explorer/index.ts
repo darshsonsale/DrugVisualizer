@@ -5,6 +5,7 @@
 export * from './ExplorerHeader';
 export * from './MilestoneRail';
 export * from './Viewport3DPlaceholder';
+export * from './Viewport3DCanvas';
 export * from './NodeInspector';
 export * from './TimelineBar';
 export * from './ExplorerSkeleton';

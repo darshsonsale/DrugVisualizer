@@ -4,7 +4,7 @@ import { FoodCondition } from '../api/types';
 import {
   ExplorerHeader,
   MilestoneRail,
-  Viewport3DPlaceholder,
+  Viewport3DCanvas,
   NodeInspector,
   TimelineBar,
   ExplorerSkeleton,
@@ -154,8 +154,8 @@ export const ExplorerPage: React.FC = () => {
           onSelectNode={handleSelectNode}
         />
 
-        {/* Center Column: 3D Anatomical Viewport Placeholder */}
-        <Viewport3DPlaceholder
+        {/* Center Column: 3D Anatomical Viewport Canvas */}
+        <Viewport3DCanvas
           nodes={data.nodes}
           selectedNodeId={activeNodeId}
           onSelectNode={handleSelectNode}
