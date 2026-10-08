@@ -1,0 +1,105 @@
+/* ===================================================
+   Drug Path Visualiser — BioLumen Pharmacology Theme Tokens
+   Established from Stitch Design Specifications
+   =================================================== */
+
+:root {
+  /* Surfaces & Backgrounds */
+  --color-surface: #0d141d;
+  --color-surface-dim: #0d141d;
+  --color-surface-bright: #333a44;
+  --color-surface-container-lowest: #080f18;
+  --color-surface-container-low: #151c26;
+  --color-surface-container: #19202a;
+  --color-surface-container-high: #242a34;
+  --color-surface-container-highest: #2e353f;
+
+  /* Typography Colors */
+  --color-on-surface: #dce3f0;
+  --color-on-surface-variant: #bac9cc;
+  --color-outline: #849396;
+  --color-outline-variant: #3b494c;
+
+  /* Primary Brand (Luminous Cyan) */
+  --color-primary: #c3f5ff;
+  --color-on-primary: #00363d;
+  --color-primary-container: #00e5ff;
+  --color-on-primary-container: #00626e;
+  --color-surface-tint: #00daf3;
+
+  /* Secondary Accent (Biological Emerald) */
+  --color-secondary: #4edea3;
+  --color-on-secondary: #003824;
+  --color-secondary-container: #00a572;
+  --color-on-secondary-container: #00311f;
+
+  /* Tertiary Accent (Warm Amber) */
+  --color-tertiary: #ffe8d5;
+  --color-on-tertiary: #492900;
+  --color-tertiary-container: #ffc589;
+  --color-on-tertiary-container: #814c00;
+
+  /* Status Colors */
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* Typography Scales */
+  --font-headline: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+}
+
+/* Base Global Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-headline);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
