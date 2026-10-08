@@ -13,13 +13,88 @@ export interface NodeInspectorProps {
   onTabChange: (tab: InspectorTab) => void;
 }
 
-// Organ icons mapping for anatomical illustration card
-const ORGAN_ICONS: Record<string, string> = {
-  'node-oral-cavity': 'medication',
-  'node-stomach': 'vital_signs',
-  'node-small-intestine': 'grain',
-  'node-liver': 'science',
-  'node-systemic-circulation': 'cardiology',
+// Stage specific clinical facts and metrics aligned with Google Stitch
+const STAGE_METRICS: Record<
+  string,
+  {
+    phLabel: string;
+    phValue: string;
+    timeLabel: string;
+    timeValue: string;
+    funFact: string;
+    imgUrl: string;
+  }
+> = {
+  'node-oral-cavity': {
+    phLabel: 'Salivary pH',
+    phValue: '6.8 – 7.2',
+    timeLabel: 'Transit Time',
+    timeValue: '5 – 10 sec',
+    funFact:
+      'Saliva produces ~1.5 liters daily containing salivary amylase and mucins that safeguard the oral mucosa from solid tablet friction.',
+    imgUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+  },
+  'node-stomach': {
+    phLabel: 'Gastric pH',
+    phValue: '1.5 – 2.0',
+    timeLabel: 'Transit Time',
+    timeValue: '15 – 60 min',
+    funFact:
+      'Taking ibuprofen after a meal delays gastric transit from 15 minutes to over an hour, flattening the plasma peak curve.',
+    imgUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+  },
+  'node-small-intestine': {
+    phLabel: 'Intestinal pH',
+    phValue: '6.0 – 7.4',
+    timeLabel: 'Transit Time',
+    timeValue: '1 – 2 hrs',
+    funFact:
+      'The intestinal villi expand the total absorbent surface area to approximately that of a standard badminton court!',
+    imgUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+  },
+  'node-liver': {
+    phLabel: 'Hepatic pH',
+    phValue: '7.2 – 7.4',
+    timeLabel: 'Transit Time',
+    timeValue: '20 – 40 min',
+    funFact:
+      'Genetic polymorphism in CYP2C9 can significantly extend ibuprofen half-life in up to 5% of diverse patient demographics.',
+    imgUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+  },
+  'node-bloodstream': {
+    phLabel: 'Plasma pH',
+    phValue: '7.35 – 7.45',
+    timeLabel: 'Transit Time',
+    timeValue: '45 – 90 min',
+    funFact:
+      'Only the ~1% unbound fraction of ibuprofen is pharmacologically active and able to cross endothelial barriers into tissues.',
+    imgUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+  },
+  'node-target-sites': {
+    phLabel: 'Synovial pH',
+    phValue: '7.3 – 7.4',
+    timeLabel: 'Transit Time',
+    timeValue: '1 – 2 hrs',
+    funFact:
+      'COX-1 inhibition also reduces protective stomach prostaglandins, which is why chronic dosing requires food buffering.',
+    imgUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+  },
+  'node-kidneys': {
+    phLabel: 'Urinary pH',
+    phValue: '5.5 – 6.5',
+    timeLabel: 'Clearance Time',
+    timeValue: '2 – 4 hrs',
+    funFact:
+      'Less than 1% of parent ibuprofen is eliminated unchanged, underscoring the vital efficiency of prior hepatic conversion.',
+    imgUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+  },
 };
 
 export const NodeInspector: React.FC<NodeInspectorProps> = ({
@@ -38,30 +113,21 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
   const prevNode = currentIndex > 0 ? nodes[currentIndex - 1] : null;
   const nextNode = currentIndex < totalStages - 1 ? nodes[currentIndex + 1] : null;
 
-  // Organ icon
-  const iconName = ORGAN_ICONS[selectedNode.id] || 'biotech';
+  const metrics = STAGE_METRICS[selectedNode.id] || STAGE_METRICS['node-oral-cavity'];
 
   // Body content based on active tab
   let bodyContent = '';
   if (activeTab === 'overview') {
     bodyContent =
       selectedNode.content?.general_description ||
-      'No general physiological description available for this waypoint.';
+      'The solid ibuprofen tablet enters the physiological transit pathway.';
   } else if (activeTab === 'role') {
     bodyContent =
       selectedNode.content?.physiological_role ||
-      'No physiological role notes recorded for this anatomical waypoint.';
+      'Acts as a physiological transit and molecular absorption station.';
   } else if (activeTab === 'clinical') {
-    bodyContent =
-      selectedNode.variation?.clinical_observation ||
-      'Standard pharmacokinetic transit profile under current physiological regimen.';
+    bodyContent = metrics.funFact;
   }
-
-  // Microenvironment pH display
-  const phDisplay =
-    selectedNode.content?.micro_environment_ph !== undefined
-      ? selectedNode.content.micro_environment_ph.toFixed(1)
-      : '7.0';
 
   return (
     <aside className="inspector-card" aria-label="Waypoint Detailed Inspector">
@@ -128,9 +194,18 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
 
       {/* High-Magnification Organ Focus View */}
       <div className="inspector-organ-view" aria-hidden="true">
-        <span className="material-symbols-outlined inspector-organ-icon">
-          {iconName}
-        </span>
+        <img
+          alt={`${selectedNode.name} Close-up View`}
+          className="inspector-organ-img"
+          src={metrics.imgUrl}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(21, 28, 38, 0.95) 0%, transparent 60%)',
+          }}
+        />
 
         <div
           style={{
@@ -140,9 +215,9 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '0.45rem',
-            background: 'rgba(8, 15, 24, 0.75)',
+            background: 'rgba(8, 15, 24, 0.85)',
             backdropFilter: 'blur(8px)',
-            padding: '0.2rem 0.5rem',
+            padding: '0.2rem 0.55rem',
             borderRadius: '9999px',
             fontSize: '0.675rem',
             color: 'var(--brand-cyan)',
@@ -155,10 +230,10 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
               height: '6px',
               borderRadius: '50%',
               background: 'var(--brand-cyan)',
-              boxShadow: '0 0 6px var(--brand-cyan)',
+              boxShadow: '0 0 8px var(--brand-cyan)',
             }}
           />
-          Anatomical Focus View
+          High-Magnification View
         </div>
       </div>
 
@@ -166,17 +241,17 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
       <div>
         <h2
           style={{
-            fontSize: '1.25rem',
+            fontSize: '1.35rem',
             fontWeight: 700,
             color: 'var(--text-main)',
             margin: '0 0 0.25rem',
-            lineHeight: 1.3,
+            lineHeight: 1.25,
           }}
         >
           {selectedNode.name}
         </h2>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          {selectedNode.anatomical_location} • {selectedNode.organ_system}
+          {selectedNode.anatomical_location}
         </span>
       </div>
 
@@ -192,7 +267,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
       >
         {(['overview', 'role', 'clinical'] as InspectorTab[]).map((tab) => {
           const isActive = activeTab === tab;
-          const label = tab === 'overview' ? 'Overview' : tab === 'role' ? 'Role' : 'Clinical Note';
+          const label = tab === 'overview' ? 'Overview' : tab === 'role' ? 'Role' : 'Fun Fact';
 
           return (
             <button
@@ -201,7 +276,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
               onClick={() => onTabChange(tab)}
               style={{
                 flex: 1,
-                padding: '0.4rem 0.25rem',
+                padding: '0.45rem 0.25rem',
                 fontSize: '0.75rem',
                 fontWeight: isActive ? 700 : 500,
                 textAlign: 'center',
@@ -220,7 +295,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
       </div>
 
       {/* Dynamic Text Body */}
-      <div style={{ minHeight: '90px' }}>
+      <div style={{ minHeight: '85px' }}>
         <p
           style={{
             fontSize: '0.875rem',
@@ -240,10 +315,10 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             <span className="material-symbols-outlined text-[15px]" style={{ color: 'var(--brand-cyan)' }}>
               science
             </span>
-            Microenvironment pH
+            {metrics.phLabel}
           </div>
           <span style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>
-            {phDisplay}
+            {metrics.phValue}
           </span>
         </div>
 
@@ -252,10 +327,10 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             <span className="material-symbols-outlined text-[15px]" style={{ color: 'var(--brand-emerald)' }}>
               timer
             </span>
-            Transit Time
+            {metrics.timeLabel}
           </div>
           <span style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>
-            {selectedNode.estimated_time_minutes} min
+            {metrics.timeValue}
           </span>
         </div>
       </div>
@@ -310,10 +385,10 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>
-              Pathway Assessment
+              {selectedNode.name} Stage Check
             </span>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-              Quick knowledge check
+              1 Question • Quick verify
             </span>
           </div>
         </div>
@@ -333,7 +408,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             transition: 'background 0.2s ease',
           }}
         >
-          Take Quiz
+          Verify
         </button>
       </div>
     </aside>

@@ -157,6 +157,7 @@ export const ExplorerPage: React.FC = () => {
         {/* Center Column: 3D Anatomical Viewport Canvas */}
         <Viewport3DCanvas
           nodes={data.nodes}
+          edges={data.edges}
           selectedNodeId={activeNodeId}
           onSelectNode={handleSelectNode}
           isAutoTransitActive={isAutoTransitActive}

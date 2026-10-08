@@ -5,15 +5,29 @@ import { CameraController } from './CameraController';
 import { HolographicTorso } from '../anatomy/HolographicTorso';
 import { OrganVolumes } from '../anatomy/OrganVolumes';
 import { LandmarkAnchors } from '../anatomy/LandmarkAnchors';
+import { PathwayScene } from '../PathwayScene';
+import { PathwayNodeWithDetails, PathwayEdge } from '../../../api/types';
 
 export interface AnatomicalCanvasProps {
+  nodes?: PathwayNodeWithDetails[];
+  edges?: PathwayEdge[];
   selectedNodeId?: string;
+  onSelectNode?: (nodeId: string) => void;
   className?: string;
+  transparentBackground?: boolean;
+  enableRotate?: boolean;
+  enableZoom?: boolean;
 }
 
 export const AnatomicalCanvas: React.FC<AnatomicalCanvasProps> = ({
+  nodes,
+  edges,
   selectedNodeId,
+  onSelectNode,
   className = '',
+  transparentBackground = true,
+  enableRotate = true,
+  enableZoom = true,
 }) => {
   return (
     <div
@@ -23,7 +37,7 @@ export const AnatomicalCanvas: React.FC<AnatomicalCanvasProps> = ({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        background: '#080f18',
+        background: transparentBackground ? 'transparent' : '#080f18',
       }}
     >
       <Canvas
@@ -31,19 +45,29 @@ export const AnatomicalCanvas: React.FC<AnatomicalCanvasProps> = ({
         dpr={[1, 2]}
         gl={{
           antialias: true,
-          alpha: false,
+          alpha: true,
           powerPreference: 'high-performance',
         }}
       >
         <Suspense fallback={null}>
           <SceneEnvironment />
-          <CameraController />
+          <CameraController enableRotate={enableRotate} enableZoom={enableZoom} />
 
-          {/* Master Centered Anatomical Group */}
+          {/* Master Centered Anatomical & Pathway Group */}
           <group position={[0, -0.1, 0]}>
             <HolographicTorso />
             <OrganVolumes selectedNodeId={selectedNodeId} />
-            <LandmarkAnchors selectedNodeId={selectedNodeId} />
+
+            {nodes && nodes.length > 0 && edges && edges.length > 0 ? (
+              <PathwayScene
+                nodes={nodes}
+                edges={edges}
+                selectedNodeId={selectedNodeId}
+                onSelectNode={onSelectNode ?? (() => {})}
+              />
+            ) : (
+              <LandmarkAnchors selectedNodeId={selectedNodeId} />
+            )}
           </group>
         </Suspense>
       </Canvas>

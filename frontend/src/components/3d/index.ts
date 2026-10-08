@@ -10,3 +10,6 @@ export * from './anatomy/HolographicTorso';
 export * from './anatomy/OrganVolumes';
 export * from './anatomy/LandmarkAnchors';
 export * from './materials/holographicMaterial';
+export * from './PathwayNode';
+export * from './PathwayEdge';
+export * from './PathwayScene';

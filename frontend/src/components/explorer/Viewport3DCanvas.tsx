@@ -1,34 +1,28 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { PathwayNodeWithDetails } from '../../api/types';
+import { PathwayNodeWithDetails, PathwayEdge } from '../../api/types';
 
 export interface Viewport3DCanvasProps {
   nodes: PathwayNodeWithDetails[];
+  edges?: PathwayEdge[];
   selectedNodeId: string;
   onSelectNode: (nodeId: string) => void;
   isAutoTransitActive?: boolean;
   onToggleAutoTransit?: () => void;
 }
 
-// 7 Landmark Coordinates matching the Google Stitch reference
-const LANDMARK_HOTSPOTS: Array<{
-  id: string;
-  name: string;
-  top: string;
-  left?: string;
-  right?: string;
-  ringColor: string;
-  dotColor: string;
-}> = [
-  { id: 'node-oral-cavity', name: 'Mouth', top: '14%', left: '48%', ringColor: 'var(--brand-cyan)', dotColor: 'var(--brand-cyan)' },
-  { id: 'node-stomach', name: 'Stomach', top: '35%', left: '54%', ringColor: '#ffb86b', dotColor: '#ffb86b' },
-  { id: 'node-liver', name: 'Liver', top: '43%', left: '22%', ringColor: '#ff9e92', dotColor: '#ff9e92' },
-  { id: 'node-small-intestine', name: 'Small Intestine', top: '58%', left: '53%', ringColor: '#4edea3', dotColor: '#4edea3' },
-  { id: 'node-bloodstream', name: 'Bloodstream', top: '50%', left: '28%', ringColor: '#00daf3', dotColor: '#00daf3' },
-  { id: 'node-kidneys', name: 'Kidneys', top: '68%', left: '36%', ringColor: '#6ffbbe', dotColor: '#6ffbbe' },
-  { id: 'node-target-sites', name: 'Target Tissue', top: '75%', right: '14%', ringColor: '#ffc589', dotColor: '#ffc589' },
-];
+// Anatomical coordinate layout registry for the realistic 3D human figure
+const HOTSPOT_COORDINATES: Record<string, { top: string; left?: string; right?: string; ringColor: string; dotColor: string; defaultLabel: string }> = {
+  'node-oral-cavity': { top: '14%', left: '48%', ringColor: 'var(--brand-cyan)', dotColor: 'var(--brand-cyan)', defaultLabel: 'Mouth' },
+  'node-stomach': { top: '35%', left: '54%', ringColor: '#ffb86b', dotColor: '#ffb86b', defaultLabel: 'Stomach' },
+  'node-liver': { top: '43%', left: '22%', ringColor: '#ff9e92', dotColor: '#ff9e92', defaultLabel: 'Liver' },
+  'node-small-intestine': { top: '58%', left: '53%', ringColor: '#4edea3', dotColor: '#4edea3', defaultLabel: 'Small Intestine' },
+  'node-bloodstream': { top: '50%', left: '28%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Bloodstream' },
+  'node-kidneys': { top: '68%', left: '36%', ringColor: '#6ffbbe', dotColor: '#6ffbbe', defaultLabel: 'Kidneys' },
+  'node-target-sites': { top: '75%', right: '14%', ringColor: '#ffc589', dotColor: '#ffc589', defaultLabel: 'Target Tissue' },
+};
 
 export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
+  nodes,
   selectedNodeId,
   onSelectNode,
   isAutoTransitActive = false,
@@ -82,6 +76,17 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
     setIsRotating(false);
     setTilt({ rotateX: 0, rotateY: 0, scale: 1 });
   }, []);
+
+  const getDisplayName = (node: PathwayNodeWithDetails) => {
+    if (node.name.toLowerCase().includes('mouth') || node.name.toLowerCase().includes('oral')) return 'Mouth';
+    if (node.name.toLowerCase().includes('stomach')) return 'Stomach';
+    if (node.name.toLowerCase().includes('small intestine') || node.name.toLowerCase().includes('intestine')) return 'Small Intestine';
+    if (node.name.toLowerCase().includes('liver')) return 'Liver';
+    if (node.name.toLowerCase().includes('bloodstream')) return 'Bloodstream';
+    if (node.name.toLowerCase().includes('kidney')) return 'Kidneys';
+    if (node.name.toLowerCase().includes('target')) return 'Target Tissue';
+    return node.name.split(' ')[0];
+  };
 
   return (
     <section
@@ -168,38 +173,47 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
           </circle>
         </svg>
 
-        {/* Interactive Hotspot Waypoint Nodes Overlaid at Anatomical Landmarks */}
-        {LANDMARK_HOTSPOTS.map((spot) => {
-          const isActive = spot.id === selectedNodeId;
+        {/* Data-Driven Interactive Hotspots Overlaid at Anatomical Landmarks */}
+        {nodes.map((node, index) => {
+          const isActive = node.id === selectedNodeId;
+          const config = HOTSPOT_COORDINATES[node.id] || {
+            top: `${14 + (index / Math.max(1, nodes.length - 1)) * 62}%`,
+            left: '48%',
+            ringColor: 'var(--brand-cyan)',
+            dotColor: 'var(--brand-cyan)',
+            defaultLabel: node.name.split(' ')[0],
+          };
+
+          const label = getDisplayName(node);
 
           return (
             <button
-              key={spot.id}
+              key={node.id}
               type="button"
               className={`viewport-hotspot ${isActive ? 'viewport-hotspot--active' : ''}`}
               style={{
-                top: spot.top,
-                left: spot.left,
-                right: spot.right,
+                top: config.top,
+                left: config.left,
+                right: config.right,
               }}
-              onClick={() => onSelectNode(spot.id)}
-              aria-label={`Select landmark waypoint: ${spot.name}`}
+              onClick={() => onSelectNode(node.id)}
+              aria-label={`Select landmark waypoint: ${label}`}
             >
               {/* Pulsing halo */}
               <div
                 className="viewport-hotspot__ring"
-                style={{ borderColor: isActive ? 'var(--brand-cyan)' : spot.ringColor }}
+                style={{ borderColor: isActive ? 'var(--brand-cyan)' : config.ringColor }}
               >
                 {isActive && <span className="viewport-hotspot__pulse" />}
                 <span
                   className="viewport-hotspot__dot"
-                  style={{ background: isActive ? 'var(--brand-cyan)' : spot.dotColor }}
+                  style={{ background: isActive ? 'var(--brand-cyan)' : config.dotColor }}
                 />
               </div>
 
               {/* Label Pill */}
               <div className="viewport-hotspot__pill">
-                <span>{spot.name}</span>
+                <span>{label}</span>
                 {isActive && (
                   <span
                     style={{

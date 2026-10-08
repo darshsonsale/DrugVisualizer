@@ -41,6 +41,17 @@ export const TimelineBar: React.FC<TimelineBarProps> = ({
     ? Math.round(((activeIdx + 1) / nodes.length) * 100)
     : 100;
 
+  const getShortLabel = (name: string) => {
+    if (name.toLowerCase().includes('mouth') || name.toLowerCase().includes('oral')) return 'Mouth';
+    if (name.toLowerCase().includes('stomach')) return 'Stomach';
+    if (name.toLowerCase().includes('intestine')) return 'Intestine';
+    if (name.toLowerCase().includes('liver')) return 'Liver';
+    if (name.toLowerCase().includes('bloodstream')) return 'Blood';
+    if (name.toLowerCase().includes('target')) return 'Target';
+    if (name.toLowerCase().includes('kidney')) return 'Kidneys';
+    return name.split(' ')[0];
+  };
+
   return (
     <footer className="timeline-strip" aria-label="Pharmacokinetic Progression Timeline">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -105,7 +116,7 @@ export const TimelineBar: React.FC<TimelineBarProps> = ({
                 </div>
 
                 <span className="timeline-node-label">
-                  {node.name.split(' ')[0]}
+                  {getShortLabel(node.name)}
                 </span>
               </button>
             );
