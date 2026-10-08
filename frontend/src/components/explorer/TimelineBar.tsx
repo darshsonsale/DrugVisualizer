@@ -85,7 +85,7 @@ export const TimelineBar: React.FC<TimelineBarProps> = ({
         </div>
 
         {/* Milestone Node Dots Row */}
-        <div className="timeline-nodes-row">
+        <div className="timeline-nodes-row" role="tablist" aria-label="Timeline milestone stages">
           {nodes.map((node, index) => {
             const isActive = node.id === selectedNodeId;
             const isCompleted = index <= activeIdx;
@@ -95,6 +95,9 @@ export const TimelineBar: React.FC<TimelineBarProps> = ({
               <button
                 key={node.id}
                 type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-current={isActive ? 'step' : undefined}
                 className={`timeline-node-item ${isActive ? 'timeline-node-item--active' : ''}`}
                 onClick={() => onSelectNode(node.id)}
                 aria-label={`Jump to stage ${stepNumber}: ${node.name}`}

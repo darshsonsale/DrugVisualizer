@@ -106,6 +106,12 @@
   gap: 0.625rem;
 }
 
+.milestone-rail__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .milestone-rail__header {
   display: flex;
   align-items: center;
@@ -508,3 +514,219 @@
 .timeline-node-item--active .timeline-node-label {
   color: var(--text-main);
 }
+
+/* ----------------------------------------------------
+   Accessibility & Focus-Visible States
+   ---------------------------------------------------- */
+.milestone-btn:focus-visible,
+.timeline-node-item:focus-visible,
+.viewport-hotspot:focus-visible,
+.inspector-nav-btn:focus-visible,
+.inspector-card button:focus-visible,
+.explorer-header-strip button:focus-visible,
+.viewport-controls button:focus-visible {
+  outline: 2px solid var(--brand-cyan) !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .milestone-btn,
+  .viewport-canvas-interactive-wrapper,
+  .viewport-hotspot,
+  .timeline-track-fill,
+  .timeline-node-dot,
+  .inspector-organ-img {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ----------------------------------------------------
+   Responsive Layouts: Tablet (768px - 1023px)
+   ---------------------------------------------------- */
+@media (max-width: 1023px) {
+  .explorer-workspace {
+    padding: 1rem 1.25rem 2.5rem;
+    gap: 1.25rem;
+  }
+
+  .explorer-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .viewport-stage {
+    height: 520px;
+  }
+
+  .inspector-card {
+    margin-top: 0;
+  }
+}
+
+/* ----------------------------------------------------
+   Responsive Layouts: Mobile (< 768px)
+   ---------------------------------------------------- */
+@media (max-width: 767px) {
+  .explorer-workspace {
+    padding: 0.75rem 0.85rem 2.5rem;
+    gap: 1rem;
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Header Strip Mobile */
+  .explorer-header-strip {
+    padding: 0.875rem 1rem;
+    gap: 0.875rem;
+    border-radius: var(--radius-lg, 14px);
+  }
+
+  .explorer-drug-badge {
+    gap: 0.75rem;
+  }
+
+  .explorer-drug-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 0.75rem;
+  }
+
+  .explorer-telemetry-group {
+    width: 100%;
+    justify-content: space-around;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .explorer-telemetry-item {
+    gap: 0.5rem;
+  }
+
+  /* Left Rail collapses into horizontal swipeable strip on mobile */
+  .milestone-rail {
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+
+  .milestone-rail__nav {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.5rem;
+    gap: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 229, 255, 0.3) transparent;
+  }
+
+  .milestone-rail__nav::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .milestone-rail__nav::-webkit-scrollbar-track {
+    background: rgba(8, 15, 24, 0.4);
+    border-radius: 4px;
+  }
+
+  .milestone-rail__nav::-webkit-scrollbar-thumb {
+    background: rgba(0, 229, 255, 0.3);
+    border-radius: 4px;
+  }
+
+  .milestone-btn {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 175px;
+    max-width: 230px;
+    padding: 0.65rem 0.85rem;
+    scroll-snap-align: start;
+  }
+
+  .milestone-btn .milestone-btn__accent {
+    top: 0.25rem;
+    bottom: 0.25rem;
+  }
+
+  .milestone-btn .material-symbols-outlined {
+    display: none;
+  }
+
+  /* Viewport Stage on mobile */
+  .viewport-stage {
+    height: 460px;
+    border-radius: var(--radius-lg, 16px);
+  }
+
+  .viewport-hud {
+    top: 0.65rem;
+    right: 0.65rem;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.575rem;
+  }
+
+  .viewport-controls {
+    bottom: 0.65rem;
+    left: 0.65rem;
+    gap: 0.25rem;
+    padding: 0.25rem;
+  }
+
+  /* Hotspot labels touch friendly */
+  .viewport-hotspot__pill {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  /* Node Inspector Mobile card */
+  .inspector-card {
+    padding: 1.15rem;
+    border-radius: var(--radius-lg, 16px);
+    gap: 1rem;
+  }
+
+  .inspector-organ-view {
+    height: 140px;
+  }
+
+  /* Timeline Strip Mobile */
+  .timeline-strip {
+    padding: 1.15rem;
+    border-radius: var(--radius-lg, 14px);
+    gap: 0.75rem;
+    overflow-x: hidden;
+  }
+
+  .timeline-nodes-row {
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+
+  .timeline-nodes-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .timeline-node-item {
+    flex: 0 0 auto;
+    min-width: 44px;
+    padding: 0.25rem 0;
+  }
+
+  .timeline-node-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .timeline-node-label {
+    font-size: 0.675rem;
+    white-space: nowrap;
+  }
+}
+

@@ -164,9 +164,10 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             type="button"
             disabled={!prevNode}
             onClick={() => prevNode && onSelectNode(prevNode.id)}
+            className="inspector-nav-btn"
             style={{
-              width: '28px',
-              height: '28px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
               background: 'var(--bg-surface-raised)',
               color: prevNode ? 'var(--text-main)' : 'rgba(186, 201, 204, 0.3)',
@@ -186,9 +187,10 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             type="button"
             disabled={!nextNode}
             onClick={() => nextNode && onSelectNode(nextNode.id)}
+            className="inspector-nav-btn"
             style={{
-              width: '28px',
-              height: '28px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
               background: 'var(--bg-surface-raised)',
               color: nextNode ? 'var(--text-main)' : 'rgba(186, 201, 204, 0.3)',
@@ -271,6 +273,8 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
 
       {/* Context Switcher Tabs */}
       <div
+        role="tablist"
+        aria-label="Inspector perspectives"
         style={{
           display: 'flex',
           background: '#080f18',
@@ -287,10 +291,13 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             <button
               key={tab}
               type="button"
+              role="tab"
+              aria-selected={isActive}
               onClick={() => onTabChange(tab)}
               style={{
                 flex: 1,
-                padding: '0.45rem 0.25rem',
+                padding: '0.5rem 0.25rem',
+                minHeight: '36px',
                 fontSize: '0.75rem',
                 fontWeight: isActive ? 700 : 500,
                 textAlign: 'center',
@@ -470,7 +477,8 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
           type="button"
           onClick={() => navigate('/quiz')}
           style={{
-            padding: '0.35rem 0.85rem',
+            padding: '0.4rem 0.95rem',
+            minHeight: '36px',
             borderRadius: '9999px',
             background: 'var(--bg-surface-raised)',
             color: 'var(--text-main)',
@@ -480,6 +488,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             cursor: 'pointer',
             transition: 'background 0.2s ease',
           }}
+          aria-label={`Verify stage check for ${selectedNode.name}`}
         >
           Verify
         </button>

@@ -36,7 +36,11 @@ export const MilestoneRail: React.FC<MilestoneRailProps> = ({
         </span>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <nav
+        className="milestone-rail__nav"
+        role="tablist"
+        aria-label="Milestone stages"
+      >
         {nodes.map((node, index) => {
           const isActive = node.id === selectedNodeId;
           const stageNumber = node.node_order || index + 1;
@@ -46,6 +50,8 @@ export const MilestoneRail: React.FC<MilestoneRailProps> = ({
             <button
               key={node.id}
               type="button"
+              role="tab"
+              aria-selected={isActive}
               className={`milestone-btn ${isActive ? 'milestone-btn--active' : ''}`}
               onClick={() => onSelectNode(node.id)}
               aria-current={isActive ? 'step' : undefined}
