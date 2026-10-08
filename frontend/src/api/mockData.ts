@@ -291,6 +291,10 @@ export const MOCK_IBUPROFEN_PATHWAY_BEFORE_FOOD: PathwayGraphResponse = {
 // Fed state variation
 export const MOCK_IBUPROFEN_PATHWAY_AFTER_FOOD: PathwayGraphResponse = {
   ...MOCK_IBUPROFEN_PATHWAY_BEFORE_FOOD,
+  drug: {
+    ...MOCK_DRUGS[0],
+    tmax_hours: 2.5,
+  },
   pathway: {
     id: 'pathway-ibuprofen-fed',
     drug_id: 'drug-ibuprofen-001',

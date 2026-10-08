@@ -15,14 +15,9 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
   onConditionChange,
   loading = false,
 }) => {
-  const isBeforeFood = condition === 'BEFORE_FOOD';
-
-  // Dynamic clinical readouts matching condition state
-  const tmaxDisplay = isBeforeFood
-    ? `${drug.tmax_hours ?? 1.2} hrs`
-    : '2.5 hrs';
-
-  const absorptionIndex = `${drug.bioavailability_pct ?? 85.0}%`;
+  // Scientific telemetry readouts derived directly from the drug data object
+  const tmaxDisplay = drug.tmax_hours != null ? `${drug.tmax_hours} hrs` : '—';
+  const absorptionIndex = drug.bioavailability_pct != null ? `${drug.bioavailability_pct}%` : '—';
 
   return (
     <header className="explorer-header-strip" aria-label="Pathway Explorer Header Controls">

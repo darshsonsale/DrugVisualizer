@@ -162,6 +162,7 @@ export const ExplorerPage: React.FC = () => {
           onSelectNode={handleSelectNode}
           isAutoTransitActive={isAutoTransitActive}
           onToggleAutoTransit={handleToggleAutoTransit}
+          condition={condition}
         />
 
         {/* Right Column: Node Detailed Inspector Drawer */}

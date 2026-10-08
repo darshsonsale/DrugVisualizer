@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { PathwayNodeWithDetails, PathwayEdge } from '../../api/types';
+import { PathwayNodeWithDetails, PathwayEdge, FoodCondition } from '../../api/types';
 
 export interface Viewport3DCanvasProps {
   nodes: PathwayNodeWithDetails[];
@@ -8,6 +8,7 @@ export interface Viewport3DCanvasProps {
   onSelectNode: (nodeId: string) => void;
   isAutoTransitActive?: boolean;
   onToggleAutoTransit?: () => void;
+  condition?: FoodCondition;
 }
 
 // Anatomical coordinate layout registry for the realistic 3D human figure
@@ -27,6 +28,7 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
   onSelectNode,
   isAutoTransitActive = false,
   onToggleAutoTransit,
+  condition = 'BEFORE_FOOD',
 }) => {
   // Interactive 3D Parallax Tilt state
   const [tilt, setTilt] = useState<{ rotateX: number; rotateY: number; scale: number }>({
@@ -158,14 +160,14 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
           <circle cx="288" cy="112" r="4.5" fill="#c3f5ff" filter="url(#neon-glow)">
             <animate
               attributeName="cy"
-              dur="6s"
+              dur={condition === 'AFTER_FOOD' ? '8.5s' : '5.5s'}
               keyTimes="0;0.18;0.45;0.78;1"
               repeatCount="indefinite"
               values="112;198;280;470;595"
             />
             <animate
               attributeName="cx"
-              dur="6s"
+              dur={condition === 'AFTER_FOOD' ? '8.5s' : '5.5s'}
               keyTimes="0;0.18;0.45;0.78;1"
               repeatCount="indefinite"
               values="288;298;320;305;315"
@@ -335,6 +337,7 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
       <div className="viewport-hud" aria-hidden="true">
         <div>FOV: 58° • ORTHO: OFF</div>
         <div>SLICE: CORONAL T2</div>
+        <div>REGIMEN: {condition === 'AFTER_FOOD' ? 'FED (BUFFERED)' : 'FASTED (RAPID)'}</div>
         <div style={{ color: 'var(--brand-cyan)', fontWeight: 700, marginTop: '0.15rem' }}>
           3D REALISTIC MODEL: ACTIVE
         </div>

@@ -129,6 +129,20 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
     bodyContent = metrics.funFact;
   }
 
+  const formatMinutes = (mins: number) => {
+    if (mins <= 60) return `${mins} min`;
+    const hours = (mins / 60).toFixed(1);
+    return `~${hours} hrs`;
+  };
+
+  const displayedTimeValue = selectedNode.estimated_time_minutes != null
+    ? formatMinutes(selectedNode.estimated_time_minutes)
+    : metrics.timeValue;
+
+  const displayedPhValue = selectedNode.content?.micro_environment_ph != null
+    ? `pH ${selectedNode.content.micro_environment_ph.toFixed(1)}`
+    : metrics.phValue;
+
   return (
     <aside className="inspector-card" aria-label="Waypoint Detailed Inspector">
       {/* Header & Prev/Next Stage Buttons */}
@@ -308,6 +322,65 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
         </p>
       </div>
 
+      {/* Condition Variation Clinical Callout (Data-Driven from selectedNode.variation) */}
+      {selectedNode.variation && (
+        <div
+          style={{
+            padding: '0.65rem 0.85rem',
+            borderRadius: 'var(--radius-md, 8px)',
+            background:
+              selectedNode.variation.condition === 'AFTER_FOOD'
+                ? 'rgba(78, 222, 163, 0.08)'
+                : 'rgba(0, 229, 255, 0.08)',
+            border: `1px solid ${
+              selectedNode.variation.condition === 'AFTER_FOOD'
+                ? 'rgba(78, 222, 163, 0.28)'
+                : 'rgba(0, 229, 255, 0.28)'
+            }`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.25rem',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              color:
+                selectedNode.variation.condition === 'AFTER_FOOD'
+                  ? 'var(--brand-emerald)'
+                  : 'var(--brand-cyan)',
+            }}
+          >
+            <span className="material-symbols-outlined text-[15px]">
+              {selectedNode.variation.condition === 'AFTER_FOOD' ? 'restaurant' : 'timer'}
+            </span>
+            {selectedNode.variation.condition === 'AFTER_FOOD' ? 'Fed State Dynamics' : 'Fasting Dynamics'}
+            {selectedNode.variation.transit_time_modifier_pct !== undefined &&
+              selectedNode.variation.transit_time_modifier_pct !== 0 && (
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    fontSize: '0.65rem',
+                    padding: '0.1rem 0.35rem',
+                    borderRadius: '4px',
+                    background: 'rgba(0,0,0,0.3)',
+                    color: 'var(--text-main)',
+                  }}
+                >
+                  Transit {selectedNode.variation.transit_time_modifier_pct > 0 ? `+${selectedNode.variation.transit_time_modifier_pct}%` : `${selectedNode.variation.transit_time_modifier_pct}%`}
+                </span>
+              )}
+          </div>
+          <span style={{ fontSize: '0.775rem', lineHeight: 1.45, color: 'var(--text-main)' }}>
+            {selectedNode.variation.clinical_observation}
+          </span>
+        </div>
+      )}
+
       {/* Physiological Telemetry Metric Grid */}
       <div className="inspector-metric-grid">
         <div className="inspector-metric-cell">
@@ -318,7 +391,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             {metrics.phLabel}
           </div>
           <span style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>
-            {metrics.phValue}
+            {displayedPhValue}
           </span>
         </div>
 
@@ -330,7 +403,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             {metrics.timeLabel}
           </div>
           <span style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>
-            {metrics.timeValue}
+            {displayedTimeValue}
           </span>
         </div>
       </div>
