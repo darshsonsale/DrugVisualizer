@@ -25,7 +25,10 @@
     "test:pathways": "tsx src/database/verifyPathways.ts",
     "test:security": "tsx src/database/verifySecurityValidation.ts",
     "test:contract": "tsx src/database/verifyApiContract.ts",
-    "test:content": "tsx src/database/verifyContent.ts"
+    "test:content": "tsx src/database/verifyContent.ts",
+    "test:condition-content": "tsx src/database/verifyConditionContent.ts",
+    "test:quiz-bank": "tsx src/database/verifyQuizBank.ts",
+    "test:seeder": "tsx src/database/verifySeeder.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

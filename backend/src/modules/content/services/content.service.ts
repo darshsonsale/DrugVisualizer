@@ -1,12 +1,16 @@
 import { getPool } from '../../../database/pool.js';
 import { NotFoundError } from '../../../common/errors/AppError.js';
 import { drugsService } from '../../drugs/services/drugs.service.js';
+import { validateFoodCondition } from '../../pathways/validation/condition.validation.js';
+import type { FoodCondition } from '../../pathways/models/variation.model.js';
 import type { DefinedTermDto } from '../../pathways/dto/pathway.dto.js';
 import type {
   DrugEducationalContentDto,
   EducationalNodeDto,
   DrugFaqDto,
-  AdmeSummaryDto
+  AdmeSummaryDto,
+  PathwayVariationSummaryDto,
+  NodeVariationDetailDto
 } from '../dto/content.dto.js';
 
 interface RawContentNodeRow {
@@ -26,6 +30,12 @@ interface RawContentNodeRow {
   defined_terms: Array<{ term: string; definition: string }> | string | null;
   references_list: string[] | null;
   review_status: string | null;
+  variation_id: string | null;
+  variation_condition: FoodCondition | null;
+  transit_time_modifier_pct: string | number | null;
+  absorption_modifier_pct: string | number | null;
+  clinical_observation: string | null;
+  variation_notes: string | null;
 }
 
 const SOURCED_ADME_DATA: Record<string, AdmeSummaryDto> = {
@@ -210,8 +220,12 @@ export class ContentService {
   /**
    * Retrieves comprehensive, structured educational content for a drug.
    * Supports canonical ID ('drug-ibuprofen-001') and short slug ('ibuprofen').
+   * Supports condition parameter ('BEFORE_FOOD' | 'AFTER_FOOD'), defaulting to 'BEFORE_FOOD'.
    */
-  public async getDrugEducationalContent(drugIdentifier: string): Promise<DrugEducationalContentDto> {
+  public async getDrugEducationalContent(
+    drugIdentifier: string,
+    conditionInput?: string
+  ): Promise<DrugEducationalContentDto> {
     // 1. Resolve drug record
     const drug = await drugsService.getDrugById(drugIdentifier);
 
@@ -225,7 +239,36 @@ export class ContentService {
     }
     const pathwayId = pathwayRes.rows[0].id;
 
-    // 3. Query all pathway nodes with structured educational content
+    // 3. Resolve and validate condition
+    const condition = validateFoodCondition(conditionInput || 'BEFORE_FOOD');
+
+    // 4. Query pathway variation for this drug and condition
+    const variationQuery = `
+      SELECT id, condition, name, description
+      FROM pathway_variations
+      WHERE pathway_id = $1 AND condition = $2
+      LIMIT 1;
+    `;
+    const variationRes = await getPool().query<{
+      id: string;
+      condition: FoodCondition;
+      name: string;
+      description: string | null;
+    }>(variationQuery, [pathwayId, condition]);
+
+    let pathwayVariation: PathwayVariationSummaryDto | undefined;
+    if (variationRes.rows.length > 0) {
+      const v = variationRes.rows[0];
+      pathwayVariation = {
+        id: v.id,
+        condition: v.condition,
+        name: v.name,
+        description: v.description,
+        review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
+      };
+    }
+
+    // 5. Query all pathway nodes with structured educational content and node variation
     const nodesQuery = `
       SELECT
         pn.id,
@@ -243,13 +286,20 @@ export class ContentService {
         nc.key_takeaway,
         nc.defined_terms,
         nc.references_list,
-        nc.review_status
+        nc.review_status,
+        nv.id AS variation_id,
+        nv.condition AS variation_condition,
+        nv.transit_time_modifier_pct,
+        nv.absorption_modifier_pct,
+        nv.clinical_observation,
+        nv.notes AS variation_notes
       FROM pathway_nodes pn
       LEFT JOIN node_content nc ON nc.node_id = pn.id
+      LEFT JOIN node_variations nv ON nv.node_id = pn.id AND nv.condition = $2
       WHERE pn.pathway_id = $1
       ORDER BY pn.node_order ASC;
     `;
-    const nodesRes = await getPool().query<RawContentNodeRow>(nodesQuery, [pathwayId]);
+    const nodesRes = await getPool().query<RawContentNodeRow>(nodesQuery, [pathwayId, condition]);
 
     const educationalNodes: EducationalNodeDto[] = nodesRes.rows.map((row) => {
       let parsedTerms: DefinedTermDto[] = [];
@@ -265,13 +315,38 @@ export class ContentService {
         }
       }
 
+      const baseTime = parseFloat(String(row.estimated_time_minutes));
+      const modifierPct =
+        row.transit_time_modifier_pct != null
+          ? parseFloat(String(row.transit_time_modifier_pct))
+          : 0;
+      const effectiveEstimatedTime =
+        modifierPct !== 0
+          ? Math.round(baseTime * (1 + modifierPct / 100) * 100) / 100
+          : baseTime;
+
+      let variation: NodeVariationDetailDto | undefined;
+      if (row.variation_id && row.variation_condition) {
+        variation = {
+          condition: row.variation_condition,
+          transit_time_modifier_pct: modifierPct,
+          absorption_modifier_pct:
+            row.absorption_modifier_pct != null
+              ? parseFloat(String(row.absorption_modifier_pct))
+              : 0,
+          clinical_observation: row.clinical_observation ?? undefined,
+          notes: row.variation_notes ?? undefined,
+          review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
+        };
+      }
+
       return {
         node_id: row.id,
         name: row.name,
         node_order: row.node_order,
         anatomical_location: row.anatomical_location,
         organ_system: row.organ_system,
-        estimated_time_minutes: parseFloat(String(row.estimated_time_minutes)),
+        estimated_time_minutes: effectiveEstimatedTime,
         general_description: row.general_description || '',
         physiological_role: row.physiological_role || '',
         key_takeaway: row.key_takeaway || '',
@@ -280,7 +355,8 @@ export class ContentService {
         micro_environment_ph:
           row.micro_environment_ph != null ? parseFloat(String(row.micro_environment_ph)) : undefined,
         references_list: row.references_list || [],
-        review_status: row.review_status || 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
+        review_status: row.review_status || 'FLAGGED_FOR_SCIENTIFIC_REVIEW',
+        variation
       };
     });
 
@@ -295,9 +371,18 @@ export class ContentService {
 
     const faqs = SOURCED_FAQS[drug.id] || [];
 
+    const isFoodDependent = drug.id !== 'drug-insulin-004';
+    const limitationNote = !isFoodDependent
+      ? 'Parenteral Administration: Subcutaneous absorption kinetics are completely independent of gastrointestinal meal state.'
+      : undefined;
+
     return {
       drug,
       pathway_id: pathwayId,
+      condition,
+      is_food_dependent: isFoodDependent,
+      limitation_note: limitationNote,
+      pathway_variation: pathwayVariation,
       review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW',
       adme_overview: admeOverview,
       nodes: educationalNodes,

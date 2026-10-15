@@ -1,5 +1,15 @@
 import type { DrugSummaryDto } from '../../drugs/dto/drug.dto.js';
 import type { DefinedTermDto } from '../../pathways/dto/pathway.dto.js';
+import type { FoodCondition } from '../../pathways/models/variation.model.js';
+
+export interface NodeVariationDetailDto {
+  condition: FoodCondition;
+  transit_time_modifier_pct: number;
+  absorption_modifier_pct: number;
+  clinical_observation?: string;
+  notes?: string;
+  review_status?: string;
+}
 
 export interface EducationalNodeDto {
   node_id: string;
@@ -16,6 +26,7 @@ export interface EducationalNodeDto {
   micro_environment_ph?: number;
   references_list: string[];
   review_status: string;
+  variation?: NodeVariationDetailDto;
 }
 
 export interface DrugFaqDto {
@@ -35,9 +46,22 @@ export interface AdmeSummaryDto {
   review_status: string;
 }
 
+export interface PathwayVariationSummaryDto {
+  id: string;
+  condition: FoodCondition;
+  name: string;
+  description: string | null;
+  clinical_significance?: string | null;
+  review_status: string;
+}
+
 export interface DrugEducationalContentDto {
   drug: DrugSummaryDto;
   pathway_id: string;
+  condition?: FoodCondition;
+  is_food_dependent?: boolean;
+  limitation_note?: string;
+  pathway_variation?: PathwayVariationSummaryDto;
   review_status: string;
   adme_overview: AdmeSummaryDto;
   nodes: EducationalNodeDto[];

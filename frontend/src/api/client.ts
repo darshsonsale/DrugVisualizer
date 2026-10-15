@@ -87,12 +87,20 @@ export class ApiClient {
     const url = this.buildUrl(endpoint, options.params);
     const timeoutMs = options.timeoutMs ?? this.defaultTimeoutMs;
 
+    let didTimeout = false;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const timeoutId = setTimeout(() => {
+      didTimeout = true;
+      controller.abort();
+    }, timeoutMs);
 
     // If caller provided their own abort signal, link it
     if (options.signal) {
-      options.signal.addEventListener('abort', () => controller.abort());
+      if (options.signal.aborted) {
+        controller.abort();
+      } else {
+        options.signal.addEventListener('abort', () => controller.abort());
+      }
     }
 
     const headers: Record<string, string> = {
@@ -171,6 +179,10 @@ export class ApiClient {
       }
 
       if (err instanceof DOMException && err.name === 'AbortError') {
+        if (!didTimeout) {
+          // Caller explicitly cancelled (e.g. navigation / unmount); rethrow standard DOMException
+          throw err;
+        }
         throw new ApiError(
           `Request to ${endpoint} timed out after ${timeoutMs}ms`,
           408,

@@ -81,6 +81,7 @@ async function runQuizProgressVerification(): Promise<void> {
     );
 
     // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // TEST 2: GET /api/v1/quizzes/drug/:drugId (Quiz by Drug Lookup)
     // -------------------------------------------------------------------------
     const drugQuizRes = await fetch(`${baseUrl}/quizzes/drug/drug-ibuprofen-001`);
@@ -90,16 +91,24 @@ async function runQuizProgressVerification(): Promise<void> {
       drugQuizBody.success === true &&
       drugQuizBody.data?.id === 'quiz-ibuprofen-001';
 
-    const missingDrugQuizRes = await fetch(`${baseUrl}/quizzes/drug/drug-amoxicillin-002`);
+    const amoxQuizRes = await fetch(`${baseUrl}/quizzes/drug/drug-amoxicillin-002`);
+    const ambQuizRes = await fetch(`${baseUrl}/quizzes/drug/drug-ambroxol-003`);
+    const insQuizRes = await fetch(`${baseUrl}/quizzes/drug/drug-insulin-004`);
+    const allFourSeeded =
+      amoxQuizRes.status === 200 &&
+      ambQuizRes.status === 200 &&
+      insQuizRes.status === 200;
+
+    const missingDrugQuizRes = await fetch(`${baseUrl}/quizzes/drug/drug-unknown-999`);
     const missingDrugQuizBody: any = await missingDrugQuizRes.json();
     const missingValid =
       missingDrugQuizRes.status === 404 &&
       missingDrugQuizBody.error?.code === 'RESOURCE_NOT_FOUND';
 
     record(
-      'GET /api/v1/quizzes/drug/:drugId finds quiz for Ibuprofen and returns 404 for Amoxicillin',
-      drugQuizValid && missingValid,
-      `ibuprofenStatus=${drugQuizRes.status}, amoxicillinStatus=${missingDrugQuizRes.status}`
+      'GET /api/v1/quizzes/drug/:drugId finds quizzes for all 4 drugs and returns 404 for unseeded drug',
+      drugQuizValid && allFourSeeded && missingValid,
+      `ibuprofenStatus=${drugQuizRes.status}, amoxStatus=${amoxQuizRes.status}, unseededStatus=${missingDrugQuizRes.status}`
     );
 
     // -------------------------------------------------------------------------
@@ -142,9 +151,9 @@ async function runQuizProgressVerification(): Promise<void> {
     );
 
     // -------------------------------------------------------------------------
-    // TEST 5: Zero-Trust Server Grading (Client-Supplied Score Ignored)
+    // TEST 5: Zero-Trust Server Grading (Client-Supplied Score Ignored, 2/5 = 40% Fail)
     // -------------------------------------------------------------------------
-    // Submit 1 correct (opt1-b) and 1 incorrect (opt2-a), while attempting to claim 100% score
+    // Submit 2 correct (opt1-b, opt3-a) and 3 incorrect, while attempting to claim 100% score
     const gradeRes = await fetch(`${baseUrl}/quizzes/quiz-ibuprofen-001/attempts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -153,7 +162,10 @@ async function runQuizProgressVerification(): Promise<void> {
         passed: true,
         answers: [
           { question_id: 'q1', selected_option_id: 'opt1-b' }, // correct
-          { question_id: 'q2', selected_option_id: 'opt2-a' }  // incorrect
+          { question_id: 'q2', selected_option_id: 'opt2-a' }, // incorrect
+          { question_id: 'q3', selected_option_id: 'opt3-a' }, // correct
+          { question_id: 'q4', selected_option_id: 'opt4-b' }, // incorrect
+          { question_id: 'q5', selected_option_id: 'opt5-a' }  // incorrect
         ]
       })
     });
@@ -161,9 +173,9 @@ async function runQuizProgressVerification(): Promise<void> {
     const data = gradeBody.data;
     const gradingAccurate =
       gradeRes.status === 200 &&
-      data.score === 50 &&
-      data.total_questions === 2 &&
-      data.correct_answers === 1 &&
+      data.score === 40 &&
+      data.total_questions === 5 &&
+      data.correct_answers === 2 &&
       data.passed === false &&
       Array.isArray(data.details) &&
       data.details.find((d: any) => d.question_id === 'q1')?.correct === true &&
@@ -171,13 +183,13 @@ async function runQuizProgressVerification(): Promise<void> {
       Boolean(data.details.find((d: any) => d.question_id === 'q1')?.explanation);
 
     record(
-      'Server-side grading ignores client score, evaluates 50% (failed), and unlocks post-submission explanations',
+      'Server-side grading ignores client score, evaluates 40% (2/5 failed), and unlocks post-submission explanations',
       gradingAccurate,
       `status=${gradeRes.status}, serverCalculatedScore=${data?.score}, passed=${data?.passed}`
     );
 
     // -------------------------------------------------------------------------
-    // TEST 6: Anonymous Quiz Flow (No Database Persistence)
+    // TEST 6: Anonymous Quiz Flow (No Database Persistence, 5/5 = 100% Pass)
     // -------------------------------------------------------------------------
     const pool = getPool();
     const beforeAnonCountRes = await pool.query<{ count: string }>(
@@ -191,7 +203,10 @@ async function runQuizProgressVerification(): Promise<void> {
       body: JSON.stringify({
         answers: [
           { question_id: 'q1', selected_option_id: 'opt1-b' },
-          { question_id: 'q2', selected_option_id: 'opt2-b' }
+          { question_id: 'q2', selected_option_id: 'opt2-b' },
+          { question_id: 'q3', selected_option_id: 'opt3-a' },
+          { question_id: 'q4', selected_option_id: 'opt4-a' },
+          { question_id: 'q5', selected_option_id: 'opt5-b' }
         ]
       })
     });
@@ -205,6 +220,7 @@ async function runQuizProgressVerification(): Promise<void> {
       anonRes.status === 200 &&
       anonBody.data?.score === 100 &&
       anonBody.data?.passed === true &&
+      anonBody.data?.total_questions === 5 &&
       anonBody.data?.user_id === undefined &&
       afterAnonCount === beforeAnonCount; // Verified zero persistence
 
@@ -227,7 +243,10 @@ async function runQuizProgressVerification(): Promise<void> {
       body: JSON.stringify({
         answers: [
           { question_id: 'q1', selected_option_id: 'opt1-b' },
-          { question_id: 'q2', selected_option_id: 'opt2-b' }
+          { question_id: 'q2', selected_option_id: 'opt2-b' },
+          { question_id: 'q3', selected_option_id: 'opt3-a' },
+          { question_id: 'q4', selected_option_id: 'opt4-a' },
+          { question_id: 'q5', selected_option_id: 'opt5-b' }
         ]
       })
     });
@@ -252,7 +271,7 @@ async function runQuizProgressVerification(): Promise<void> {
       authBody.data?.score === 100 &&
       authBody.data?.passed === true &&
       attemptInDb.rows.length === 1 &&
-      answersInDb.rows.length === 2 &&
+      answersInDb.rows.length === 5 &&
       progressInDb.rows.length === 1 &&
       Number(progressInDb.rows[0].quiz_score) === 100 &&
       progressInDb.rows[0].quiz_completed === true;

@@ -9,7 +9,7 @@ import {
   QuizAttemptSubmission,
   QuizAttemptResult,
 } from '../api/types';
-import { MOCK_IBUPROFEN_QUIZ } from '../api/mockData';
+import { MOCK_IBUPROFEN_QUIZ, MOCK_QUIZZES_BY_DRUG } from '../api/mockData';
 import { ServiceFetchResult, FetchOptions } from './pathwayService';
 
 export class QuizService {
@@ -18,22 +18,27 @@ export class QuizService {
   }
 
   /**
-   * Retrieves quiz questions and options for a given quiz ID.
+   * Retrieves quiz questions and options for a given quiz ID or drug ID.
    */
   public static async getQuiz(
-    quizId: string,
+    quizOrDrugId: string,
     options: FetchOptions = {}
   ): Promise<ServiceFetchResult<QuizResponse>> {
+    if (quizOrDrugId.startsWith('drug-')) {
+      return this.getQuizForDrug(quizOrDrugId, options);
+    }
+
     if (options.preferMock) {
+      const mockQuiz = Object.values(MOCK_QUIZZES_BY_DRUG).find((q) => q.id === quizOrDrugId) || MOCK_IBUPROFEN_QUIZ;
       return {
-        data: MOCK_IBUPROFEN_QUIZ,
+        data: mockQuiz,
         isMockData: true,
         source: 'mock-fixture',
       };
     }
 
     try {
-      const data = await apiClient.get<QuizResponse>(`/quizzes/${encodeURIComponent(quizId)}`, {
+      const data = await apiClient.get<QuizResponse>(`/quizzes/${encodeURIComponent(quizOrDrugId)}`, {
         signal: options.signal,
       });
       return {
@@ -43,12 +48,55 @@ export class QuizService {
       };
     } catch (err: unknown) {
       if (this.isMockFallbackAllowed()) {
+        const mockQuiz = Object.values(MOCK_QUIZZES_BY_DRUG).find((q) => q.id === quizOrDrugId) || MOCK_IBUPROFEN_QUIZ;
         console.warn(
-          `[QuizService] Real API request failed for /quizzes/${quizId}. VITE_ENABLE_MOCK_FALLBACK is enabled in development. Serving development mock fixture.`,
+          `[QuizService] Real API request failed for /quizzes/${quizOrDrugId}. Serving developmental mock fixture.`,
           err
         );
         return {
-          data: MOCK_IBUPROFEN_QUIZ,
+          data: mockQuiz,
+          isMockData: true,
+          source: 'mock-fixture',
+        };
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieves quiz for a specific drug ID.
+   */
+  public static async getQuizForDrug(
+    drugId: string,
+    options: FetchOptions = {}
+  ): Promise<ServiceFetchResult<QuizResponse>> {
+    if (options.preferMock) {
+      const mockQuiz = MOCK_QUIZZES_BY_DRUG[drugId] || MOCK_IBUPROFEN_QUIZ;
+      return {
+        data: mockQuiz,
+        isMockData: true,
+        source: 'mock-fixture',
+      };
+    }
+
+    try {
+      const data = await apiClient.get<QuizResponse>(`/quizzes/drug/${encodeURIComponent(drugId)}`, {
+        signal: options.signal,
+      });
+      return {
+        data,
+        isMockData: false,
+        source: 'api',
+      };
+    } catch (err: unknown) {
+      if (this.isMockFallbackAllowed()) {
+        const mockQuiz = MOCK_QUIZZES_BY_DRUG[drugId] || MOCK_IBUPROFEN_QUIZ;
+        console.warn(
+          `[QuizService] Real API request failed for /quizzes/drug/${drugId}. Serving developmental mock fixture.`,
+          err
+        );
+        return {
+          data: mockQuiz,
           isMockData: true,
           source: 'mock-fixture',
         };

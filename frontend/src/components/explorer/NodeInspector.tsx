@@ -597,7 +597,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             </span>
             {selectedNode.variation.condition === 'AFTER_FOOD' ? 'Fed State Dynamics' : 'Fasting Dynamics'}
             {selectedNode.variation.transit_time_modifier_pct !== undefined &&
-              selectedNode.variation.transit_time_modifier_pct !== 0 && (
+              selectedNode.variation.transit_time_modifier_pct !== 0 ? (
                 <span
                   style={{
                     marginLeft: 'auto',
@@ -609,6 +609,19 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
                   }}
                 >
                   Transit {selectedNode.variation.transit_time_modifier_pct > 0 ? `+${selectedNode.variation.transit_time_modifier_pct}%` : `${selectedNode.variation.transit_time_modifier_pct}%`}
+                </span>
+              ) : (
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    fontSize: '0.65rem',
+                    padding: '0.1rem 0.35rem',
+                    borderRadius: '4px',
+                    background: 'rgba(0,0,0,0.3)',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  Transit unaffected by meal state
                 </span>
               )}
           </div>

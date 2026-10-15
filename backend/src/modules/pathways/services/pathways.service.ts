@@ -221,11 +221,15 @@ export class PathwaysService {
 
     return result.rows.map((row: RawNodeJoinedRow) => {
       const baseTime = parseFloat(String(row.estimated_time_minutes));
-      // Effective transit time: in AFTER_FOOD state, gastric emptying is delayed to ~60 min
-      let effectiveEstimatedTime = baseTime;
-      if (condition === 'AFTER_FOOD' && row.id === 'node-stomach') {
-        effectiveEstimatedTime = 60;
-      }
+      const modifierPct =
+        row.transit_time_modifier_pct != null
+          ? parseFloat(String(row.transit_time_modifier_pct))
+          : 0;
+      // Calculate dynamic effective transit time from database variation modifier
+      const effectiveEstimatedTime =
+        modifierPct !== 0
+          ? Math.round(baseTime * (1 + modifierPct / 100) * 100) / 100
+          : baseTime;
 
       let content: NodeContentDto | undefined;
       if (row.content_id && row.general_description && row.physiological_role) {

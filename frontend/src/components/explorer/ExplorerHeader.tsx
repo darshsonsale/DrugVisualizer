@@ -23,6 +23,12 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
   const tmaxDisplay = drug.tmax_hours != null ? `${drug.tmax_hours} hrs` : '—';
   const absorptionIndex = drug.bioavailability_pct != null ? `${drug.bioavailability_pct}%` : '—';
 
+  const isParenteral =
+    drug.id === 'drug-insulin-004' ||
+    drug.id === 'insulin' ||
+    drug.route?.toLowerCase().includes('subcutaneous') ||
+    drug.route?.toLowerCase().includes('injection');
+
   return (
     <header className="explorer-header-strip" aria-label="Pathway Explorer Header Controls">
       {/* Drug Identifier Pill */}
@@ -118,8 +124,8 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
         </div>
       </div>
 
-      {/* Centered Regimen State Selector */}
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
+      {/* Centered Regimen State Selector with Parenteral Route Notice */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
         <SegmentedToggle<FoodCondition>
           value={condition}
           onChange={onConditionChange}
@@ -129,6 +135,26 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
           ]}
           aria-label="Physiological food regimen selector"
         />
+        {isParenteral && (
+          <span
+            style={{
+              fontSize: '0.68rem',
+              color: 'var(--brand-cyan, #00e5ff)',
+              background: 'rgba(0, 229, 255, 0.08)',
+              border: '1px solid rgba(0, 229, 255, 0.25)',
+              borderRadius: '9999px',
+              padding: '0.15rem 0.6rem',
+              letterSpacing: '0.01em',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+            }}
+            title="Subcutaneous insulin absorption kinetics are unaffected by meal presence in the gastrointestinal tract."
+          >
+            <span className="material-symbols-outlined text-[13px]">info</span>
+            Parenteral: Subcutaneous absorption rate is independent of GI meals
+          </span>
+        )}
       </div>
 
       {/* Telemetry Status Pills */}
@@ -174,7 +200,14 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
             <span className="material-symbols-outlined text-[18px]">timelapse</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
+            <span
+              style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', cursor: 'help' }}
+              title={
+                isParenteral
+                  ? 'Catalog records preprandial action onset (~30 min). Peak concentration (Tmax) occurs at 1.5–3.5 hours.'
+                  : 'Estimated time to peak plasma concentration (Tmax)'
+              }
+            >
               Estimated T<sub>max</sub>
             </span>
             <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>

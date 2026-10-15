@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { DrugEducationalContent } from '../api/types';
+import type { DrugEducationalContent, FoodCondition } from '../api/types';
 import { ContentService } from '../services/contentService';
 
 export interface UseContentResult {
@@ -15,7 +15,7 @@ export interface UseContentResult {
   refetch: () => Promise<void>;
 }
 
-export function useContent(drugId: string): UseContentResult {
+export function useContent(drugId: string, condition?: FoodCondition): UseContentResult {
   const [data, setData] = useState<DrugEducationalContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function useContent(drugId: string): UseContentResult {
     setError(null);
 
     try {
-      const result = await ContentService.getDrugContent(drugId, {
+      const result = await ContentService.getDrugContent(drugId, condition, {
         signal: controller.signal
       });
 
@@ -43,14 +43,17 @@ export function useContent(drugId: string): UseContentResult {
       setIsMockData(result.isMockData);
       setLoading(false);
     } catch (err: unknown) {
-      if (err instanceof DOMException && err.name === 'AbortError') {
+      if (
+        (err instanceof DOMException && err.name === 'AbortError') ||
+        controller.signal.aborted
+      ) {
         return;
       }
       const message = err instanceof Error ? err.message : 'Failed to load educational content';
       setError(message);
       setLoading(false);
     }
-  }, [drugId]);
+  }, [drugId, condition]);
 
   useEffect(() => {
     fetchContent();

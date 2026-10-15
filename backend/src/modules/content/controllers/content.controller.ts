@@ -7,7 +7,9 @@ export class ContentController {
   public async getDrugContent(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { drugId } = req.params;
-      const content = await contentService.getDrugEducationalContent(drugId);
+      const conditionParam =
+        typeof req.query.condition === 'string' ? req.query.condition : undefined;
+      const content = await contentService.getDrugEducationalContent(drugId, conditionParam);
       const response: ApiResponse<DrugEducationalContentDto> = {
         success: true,
         data: content,

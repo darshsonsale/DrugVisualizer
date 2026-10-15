@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useContent } from '../hooks/useContent';
-import { Accordion } from '../components/ui';
+import { Accordion, SegmentedToggle } from '../components/ui';
+import type { FoodCondition } from '../api/types';
 import '../styles/learn.css';
 
 interface DrugTabOption {
@@ -22,13 +23,14 @@ const DRUG_TABS: DrugTabOption[] = [
 export const LearnPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const rawDrugParam = searchParams.get('drug') || 'drug-ibuprofen-001';
+  const [condition, setCondition] = useState<FoodCondition>('BEFORE_FOOD');
 
   // Match canonical ID or short slug
   const activeTab = DRUG_TABS.find(
     (t) => t.id === rawDrugParam || t.slug.toLowerCase() === rawDrugParam.toLowerCase()
   ) || DRUG_TABS[0];
 
-  const { data, loading, error } = useContent(activeTab.id);
+  const { data, loading, error, refetch } = useContent(activeTab.id, condition);
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
 
   const toggleNodeExpansion = (nodeId: string) => {
@@ -117,7 +119,9 @@ export const LearnPage: React.FC = () => {
         <div className="learn-metrics-grid">
           <div className="learn-metric-card">
             <div className="learn-metric-card__header">
-              <span className="learn-metric-card__label">Peak Onset (Tmax)</span>
+              <span className="learn-metric-card__label">
+                {activeTab.id === 'drug-insulin-004' ? 'Onset of Action' : 'Peak Onset (Tmax)'}
+              </span>
               <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--color-primary-container, #00e5ff)' }}>
                 timer
               </span>
@@ -126,7 +130,11 @@ export const LearnPage: React.FC = () => {
               {loading ? '...' : drug?.tmax_hours != null ? `${drug.tmax_hours}` : '—'}{' '}
               <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant, #bac9cc)', fontWeight: 500 }}>hrs</span>
             </div>
-            <p className="learn-metric-card__desc">Plasma peak absorption time</p>
+            <p className="learn-metric-card__desc">
+              {activeTab.id === 'drug-insulin-004'
+                ? 'Clinical action onset (Peak Tmax: 1.5–3.5 hrs)'
+                : 'Plasma peak absorption time'}
+            </p>
           </div>
 
           <div className="learn-metric-card">
@@ -233,10 +241,96 @@ export const LearnPage: React.FC = () => {
         </section>
       )}
 
+      {/* 2.5 Food State & Regimen Dynamics (Data-Driven from database pathway_variations) */}
+      <section className="learn-section" aria-labelledby="condition-dynamics-heading">
+        <div className="learn-section__tag">
+          <span>02</span>
+          <div className="learn-section__tag-line" aria-hidden="true" />
+          <span>Food State &amp; Meal Timing Dynamics</span>
+        </div>
+
+        <div className="learn-mechanism-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div>
+              <h2 id="condition-dynamics-heading" className="learn-section__heading" style={{ margin: 0 }}>
+                Fasted vs. Fed State Dynamics
+              </h2>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
+                Compare how food presence modulates gastrointestinal transit, mucosal protection, and absorption speed.
+              </p>
+            </div>
+
+            <SegmentedToggle<FoodCondition>
+              value={condition}
+              onChange={setCondition}
+              options={[
+                { value: 'BEFORE_FOOD', label: 'Before Food (Fasted)', icon: 'timer' },
+                { value: 'AFTER_FOOD', label: 'After Food (Fed)', icon: 'restaurant' },
+              ]}
+              aria-label="Physiological food regimen selector"
+            />
+          </div>
+
+          {data?.limitation_note && (
+            <div
+              style={{
+                padding: '0.65rem 0.85rem',
+                borderRadius: '8px',
+                background: 'rgba(0, 229, 255, 0.08)',
+                border: '1px solid rgba(0, 229, 255, 0.25)',
+                color: 'var(--color-primary-container, #00e5ff)',
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>info</span>
+              <span>{data.limitation_note}</span>
+            </div>
+          )}
+
+          {data?.pathway_variation && (
+            <div
+              style={{
+                padding: '1rem',
+                borderRadius: '8px',
+                background: 'var(--color-surface-container, #19202a)',
+                border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '4px',
+                    background: condition === 'AFTER_FOOD' ? 'rgba(78, 222, 163, 0.15)' : 'rgba(0, 229, 255, 0.15)',
+                    color: condition === 'AFTER_FOOD' ? '#4edea3' : '#00e5ff',
+                  }}
+                >
+                  {data.pathway_variation.name}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
+                  Active Condition: <strong>{condition === 'AFTER_FOOD' ? 'Fed State' : 'Fasted State'}</strong>
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--color-on-surface, #dce3f0)' }}>
+                {data.pathway_variation.description}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* 3. Physiological Milestones Stack (All Nodes with Plain-English + Scientific Drawers) */}
       <section className="learn-section" aria-labelledby="milestones-heading">
         <div className="learn-section__tag">
-          <span>02</span>
+          <span>03</span>
           <div className="learn-section__tag-line" aria-hidden="true" />
           <span>Physiological Milestones</span>
         </div>
@@ -251,8 +345,56 @@ export const LearnPage: React.FC = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255, 100, 100, 0.1)', color: '#ff8080' }}>
-            {error}
+          <div
+            style={{
+              padding: '1.25rem 1.5rem',
+              borderRadius: '12px',
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              flexWrap: 'wrap',
+              margin: '1rem 0',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span className="material-symbols-outlined" style={{ color: '#ef4444', fontSize: '24px' }}>
+                cloud_off
+              </span>
+              <div>
+                <strong style={{ fontSize: '0.9rem', color: '#fca5a5', display: 'block' }}>
+                  Educational Content Unavailable
+                </strong>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
+                  {error}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.45rem 0.9rem',
+                borderRadius: '8px',
+                background: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.4)',
+                color: '#fee2e2',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                refresh
+              </span>
+              Retry
+            </button>
           </div>
         )}
 
@@ -299,6 +441,32 @@ export const LearnPage: React.FC = () => {
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant, #bac9cc)', margin: 0 }}>
                       <strong>Location:</strong> {node.anatomical_location} • <strong>System:</strong> {node.organ_system}
                     </p>
+
+                    {/* Condition Observation Badge */}
+                    {node.variation && (
+                      <div
+                        style={{
+                          fontSize: '0.775rem',
+                          padding: '0.4rem 0.65rem',
+                          borderRadius: '6px',
+                          background: condition === 'AFTER_FOOD' ? 'rgba(78, 222, 163, 0.08)' : 'rgba(0, 229, 255, 0.08)',
+                          border: `1px solid ${condition === 'AFTER_FOOD' ? 'rgba(78, 222, 163, 0.2)' : 'rgba(0, 229, 255, 0.2)'}`,
+                          color: 'var(--color-on-surface, #dce3f0)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.45rem',
+                          margin: '0.2rem 0',
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '15px', color: condition === 'AFTER_FOOD' ? '#4edea3' : '#00e5ff' }}>
+                          {condition === 'AFTER_FOOD' ? 'restaurant' : 'timer'}
+                        </span>
+                        <span>
+                          <strong>{condition === 'AFTER_FOOD' ? 'Fed State Observation:' : 'Fasting Observation:'}</strong>{' '}
+                          {node.variation.clinical_observation}
+                        </span>
+                      </div>
+                    )}
 
                     {/* Student-Friendly Explanation */}
                     <p style={{ fontSize: '0.925rem', lineHeight: 1.6, color: 'var(--color-on-surface, #dce3f0)', margin: '0.25rem 0 0' }}>
@@ -409,7 +577,7 @@ export const LearnPage: React.FC = () => {
       {faqItems.length > 0 && (
         <section className="learn-section" aria-labelledby="faq-heading">
           <div className="learn-section__tag">
-            <span>03</span>
+            <span>04</span>
             <div className="learn-section__tag-line" aria-hidden="true" />
             <span>Clinical Inquiries &amp; Pharmacodynamics</span>
           </div>

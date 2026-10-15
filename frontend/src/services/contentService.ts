@@ -4,22 +4,24 @@
  */
 
 import { apiClient } from '../api/client';
-import type { DrugEducationalContent } from '../api/types';
+import type { DrugEducationalContent, FoodCondition } from '../api/types';
 import type { ServiceFetchResult, FetchOptions } from './pathwayService';
 
 export class ContentService {
   /**
-   * Retrieves structured educational content for a drug by ID or slug.
+   * Retrieves structured educational content for a drug by ID or slug and optional food condition.
    */
   public static async getDrugContent(
     drugId: string,
+    condition?: FoodCondition,
     options: FetchOptions = {}
   ): Promise<ServiceFetchResult<DrugEducationalContent>> {
     const cleanId = drugId.trim();
+    const query = condition ? `?condition=${encodeURIComponent(condition)}` : '';
 
     try {
       const data = await apiClient.get<DrugEducationalContent>(
-        `/content/drugs/${encodeURIComponent(cleanId)}`,
+        `/content/drugs/${encodeURIComponent(cleanId)}${query}`,
         { signal: options.signal }
       );
 

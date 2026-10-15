@@ -69,6 +69,15 @@ export interface NodeContent {
   review_status?: string;
 }
 
+export interface EducationalNodeVariation {
+  condition: FoodCondition;
+  transit_time_modifier_pct: number;
+  absorption_modifier_pct: number;
+  clinical_observation?: string;
+  notes?: string;
+  review_status?: string;
+}
+
 export interface EducationalNode {
   node_id: string;
   name: string;
@@ -84,6 +93,7 @@ export interface EducationalNode {
   micro_environment_ph?: number;
   references_list: string[];
   review_status: string;
+  variation?: EducationalNodeVariation;
 }
 
 export interface DrugFaq {
@@ -103,9 +113,22 @@ export interface AdmeSummary {
   review_status: string;
 }
 
+export interface PathwayVariationSummary {
+  id: string;
+  condition: FoodCondition;
+  name: string;
+  description: string | null;
+  clinical_significance?: string | null;
+  review_status: string;
+}
+
 export interface DrugEducationalContent {
   drug: DrugSummary;
   pathway_id: string;
+  condition?: FoodCondition;
+  is_food_dependent?: boolean;
+  limitation_note?: string;
+  pathway_variation?: PathwayVariationSummary;
   review_status: string;
   adme_overview: AdmeSummary;
   nodes: EducationalNode[];
@@ -159,8 +182,6 @@ export interface QuizOption {
   id: string;
   question_id: string;
   option_text: string;
-  is_correct?: boolean;
-  explanation?: string;
 }
 
 export interface QuizQuestion {

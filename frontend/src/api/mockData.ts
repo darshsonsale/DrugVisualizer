@@ -1089,12 +1089,13 @@ export const MOCK_INSULIN_PATHWAY_AFTER_FOOD: PathwayGraphResponse = {
   },
 };
 
-// Mock Quiz Data
+// Mock Quiz Data (Confidential questions & options strictly omitting answers and explanations)
 export const MOCK_IBUPROFEN_QUIZ: QuizResponse = {
   id: 'quiz-ibuprofen-001',
   drug_id: 'drug-ibuprofen-001',
   title: 'Ibuprofen Pharmacokinetics & Mechanism Assessment',
   description: 'Test your understanding of physiological transit, chiral inversion, and food effects on Ibuprofen.',
+  pass_percentage: 70.0,
   questions: [
     {
       id: 'q1',
@@ -1104,14 +1105,7 @@ export const MOCK_IBUPROFEN_QUIZ: QuizResponse = {
         'Which organ is primarily responsible for the first-pass metabolism and chiral inversion of orally administered Ibuprofen?',
       options: [
         { id: 'opt1-a', question_id: 'q1', option_text: 'Stomach mucosa' },
-        {
-          id: 'opt1-b',
-          question_id: 'q1',
-          option_text: 'Liver (hepatic epimerase & CYP2C9)',
-          is_correct: true,
-          explanation:
-            'In the liver, the stereospecific enzyme 2-arylpropionyl-CoA epimerase converts ~60% of the inactive (R)-enantiomer into the active anti-inflammatory (S)-enantiomer.',
-        },
+        { id: 'opt1-b', question_id: 'q1', option_text: 'Liver (hepatic epimerase & CYP2C9)' },
         { id: 'opt1-c', question_id: 'q1', option_text: 'Kidney glomeruli' },
         { id: 'opt1-d', question_id: 'q1', option_text: 'Oral cavity epithelium' },
       ],
@@ -1123,19 +1117,269 @@ export const MOCK_IBUPROFEN_QUIZ: QuizResponse = {
       question_text: 'How does taking Ibuprofen after a meal influence its pharmacokinetics?',
       options: [
         { id: 'opt2-a', question_id: 'q2', option_text: 'It permanently destroys drug bioavailability' },
-        {
-          id: 'opt2-b',
-          question_id: 'q2',
-          option_text: 'It delays gastric emptying, prolonging Tmax without significantly altering total AUC',
-          is_correct: true,
-          explanation:
-            'Food delays gastric emptying, which slows initial absorption rate and delays peak plasma concentration (Tmax) without reducing total systemic bioavailability.',
-        },
+        { id: 'opt2-b', question_id: 'q2', option_text: 'It delays gastric emptying, prolonging Tmax without significantly altering total AUC' },
         { id: 'opt2-c', question_id: 'q2', option_text: 'It converts Ibuprofen into an irreversible enzyme blocker' },
         { id: 'opt2-d', question_id: 'q2', option_text: 'It increases peak plasma concentration tenfold' },
       ],
     },
+    {
+      id: 'q3',
+      quiz_id: 'quiz-ibuprofen-001',
+      question_order: 3,
+      question_text: 'What is the primary molecular mechanism responsible for the analgesic and anti-inflammatory activity of (S)-ibuprofen?',
+      options: [
+        { id: 'opt3-a', question_id: 'q3', option_text: 'Reversible competitive inhibition of cyclooxygenase enzymes (COX-1 and COX-2)' },
+        { id: 'opt3-b', question_id: 'q3', option_text: 'Irreversible acetylation of platelet cyclooxygenase serine residues' },
+        { id: 'opt3-c', question_id: 'q3', option_text: 'Agonism of peripheral opioid mu-receptors' },
+        { id: 'opt3-d', question_id: 'q3', option_text: 'Selective allosteric opening of voltage-gated chloride channels' },
+      ],
+    },
+    {
+      id: 'q4',
+      quiz_id: 'quiz-ibuprofen-001',
+      question_order: 4,
+      question_text: 'In systemic circulation, how is Ibuprofen predominantly transported within human blood plasma?',
+      options: [
+        { id: 'opt4-a', question_id: 'q4', option_text: 'Extensively bound to serum albumin (>99% protein binding)' },
+        { id: 'opt4-b', question_id: 'q4', option_text: 'Freely dissolved as an unbound neutral molecule' },
+        { id: 'opt4-c', question_id: 'q4', option_text: 'Bound to red blood cell hemoglobin beta-chains' },
+        { id: 'opt4-d', question_id: 'q4', option_text: 'Encapsulated inside chylomicrons and low-density lipoproteins' },
+      ],
+    },
+    {
+      id: 'q5',
+      quiz_id: 'quiz-ibuprofen-001',
+      question_order: 5,
+      question_text: 'What is the principal elimination pathway for Ibuprofen in healthy human physiology?',
+      options: [
+        { id: 'opt5-a', question_id: 'q5', option_text: 'Biliary excretion of unchanged parent compound into feces' },
+        { id: 'opt5-b', question_id: 'q5', option_text: 'Glomerular filtration of oxidative (carboxy/hydroxy) and glucuronide metabolites into urine' },
+        { id: 'opt5-c', question_id: 'q5', option_text: 'Direct pulmonary evaporation via alveolar expiration' },
+        { id: 'opt5-d', question_id: 'q5', option_text: 'Metabolism by intestinal brush-border peptidases' },
+      ],
+    },
   ],
+};
+
+export const MOCK_AMOXICILLIN_QUIZ: QuizResponse = {
+  id: 'quiz-amoxicillin-002',
+  drug_id: 'drug-amoxicillin-002',
+  title: 'Amoxicillin Pharmacokinetics & Antibacterial Mechanism Assessment',
+  description: 'Test your understanding of beta-lactam bactericidal activity, PEPT1 active transport, food independence, and renal clearance.',
+  pass_percentage: 70.0,
+  questions: [
+    {
+      id: 'amox-q1',
+      quiz_id: 'quiz-amoxicillin-002',
+      question_order: 1,
+      question_text: 'What is the primary bactericidal mechanism of action of Amoxicillin?',
+      options: [
+        { id: 'amox-opt1-a', question_id: 'amox-q1', option_text: 'Inhibition of bacterial cell wall peptidoglycan synthesis via penicillin-binding protein (PBP) binding' },
+        { id: 'amox-opt1-b', question_id: 'amox-q1', option_text: 'Binding to the 30S ribosomal subunit to block bacterial protein translation' },
+        { id: 'amox-opt1-c', question_id: 'amox-q1', option_text: 'Inhibition of topoisomerase II (DNA gyrase) preventing DNA replication' },
+        { id: 'amox-opt1-d', question_id: 'amox-q1', option_text: 'Disruption of outer bacterial membrane lipid A integrity' },
+      ],
+    },
+    {
+      id: 'amox-q2',
+      quiz_id: 'quiz-amoxicillin-002',
+      question_order: 2,
+      question_text: 'How is Amoxicillin primarily absorbed from the lumen of the proximal small intestine into enterocytes?',
+      options: [
+        { id: 'amox-opt2-a', question_id: 'amox-q2', option_text: 'Saturable, carrier-mediated active uptake via the peptide transporter PEPT1 (SLC15A1)' },
+        { id: 'amox-opt2-b', question_id: 'amox-q2', option_text: 'Passive transcellular diffusion governed solely by high lipophilicity' },
+        { id: 'amox-opt2-c', question_id: 'amox-q2', option_text: 'Receptor-mediated endocytosis via sodium-glucose cotransporter 1 (SGLT1)' },
+        { id: 'amox-opt2-d', question_id: 'amox-q2', option_text: 'Paracellular filtration through tight junctions in the descending colon' },
+      ],
+    },
+    {
+      id: 'amox-q3',
+      quiz_id: 'quiz-amoxicillin-002',
+      question_order: 3,
+      question_text: 'What is the established clinical effect of food intake on the oral bioavailability of Amoxicillin?',
+      options: [
+        { id: 'amox-opt3-a', question_id: 'amox-q3', option_text: 'Food causes a dramatic 80% decrease in systemic AUC, requiring strict fasting' },
+        { id: 'amox-opt3-b', question_id: 'amox-q3', option_text: 'Food does not significantly alter total systemic absorption (AUC), allowing administration with or without meals' },
+        { id: 'amox-opt3-c', question_id: 'amox-q3', option_text: 'High-fat meals double the bioavailability through lipid micellar solubilization' },
+        { id: 'amox-opt3-d', question_id: 'amox-q3', option_text: 'Gastric food contents irreversibly cleave the beta-lactam ring prior to emptying' },
+      ],
+    },
+    {
+      id: 'amox-q4',
+      quiz_id: 'quiz-amoxicillin-002',
+      question_order: 4,
+      question_text: 'Through which physiological mechanism is the majority of active Amoxicillin eliminated from systemic circulation?',
+      options: [
+        { id: 'amox-opt4-a', question_id: 'amox-q4', option_text: 'Renal elimination of unchanged drug (60–80%) via glomerular filtration and organic anion tubular secretion' },
+        { id: 'amox-opt4-b', question_id: 'amox-q4', option_text: 'Extensive hepatic cytochrome P450 CYP3A4 oxidation into inactive quinones' },
+        { id: 'amox-opt4-c', question_id: 'amox-q4', option_text: 'Sequestration and degradation within pulmonary alveolar macrophages' },
+        { id: 'amox-opt4-d', question_id: 'amox-q4', option_text: 'Excretion in sweat and tears via exocrine eccrine glands' },
+      ],
+    },
+    {
+      id: 'amox-q5',
+      quiz_id: 'quiz-amoxicillin-002',
+      question_order: 5,
+      question_text: 'What is the primary mechanism of bacterial resistance that inactivates Amoxicillin monotherapy?',
+      options: [
+        { id: 'amox-opt5-a', question_id: 'amox-q5', option_text: 'Production of beta-lactamase enzymes that hydrolyze the beta-lactam ring' },
+        { id: 'amox-opt5-b', question_id: 'amox-q5', option_text: 'Downregulation of mammalian PEPT1 transporters in host enterocytes' },
+        { id: 'amox-opt5-c', question_id: 'amox-q5', option_text: 'Accelerated renal clearance induced by bacterial endotoxins' },
+        { id: 'amox-opt5-d', question_id: 'amox-q5', option_text: 'Efflux exclusively mediated by host P-glycoprotein across the blood-brain barrier' },
+      ],
+    },
+  ],
+};
+
+export const MOCK_AMBROXOL_QUIZ: QuizResponse = {
+  id: 'quiz-ambroxol-003',
+  drug_id: 'drug-ambroxol-003',
+  title: 'Ambroxol Syrup Secretolytic & Pharmacokinetic Assessment',
+  description: 'Test your understanding of respiratory surfactant stimulation, lysosomal tissue distribution, hepatic CYP3A4 metabolism, and polar renal elimination.',
+  pass_percentage: 70.0,
+  questions: [
+    {
+      id: 'amb-q1',
+      quiz_id: 'quiz-ambroxol-003',
+      question_order: 1,
+      question_text: 'What is the primary pharmacodynamic secretolytic mechanism of Ambroxol in the respiratory tract?',
+      options: [
+        { id: 'amb-opt1-a', question_id: 'amb-q1', option_text: 'Stimulation of pulmonary surfactant production by alveolar type II pneumocytes and serous bronchial gland secretion' },
+        { id: 'amb-opt1-b', question_id: 'amb-q1', option_text: 'Direct chemical cleavage of disulfide bonds across cross-linked mucin fibers' },
+        { id: 'amb-opt1-c', question_id: 'amb-q1', option_text: 'Central inhibition of the medullary brainstem cough center' },
+        { id: 'amb-opt1-d', question_id: 'amb-q1', option_text: 'Beta-2 adrenergic bronchodilation of bronchial smooth muscle cells' },
+      ],
+    },
+    {
+      id: 'amb-q2',
+      quiz_id: 'quiz-ambroxol-003',
+      question_order: 2,
+      question_text: 'Following oral administration of Ambroxol syrup, how does its tissue distribution profile characterize its respiratory efficacy?',
+      options: [
+        { id: 'amb-opt2-a', question_id: 'amb-q2', option_text: 'High volume of distribution with significant tissue accumulation in lung parenchyma (lung-to-plasma ratio > 2.5)' },
+        { id: 'amb-opt2-b', question_id: 'amb-q2', option_text: 'Strict limitation to intravascular plasma volume with zero tissue penetration' },
+        { id: 'amb-opt2-c', question_id: 'amb-q2', option_text: 'Selective accumulation in subcutaneous adipose tissue with minimal pulmonary access' },
+        { id: 'amb-opt2-d', question_id: 'amb-q2', option_text: 'Complete blood-brain barrier sequestration with rapid central nervous system toxicity' },
+      ],
+    },
+    {
+      id: 'amb-q3',
+      quiz_id: 'quiz-ambroxol-003',
+      question_order: 3,
+      question_text: 'What are the verified clinical pharmacokinetic absorption parameters for oral Ambroxol syrup in fasting adults?',
+      options: [
+        { id: 'amb-opt3-a', question_id: 'amb-q3', option_text: 'Rapid systemic absorption with peak plasma concentration (Tmax) achieved at 1.0 to 2.5 hours and absolute bioavailability of ~70–80%' },
+        { id: 'amb-opt3-b', question_id: 'amb-q3', option_text: 'Delayed systemic peak requiring 24 to 48 hours for detection in bloodstream' },
+        { id: 'amb-opt3-c', question_id: 'amb-q3', option_text: 'Near-zero oral bioavailability (<2%) requiring intravenous injection exclusively' },
+        { id: 'amb-opt3-d', question_id: 'amb-q3', option_text: 'Immediate peak at 60 seconds with total clearance completed within 5 minutes' },
+      ],
+    },
+    {
+      id: 'amb-q4',
+      quiz_id: 'quiz-ambroxol-003',
+      question_order: 4,
+      question_text: 'Which enzymatic pathway accounts for the major hepatic first-pass metabolism of Ambroxol?',
+      options: [
+        { id: 'amb-opt4-a', question_id: 'amb-q4', option_text: 'CYP3A4-mediated oxidation and glucuronidation into dibromoanthranilic acid and polar conjugates' },
+        { id: 'amb-opt4-b', question_id: 'amb-q4', option_text: 'Exclusive plasma butyrylcholinesterase hydrolysis' },
+        { id: 'amb-opt4-c', question_id: 'amb-q4', option_text: 'Bacterial beta-glucuronidase activation inside the cecum' },
+        { id: 'amb-opt4-d', question_id: 'amb-q4', option_text: 'Monoamine oxidase type B oxidative deamination' },
+      ],
+    },
+    {
+      id: 'amb-q5',
+      quiz_id: 'quiz-ambroxol-003',
+      question_order: 5,
+      question_text: 'How are Ambroxol and its biotransformation products cleared from the human body?',
+      options: [
+        { id: 'amb-opt5-a', question_id: 'amb-q5', option_text: 'Renal excretion of polar water-soluble metabolites (~85–90%), with less than 10% cleared as unchanged parent drug' },
+        { id: 'amb-opt5-b', question_id: 'amb-q5', option_text: 'Exclusively via exhalation of gaseous volatile breakdown products' },
+        { id: 'amb-opt5-c', question_id: 'amb-q5', option_text: 'Complete precipitation as insoluble biliary stones in the gallbladder' },
+        { id: 'amb-opt5-d', question_id: 'amb-q5', option_text: 'Dermal sequestration and elimination through epidermal desquamation' },
+      ],
+    },
+  ],
+};
+
+export const MOCK_INSULIN_QUIZ: QuizResponse = {
+  id: 'quiz-insulin-004',
+  drug_id: 'drug-insulin-004',
+  title: 'Regular Human Insulin Receptor Signalling & Clearance Assessment',
+  description: 'Test your understanding of tyrosine kinase autophosphorylation, hexamer dissociation, lack of oral bioavailability, and dual hepatic/renal clearance.',
+  pass_percentage: 70.0,
+  questions: [
+    {
+      id: 'ins-q1',
+      quiz_id: 'quiz-insulin-004',
+      question_order: 1,
+      question_text: 'What is the initial molecular event triggered by Regular Human Insulin binding to target cells?',
+      options: [
+        { id: 'ins-opt1-a', question_id: 'ins-q1', option_text: 'Binding to extracellular alpha-subunits activating beta-subunit tyrosine kinase auto-phosphorylation and IRS recruitment' },
+        { id: 'ins-opt1-b', question_id: 'ins-q1', option_text: 'Direct passive entry through nuclear pore complexes to regulate mRNA transcription' },
+        { id: 'ins-opt1-c', question_id: 'ins-q1', option_text: 'Opening of ligand-gated calcium channels across the mitochondrial inner membrane' },
+        { id: 'ins-opt1-d', question_id: 'ins-q1', option_text: 'Allosteric degradation of circulating glucagon molecules in blood plasma' },
+      ],
+    },
+    {
+      id: 'ins-q2',
+      quiz_id: 'quiz-insulin-004',
+      question_order: 2,
+      question_text: 'Why does subcutaneously administered Regular Human Insulin exhibit an onset of 30–60 minutes rather than immediate action?',
+      options: [
+        { id: 'ins-opt2-a', question_id: 'ins-q2', option_text: 'Zinc-stabilized hexamers in the formulation must dissociate into dimers and monomers before entering capillary fenestrations' },
+        { id: 'ins-opt2-b', question_id: 'ins-q2', option_text: 'Subcutaneous adipocytes irreversibly destroy 95% of injected insulin molecules' },
+        { id: 'ins-opt2-c', question_id: 'ins-q2', option_text: 'Insulin requires activation by gastric acid before becoming biologically active' },
+        { id: 'ins-opt2-d', question_id: 'ins-q2', option_text: 'The drug must first be converted into a prodrug in the spleen' },
+      ],
+    },
+    {
+      id: 'ins-q3',
+      quiz_id: 'quiz-insulin-004',
+      question_order: 3,
+      question_text: 'Which two primary organs account for the physiological clearance and degradation of circulating Insulin?',
+      options: [
+        { id: 'ins-opt3-a', question_id: 'ins-q3', option_text: 'Liver (receptor-mediated endocytosis and IDE) and Kidneys (glomerular filtration and proximal tubular degradation)' },
+        { id: 'ins-opt3-b', question_id: 'ins-q3', option_text: 'Spleen red pulp and bone marrow osteoclasts' },
+        { id: 'ins-opt3-c', question_id: 'ins-q3', option_text: 'Small intestine brush border and colonic microbiota' },
+        { id: 'ins-opt3-d', question_id: 'ins-q3', option_text: 'Pulmonary alveoli and tracheal cilia' },
+      ],
+    },
+    {
+      id: 'ins-q4',
+      quiz_id: 'quiz-insulin-004',
+      question_order: 4,
+      question_text: 'Why is Regular Human Insulin ineffective when administered via the oral gastrointestinal route?',
+      options: [
+        { id: 'ins-opt4-a', question_id: 'ins-q4', option_text: 'Rapid enzymatic proteolysis by gastric pepsin and pancreatic serine proteases (trypsin, chymotrypsin) combined with low mucosal permeability' },
+        { id: 'ins-opt4-b', question_id: 'ins-q4', option_text: 'Immediate volatilization in the oral cavity due to body temperature' },
+        { id: 'ins-opt4-c', question_id: 'ins-q4', option_text: 'Selective binding to dietary fiber resulting in total fecal precipitation' },
+        { id: 'ins-opt4-d', question_id: 'ins-q4', option_text: 'Inactivation by salivary amylase before reaching the pharynx' },
+      ],
+    },
+    {
+      id: 'ins-q5',
+      quiz_id: 'quiz-insulin-004',
+      question_order: 5,
+      question_text: 'In the visualizer catalog, tmax_hours for Regular Insulin is recorded as 0.5 hours. How does this model parameter relate to clinical pharmacodynamics?',
+      options: [
+        { id: 'ins-opt5-a', question_id: 'ins-q5', option_text: 'The 0.5-hour value represents the clinical absorption onset marker in the simulation, whereas peak clinical metabolic effect occurs at 1.5 to 3.5 hours' },
+        { id: 'ins-opt5-b', question_id: 'ins-q5', option_text: 'The 0.5-hour value represents total elimination from human physiology' },
+        { id: 'ins-opt5-c', question_id: 'ins-q5', option_text: 'Clinical peak action is guaranteed to occur at exactly 30 minutes in all patients' },
+        { id: 'ins-opt5-d', question_id: 'ins-q5', option_text: 'The 0.5-hour value indicates that insulin acts as an oral disintegrating tablet' },
+      ],
+    },
+  ],
+};
+
+export const MOCK_QUIZZES_BY_DRUG: Record<string, QuizResponse> = {
+  'drug-ibuprofen-001': MOCK_IBUPROFEN_QUIZ,
+  'drug-amoxicillin-002': MOCK_AMOXICILLIN_QUIZ,
+  'drug-ambroxol-003': MOCK_AMBROXOL_QUIZ,
+  'drug-insulin-004': MOCK_INSULIN_QUIZ,
+  ibuprofen: MOCK_IBUPROFEN_QUIZ,
+  amoxicillin: MOCK_AMOXICILLIN_QUIZ,
+  ambroxol: MOCK_AMBROXOL_QUIZ,
+  insulin: MOCK_INSULIN_QUIZ,
 };
 
 // Mock User Progress Data

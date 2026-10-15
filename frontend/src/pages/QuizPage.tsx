@@ -1,12 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuiz } from '../hooks/useQuiz';
 import { CircularGauge } from '../components/ui/CircularGauge';
 import { Button } from '../components/ui/Button';
 import '../styles/quiz.css';
 
+interface MedicationMeta {
+  id: string;
+  key: string;
+  name: string;
+  badge: string;
+  icon: string;
+}
+
+const MEDICATIONS: MedicationMeta[] = [
+  { id: 'drug-ibuprofen-001', key: 'ibuprofen', name: 'Ibuprofen', badge: 'Oral NSAID', icon: 'medication' },
+  { id: 'drug-amoxicillin-002', key: 'amoxicillin', name: 'Amoxicillin', badge: 'Beta-Lactam', icon: 'vaccines' },
+  { id: 'drug-ambroxol-003', key: 'ambroxol', name: 'Ambroxol Syrup', badge: 'Oral Liquid', icon: 'water_drop' },
+  { id: 'drug-insulin-004', key: 'insulin', name: 'Regular Insulin', badge: 'Subcutaneous', icon: 'colorize' },
+];
+
 export const QuizPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // 1. Resolve selected medication from query params
+  const rawDrugParam = (searchParams.get('drug') || 'ibuprofen').toLowerCase().trim();
+  const selectedMed =
+    MEDICATIONS.find((m) => m.key === rawDrugParam || m.id === rawDrugParam) || MEDICATIONS[0];
+
   const {
     data,
     loading,
@@ -25,10 +47,14 @@ export const QuizPage: React.FC = () => {
     submitQuiz,
     resetQuiz,
     refetch,
-  } = useQuiz('quiz-ibuprofen-001');
+  } = useQuiz(selectedMed.id);
 
-  // Timer countdown simulation (15 minutes)
+  // Timer countdown simulation (15 minutes per session)
   const [secondsRemaining, setSecondsRemaining] = useState<number>(14 * 60 + 28);
+
+  useEffect(() => {
+    setSecondsRemaining(14 * 60 + 28);
+  }, [selectedMed.id]);
 
   useEffect(() => {
     if (submitted) return;
@@ -42,6 +68,11 @@ export const QuizPage: React.FC = () => {
     const mins = Math.floor(totalSec / 60);
     const secs = totalSec % 60;
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  const handleSelectMedication = (med: MedicationMeta) => {
+    if (med.key === selectedMed.key) return;
+    setSearchParams({ drug: med.key });
   };
 
   if (loading && !data) {
@@ -59,7 +90,7 @@ export const QuizPage: React.FC = () => {
             }}
           />
           <span style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
-            Loading Pharmacokinetics Assessment...
+            Loading {selectedMed.name} Pharmacokinetics Assessment...
           </span>
         </div>
       </div>
@@ -94,17 +125,52 @@ export const QuizPage: React.FC = () => {
   const progressPercent = totalQuestions > 0 ? Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100) : 0;
   const isCurrentFlagged = currentQ ? flaggedQuestions.has(currentQ.id) : false;
 
-  // Didactic insight rationale
-  const currentCorrectOption = currentQ?.options.find((o) => o.is_correct);
-  const didacticInsight =
-    currentCorrectOption?.explanation ||
-    'Ibuprofen is administered as a racemic 50:50 mixture. In the liver, the stereospecific enzyme 2-arylpropionyl-CoA epimerase converts approximately 60% of the inactive (R)-enantiomer into the anti-inflammatory active (S)-enantiomer.';
-
-  // Results State View
+  // =========================================================================
+  // RESULTS STATE VIEW (Post-submission with server-returned feedback)
+  // =========================================================================
   if (submitted && submissionResult) {
+    const detailsMap = new Map((submissionResult.details || []).map((d) => [d.question_id, d]));
+
     return (
       <div className="quiz-container">
-        <div className="quiz-results-card">
+        {/* Medication Selector Tabs in Result View */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {MEDICATIONS.map((med) => {
+            const isSelected = med.key === selectedMed.key;
+            return (
+              <button
+                key={med.id}
+                type="button"
+                onClick={() => handleSelectMedication(med)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '9999px',
+                  border: isSelected
+                    ? '1px solid var(--color-primary-container, #00e5ff)'
+                    : '1px solid var(--color-surface-container-highest, #2e353f)',
+                  background: isSelected
+                    ? 'rgba(0, 229, 255, 0.12)'
+                    : 'var(--color-surface-container-low, #131922)',
+                  color: isSelected ? 'var(--color-primary, #c3f5ff)' : 'var(--color-on-surface-variant, #bac9cc)',
+                  cursor: 'pointer',
+                  fontWeight: isSelected ? 700 : 500,
+                  fontSize: '0.825rem',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                  {med.icon}
+                </span>
+                <span>{med.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="quiz-results-card" style={{ maxWidth: '840px', width: '100%', margin: '0 auto' }}>
           <div
             style={{
               width: '64px',
@@ -124,40 +190,44 @@ export const QuizPage: React.FC = () => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-primary-container, #00e5ff)' }}>
-              Assessment Completed
+              {selectedMed.name} • Assessment Completed
             </span>
             <h2 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-on-surface, #dce3f0)', margin: 0 }}>
               {submissionResult.passed ? 'Proficiency Verified!' : 'Review Recommended'}
             </h2>
             <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant, #bac9cc)', margin: 0 }}>
               {submissionResult.passed
-                ? 'You have demonstrated clinical comprehension of physiological transit and pharmacokinetics.'
-                : 'Review hepatic clearance and gastric emptying principles to strengthen comprehension.'}
+                ? `You have demonstrated clinical comprehension of ${selectedMed.name} physiological transit, molecular mechanism, and clearance kinetics.`
+                : `Review the detailed feedback below to strengthen your grasp of ${selectedMed.name} pharmacokinetics.`}
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', margin: '1rem 0' }}>
             <CircularGauge
               percentage={submissionResult.score}
-              size={100}
-              strokeWidth={5}
+              size={110}
+              strokeWidth={6}
               sublabel="Score"
               color={submissionResult.passed ? 'var(--color-secondary, #4edea3)' : 'var(--color-tertiary-container, #ffc589)'}
             />
             <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
                 Result Status:{' '}
                 <strong style={{ color: submissionResult.passed ? 'var(--color-secondary, #4edea3)' : 'var(--color-error, #ffb4ab)' }}>
                   {submissionResult.passed ? 'PASSED (Mastery High)' : 'NEEDS PRACTICE'}
                 </strong>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
-                Total Questions Evaluated: <strong style={{ color: 'var(--color-on-surface, #dce3f0)' }}>{submissionResult.total_questions}</strong>
+                Correct Answers: <strong style={{ color: 'var(--color-on-surface, #dce3f0)' }}>{submissionResult.correct_answers ?? Math.round((submissionResult.score / 100) * submissionResult.total_questions)} / {submissionResult.total_questions}</strong>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
+                Passing Threshold: <strong>70%</strong>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+          {/* Action buttons */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
             <Button variant="outline" onClick={resetQuiz} icon="replay">
               Retake Assessment
             </Button>
@@ -165,17 +235,141 @@ export const QuizPage: React.FC = () => {
               View Learning Progress
             </Button>
           </div>
+
+          {/* Post-Submission Question Review Section */}
+          <div style={{ width: '100%', textAlign: 'left', marginTop: '1rem', borderTop: '1px solid var(--color-surface-container-highest, #2e353f)', paddingTop: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-on-surface, #dce3f0)', marginBottom: '1rem' }}>
+              Detailed Question Review & Scientific Feedback
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {questions.map((q, qIndex) => {
+                const detail = detailsMap.get(q.id);
+                const isCorrect = detail?.correct ?? false;
+                const selectedOptId = selectedAnswers[q.id];
+                const selectedOpt = q.options.find((o) => o.id === selectedOptId);
+
+                return (
+                  <div
+                    key={q.id}
+                    style={{
+                      background: 'var(--color-surface-container-low, #131922)',
+                      border: isCorrect
+                        ? '1px solid rgba(78, 222, 163, 0.3)'
+                        : '1px solid rgba(255, 180, 171, 0.3)',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-primary-container, #00e5ff)' }}>
+                        Question {qIndex + 1}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '9999px',
+                          background: isCorrect ? 'rgba(78, 222, 163, 0.15)' : 'rgba(255, 180, 171, 0.15)',
+                          color: isCorrect ? 'var(--color-secondary, #4edea3)' : 'var(--color-error, #ffb4ab)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                          {isCorrect ? 'check_circle' : 'cancel'}
+                        </span>
+                        {isCorrect ? 'Correct' : 'Incorrect'}
+                      </span>
+                    </div>
+
+                    <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-on-surface, #dce3f0)', margin: 0 }}>
+                      {q.question_text}
+                    </p>
+
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
+                      Your Answer: <strong style={{ color: isCorrect ? 'var(--color-secondary, #4edea3)' : 'var(--color-error, #ffb4ab)' }}>{selectedOpt?.option_text || 'None selected'}</strong>
+                    </div>
+
+                    {detail?.explanation && (
+                      <div
+                        style={{
+                          background: 'rgba(0, 229, 255, 0.05)',
+                          borderLeft: '3px solid var(--color-primary-container, #00e5ff)',
+                          padding: '0.75rem 1rem',
+                          borderRadius: '0 8px 8px 0',
+                          fontSize: '0.825rem',
+                          lineHeight: 1.5,
+                          color: 'var(--color-on-surface-variant, #bac9cc)',
+                        }}
+                      >
+                        <strong style={{ color: 'var(--color-primary, #c3f5ff)', display: 'block', marginBottom: '0.25rem' }}>
+                          Scientific Rationale:
+                        </strong>
+                        {detail.explanation}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
+  // =========================================================================
+  // ACTIVE QUESTION WORKSTATION VIEW
+  // =========================================================================
   return (
     <div className="quiz-container">
       <div className="quiz-glow-1" aria-hidden="true" />
       <div className="quiz-glow-2" aria-hidden="true" />
 
-      {/* 1. Header & Telemetry Pills */}
+      {/* Medication Selector Tab Bar */}
+      <nav aria-label="Select Medication Assessment" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+        {MEDICATIONS.map((med) => {
+          const isSelected = med.key === selectedMed.key;
+          return (
+            <button
+              key={med.id}
+              type="button"
+              onClick={() => handleSelectMedication(med)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.55rem 1.1rem',
+                borderRadius: '9999px',
+                border: isSelected
+                  ? '1px solid var(--color-primary-container, #00e5ff)'
+                  : '1px solid var(--color-surface-container-highest, #2e353f)',
+                background: isSelected
+                  ? 'rgba(0, 229, 255, 0.15)'
+                  : 'var(--color-surface-container-low, #131922)',
+                color: isSelected ? 'var(--color-primary, #c3f5ff)' : 'var(--color-on-surface-variant, #bac9cc)',
+                cursor: 'pointer',
+                fontWeight: isSelected ? 700 : 500,
+                fontSize: '0.85rem',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                {med.icon}
+              </span>
+              <span>{med.name}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Header & Telemetry Pills */}
       <header className="quiz-header">
         <div className="quiz-header__top">
           <div>
@@ -183,11 +377,11 @@ export const QuizPage: React.FC = () => {
               <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                 biotech
               </span>
-              <span>Clinical Pharmacokinetics Exam</span>
+              <span>Clinical Pharmacokinetics Exam • {selectedMed.name}</span>
             </div>
-            <h1 className="quiz-title">Ibuprofen Pathway Quiz</h1>
+            <h1 className="quiz-title">{data?.title || `${selectedMed.name} Assessment`}</h1>
             <p className="quiz-subtitle">
-              Assess your understanding of physiological transit and pharmacokinetics.
+              {data?.description || 'Assess your understanding of physiological transit, molecular mechanism, and clearance kinetics.'}
             </p>
           </div>
 
@@ -228,7 +422,7 @@ export const QuizPage: React.FC = () => {
         </div>
       </header>
 
-      {/* 2. Main 2-Column Assessment Workstation */}
+      {/* Main 2-Column Assessment Workstation */}
       {currentQ && (
         <div className="quiz-workstation">
           {/* Left Column: Active Question Card */}
@@ -314,13 +508,13 @@ export const QuizPage: React.FC = () => {
               })}
             </div>
 
-            {/* Didactic Insight Box */}
+            {/* Neutral Examination Tip Box (Zero Answer Leakage) */}
             <div className="quiz-didactic-box">
               <span
                 className="material-symbols-outlined"
                 style={{ fontSize: '22px', color: 'var(--color-primary-container, #00e5ff)', flexShrink: 0, marginTop: '2px' }}
               >
-                info
+                lightbulb
               </span>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <span
@@ -332,10 +526,10 @@ export const QuizPage: React.FC = () => {
                     color: 'var(--color-primary, #c3f5ff)',
                   }}
                 >
-                  Didactic Insight: Chiral Kinetics
+                  Examination Guidance
                 </span>
                 <p style={{ fontSize: '0.825rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant, #bac9cc)', margin: 0 }}>
-                  {didacticInsight}
+                  Evaluate physiological transit parameters, metabolic transformation, and carrier interactions. Verified scientific explanations unlock upon submission.
                 </p>
               </div>
             </div>
@@ -395,7 +589,7 @@ export const QuizPage: React.FC = () => {
             </footer>
           </article>
 
-          {/* Right Column: Telemetry & Matrix Sidebar */}
+          {/* Right Column: Question Matrix & Refresher */}
           <aside className="quiz-sidebar" aria-label="Assessment Navigation and Telemetry">
             {/* Question Matrix Card */}
             <div className="quiz-sidebar-card">
@@ -404,7 +598,7 @@ export const QuizPage: React.FC = () => {
                   Question Matrix
                 </span>
                 <span style={{ fontSize: '0.675rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-secondary, #4edea3)' }}>
-                  Pathway Flow
+                  {selectedMed.name}
                 </span>
               </div>
 
@@ -469,46 +663,6 @@ export const QuizPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Proficiency Gauge Card */}
-            <div className="quiz-sidebar-card">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-on-surface, #dce3f0)' }}>
-                  Proficiency Gauge
-                </span>
-                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--color-primary, #c3f5ff)' }}>
-                  insights
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                <CircularGauge
-                  percentage={80}
-                  size={76}
-                  strokeWidth={4.5}
-                  sublabel="INDEX"
-                  color="var(--color-primary-container, #00e5ff)"
-                />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-secondary, #4edea3)' }}>
-                    Mastery High
-                  </span>
-                  <p style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant, #bac9cc)', margin: 0, lineHeight: 1.45 }}>
-                    Strong comprehension on Gastric Dissolution and Enteric Permeability.
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ padding: '0.85rem 1rem', borderRadius: '8px', background: 'var(--color-surface-container, #19202a)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.75rem' }}>
-                  <span style={{ color: 'var(--color-on-surface-variant, #bac9cc)' }}>First-Pass Metabolism Concept</span>
-                  <span style={{ fontWeight: 700, color: 'var(--color-primary, #c3f5ff)' }}>Advanced</span>
-                </div>
-                <div style={{ width: '100%', height: '6px', borderRadius: '9999px', background: 'var(--color-surface-container-highest, #2e353f)', overflow: 'hidden' }}>
-                  <div style={{ width: '85%', height: '100%', background: 'var(--color-secondary, #4edea3)', borderRadius: '9999px' }} />
-                </div>
-              </div>
-            </div>
-
             {/* Study Refresher Card */}
             <div className="quiz-refresher-box">
               <div
@@ -533,7 +687,7 @@ export const QuizPage: React.FC = () => {
                   Need a refresher?
                 </span>
                 <Link
-                  to="/learn"
+                  to={`/learn?drug=${selectedMed.key}`}
                   style={{
                     fontSize: '0.775rem',
                     color: 'var(--color-primary-container, #00e5ff)',
@@ -545,7 +699,7 @@ export const QuizPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 >
-                  <span>Read Hepatic Clearance notes</span>
+                  <span>Explore {selectedMed.name} pathway</span>
                   <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                     open_in_new
                   </span>

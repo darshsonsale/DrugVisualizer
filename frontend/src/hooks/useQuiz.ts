@@ -79,6 +79,14 @@ export function useQuiz(
   }, [quizId, preferMock]);
 
   useEffect(() => {
+    setSelectedAnswers({});
+    setFlaggedQuestions(new Set());
+    setSubmitted(false);
+    setSubmissionResult(null);
+    setCurrentQuestionIndex(0);
+  }, [quizId]);
+
+  useEffect(() => {
     if (autoFetch) {
       fetchQuiz();
     }
@@ -138,31 +146,13 @@ export function useQuiz(
         })),
       };
 
-      const result = await QuizService.submitQuizAttempt(quizId, submission, {
+      const targetQuizId = data.id || quizId;
+      const result = await QuizService.submitQuizAttempt(targetQuizId, submission, {
         preferMock,
       });
 
-      // Calculate score based on actual correct answers in data if available
-      let correctCount = 0;
-      data.questions.forEach((q) => {
-        const selectedOptId = selectedAnswers[q.id];
-        const correctOpt = q.options.find((o) => o.is_correct);
-        if (correctOpt && correctOpt.id === selectedOptId) {
-          correctCount++;
-        }
-      });
-
-      const totalQuestions = data.questions.length;
-      const calculatedScore = Math.round((correctCount / Math.max(1, totalQuestions)) * 100);
-
-      const finalResult: QuizAttemptResult = {
-        ...result.data,
-        score: calculatedScore,
-        total_questions: totalQuestions,
-        passed: calculatedScore >= 70,
-      };
-
-      setSubmissionResult(finalResult);
+      // Directly trust and assign server-evaluated result (zero client tampering)
+      setSubmissionResult(result.data);
       setSubmitted(true);
     } catch (err: unknown) {
       console.error('[useQuiz] Submission error:', err);
