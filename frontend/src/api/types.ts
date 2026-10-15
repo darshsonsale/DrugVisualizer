@@ -188,3 +188,30 @@ export interface ApiErrorPayload {
   code?: string;
   details?: unknown;
 }
+
+// ==========================================
+// Authentication Types (Tables: users)
+// ==========================================
+
+export type UserRole = 'learner' | 'educator' | 'admin';
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string | null;
+  avatar_url: string | null;
+  role: UserRole;
+  created_at: string;
+}
+
+export interface AuthSessionResponse {
+  token: string;
+  expires_in: string;
+  user: UserProfile;
+}
+
+export interface GoogleAuthUrlResponse {
+  url: string;
+  state: string;
+}
+

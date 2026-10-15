@@ -29,6 +29,14 @@ for (const candidate of candidatePaths) {
   }
 }
 
+export interface AuthConfig {
+  googleClientId?: string;
+  googleClientSecret?: string;
+  googleRedirectUri: string;
+  jwtSecret: string;
+  jwtExpiresIn: string;
+}
+
 export interface AppConfig {
   port: number;
   env: 'development' | 'production' | 'test';
@@ -36,6 +44,7 @@ export interface AppConfig {
   isDevelopment: boolean;
   corsOrigin: string[] | string | boolean;
   apiPrefix: string;
+  auth: AuthConfig;
 }
 
 function parseCorsOrigins(rawOrigin?: string): string[] | string {
@@ -56,12 +65,32 @@ function parsePort(rawPort?: string): number {
 }
 
 const nodeEnv = (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test';
+const port = parsePort(process.env.PORT);
+const apiPrefix = process.env.API_PREFIX || '/api/v1';
+
+// Warn if JWT_SECRET is unconfigured in production
+const jwtSecret =
+  process.env.JWT_SECRET ||
+  (nodeEnv === 'production' ? '' : 'development-insecure-jwt-secret-must-be-min-32-chars');
+
+if (nodeEnv === 'production' && (!jwtSecret || jwtSecret.length < 32)) {
+  console.warn('[Security Warning] JWT_SECRET is not configured or too short for production use.');
+}
 
 export const config: AppConfig = Object.freeze({
-  port: parsePort(process.env.PORT),
+  port,
   env: nodeEnv,
   isProduction: nodeEnv === 'production',
   isDevelopment: nodeEnv === 'development',
   corsOrigin: parseCorsOrigins(process.env.CORS_ORIGIN),
-  apiPrefix: process.env.API_PREFIX || '/api/v1'
+  apiPrefix,
+  auth: Object.freeze({
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    googleRedirectUri:
+      process.env.GOOGLE_REDIRECT_URI || `http://localhost:${port}${apiPrefix}/auth/google/callback`,
+    jwtSecret,
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d'
+  })
 });
+

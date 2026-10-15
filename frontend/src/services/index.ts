@@ -5,3 +5,5 @@
 export * from './pathwayService';
 export * from './quizService';
 export * from './progressService';
+export * from './authService';
+

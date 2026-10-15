@@ -19,17 +19,21 @@
     "migrate:status": "tsx src/database/migrator.ts status",
     "db:seed": "tsx src/database/seed.ts",
     "test:api": "tsx src/database/verifyApi.ts",
-    "db:test:quiz": "tsx src/database/verifyQuizProgress.ts"
+    "db:test:quiz": "tsx src/database/verifyQuizProgress.ts",
+    "test:auth": "tsx src/database/verifyAuth.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "google-auth-library": "^11.3.0",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.13.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.10.7",
     "@types/pg": "^8.11.11",
     "tsx": "^4.19.2",

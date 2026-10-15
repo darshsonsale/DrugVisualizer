@@ -15,7 +15,6 @@
  */
 
 import type { Server } from 'node:http';
-import fs from 'node:fs';
 import path from 'node:path';
 import { createApp } from '../app.js';
 import { getPool, closePool } from './pool.js';

@@ -2,6 +2,8 @@ import http from 'node:http';
 import { app } from './app.js';
 import { config } from './config/index.js';
 
+// Server instance for Drug Path Visualiser backend
+
 const server = http.createServer(app);
 
 server.listen(config.port, () => {
