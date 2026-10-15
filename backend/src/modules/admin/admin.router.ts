@@ -3,30 +3,43 @@ import { requireAuth } from '../../middleware/auth.js';
 import { requireAdmin } from '../../middleware/authorization.js';
 import { adminController } from './controllers/admin.controller.js';
 import type { ApiResponse } from '../../common/types/index.js';
+import { adminRateLimiter, validateBody, validateParams } from '../../middleware/index.js';
+import { updateRoleBodySchema, userParamSchema } from '../../validation/index.js';
 
 export const adminRouter: Router = Router();
 
 // Administrative module status (accessible to authenticated administrators)
 adminRouter.get('/', requireAuth, requireAdmin, (_req: Request, res: Response) => {
+  const timestamp = new Date().toISOString();
   const response: ApiResponse<{ module: string; status: string; description: string }> = {
     success: true,
     data: {
       module: 'admin',
       status: 'operational',
       description: 'Administrative access control, user management & operational metrics'
+    },
+    meta: {
+      timestamp
     }
   };
   res.status(200).json(response);
 });
 
 // User management endpoints (admin-only)
-adminRouter.get('/users', requireAuth, requireAdmin, (req, res, next) =>
+adminRouter.get('/users', requireAuth, requireAdmin, adminRateLimiter, (req, res, next) =>
   adminController.getUsers(req, res, next)
 );
 
-adminRouter.patch('/users/:userId/role', requireAuth, requireAdmin, (req, res, next) =>
-  adminController.updateUserRole(req, res, next)
+adminRouter.patch(
+  '/users/:userId/role',
+  requireAuth,
+  requireAdmin,
+  adminRateLimiter,
+  validateParams(userParamSchema),
+  validateBody(updateRoleBodySchema),
+  (req, res, next) => adminController.updateUserRole(req, res, next)
 );
+
 
 // Platform telemetry & metrics
 adminRouter.get('/metrics', requireAuth, requireAdmin, (req, res, next) =>

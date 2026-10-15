@@ -70,10 +70,10 @@ export class UsersService {
    */
   public async getUserAttempts(userId: string): Promise<UserQuizAttemptSummaryDto[]> {
     const query = `
-      SELECT id, quiz_id, user_id, score, passed, total_questions, correct_count, started_at, completed_at
+      SELECT id, quiz_id, user_id, score, passed, total_questions, correct_answers as correct_count, created_at as started_at, completed_at
       FROM quiz_attempts
       WHERE user_id = $1
-      ORDER BY started_at DESC;
+      ORDER BY created_at DESC;
     `;
     const result = await getPool().query<RawAttemptRow>(query, [userId]);
     return result.rows.map(mapAttemptRow);

@@ -1,9 +1,10 @@
 import express, { type Express, type Request, type Response, Router } from 'express';
 import cors, { type CorsOptions } from 'cors';
-import { config } from './config/index.js';
+import { config, securityConfig } from './config/index.js';
 import { notFoundHandler } from './common/middleware/notFoundHandler.js';
 import { errorHandler } from './common/middleware/errorHandler.js';
 import { authContextMiddleware } from './common/middleware/authContext.js';
+import { securityHeadersMiddleware, standardRateLimiter } from './middleware/index.js';
 
 // Domain modules
 import { healthRouter } from './modules/health/health.router.js';
@@ -19,7 +20,10 @@ import { adminRouter } from './modules/admin/index.js';
 export function createApp(): Express {
   const app: Express = express();
 
-  // CORS configuration
+  // 1. Invert finger-printing & inject OWASP security headers
+  app.use(securityHeadersMiddleware);
+
+  // 2. Strict origin-validated CORS configuration
   const corsOptions: CorsOptions = {
     origin: (requestOrigin, callback) => {
       // Allow non-browser requests (curl, server-to-server, health probes)
@@ -44,8 +48,12 @@ export function createApp(): Express {
   };
 
   app.use(cors(corsOptions));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+
+  // 3. Request body parsing with strict size limitation (100KB DoS protection)
+  app.use(express.json({ limit: securityConfig.maxBodySizeStr }));
+  app.use(express.urlencoded({ extended: true, limit: securityConfig.maxBodySizeStr }));
+
+  // 4. Authentication session context extraction
   app.use(authContextMiddleware);
 
   // Root welcome / status endpoint
@@ -58,8 +66,9 @@ export function createApp(): Express {
     });
   });
 
-  // API v1 Router
+  // API v1 Router with standard rate limiting
   const apiV1Router: Router = Router();
+  apiV1Router.use(standardRateLimiter);
   apiV1Router.use('/health', healthRouter);
   apiV1Router.use('/auth', authRouter);
   apiV1Router.use('/drugs', drugsRouter);

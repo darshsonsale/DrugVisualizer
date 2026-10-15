@@ -4,12 +4,16 @@ import type { ApiResponse } from '../../common/types/index.js';
 export const contentRouter: Router = Router();
 
 contentRouter.get('/', (_req: Request, res: Response) => {
+  const timestamp = new Date().toISOString();
   const response: ApiResponse<{ module: string; status: string; description: string }> = {
     success: true,
     data: {
       module: 'content',
       status: 'initialized',
       description: 'Educational definitions, organ roles & fun facts module'
+    },
+    meta: {
+      timestamp
     }
   };
   res.status(200).json(response);

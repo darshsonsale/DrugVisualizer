@@ -22,7 +22,9 @@
     "db:test:quiz": "tsx src/database/verifyQuizProgress.ts",
     "test:auth": "tsx src/database/verifyAuth.ts",
     "test:authz": "tsx src/database/verifyAuthorization.ts",
-    "test:pathways": "tsx src/database/verifyPathways.ts"
+    "test:pathways": "tsx src/database/verifyPathways.ts",
+    "test:security": "tsx src/database/verifySecurityValidation.ts",
+    "test:contract": "tsx src/database/verifyApiContract.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

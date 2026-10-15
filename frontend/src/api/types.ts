@@ -124,6 +124,7 @@ export interface QuizResponse {
   drug_id: string;
   title: string;
   description?: string;
+  pass_percentage?: number;
   questions: QuizQuestion[];
 }
 
@@ -148,6 +149,7 @@ export interface QuizAttemptResult {
   user_id?: string;
   score: number;
   total_questions: number;
+  correct_answers?: number;
   passed: boolean;
   completed_at: string;
   details?: QuizQuestionDetail[];
@@ -178,6 +180,11 @@ export interface ApiResponse<T> {
     message: string;
     code?: string;
     details?: unknown;
+  };
+  meta?: {
+    timestamp: string;
+    version?: string;
+    [key: string]: unknown;
   };
   timestamp?: string;
 }
@@ -214,4 +221,54 @@ export interface GoogleAuthUrlResponse {
   url: string;
   state: string;
 }
+
+// ==========================================
+// User Overview & Telemetry Types
+// ==========================================
+
+export interface UserQuizAttemptSummary {
+  id: string;
+  quiz_id: string;
+  user_id: string;
+  score: number;
+  passed: boolean;
+  total_questions: number;
+  correct_count: number;
+  started_at: string;
+  completed_at: string | null;
+}
+
+export interface UserOverview {
+  user_id: string;
+  email?: string;
+  role?: string;
+  total_drugs_tracked: number;
+  total_quizzes_completed: number;
+  progress: UserProgress[];
+  recent_attempts: UserQuizAttemptSummary[];
+}
+
+// ==========================================
+// Administrative Portal Types
+// ==========================================
+
+export interface AdminUserListItem {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlatformMetrics {
+  total_users: number;
+  total_attempts: number;
+  total_progress_records: number;
+  total_drugs: number;
+  total_pathways: number;
+  role_breakdown: Record<string, number>;
+}
+
 
