@@ -3,6 +3,7 @@ import cors, { type CorsOptions } from 'cors';
 import { config } from './config/index.js';
 import { notFoundHandler } from './common/middleware/notFoundHandler.js';
 import { errorHandler } from './common/middleware/errorHandler.js';
+import { authContextMiddleware } from './common/middleware/authContext.js';
 
 // Domain modules
 import { healthRouter } from './modules/health/health.router.js';
@@ -44,6 +45,7 @@ export function createApp(): Express {
   app.use(cors(corsOptions));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(authContextMiddleware);
 
   // Root welcome / status endpoint
   app.get('/', (_req: Request, res: Response) => {
@@ -63,6 +65,7 @@ export function createApp(): Express {
   apiV1Router.use('/pathways', pathwaysRouter);
   apiV1Router.use('/content', contentRouter);
   apiV1Router.use('/quiz', quizRouter);
+  apiV1Router.use('/quizzes', quizRouter);
   apiV1Router.use('/progress', progressRouter);
   apiV1Router.use('/admin', adminRouter);
 

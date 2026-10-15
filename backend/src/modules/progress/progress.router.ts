@@ -1,16 +1,10 @@
-import { Router, type Request, type Response } from 'express';
-import type { ApiResponse } from '../../common/types/index.js';
+import { Router } from 'express';
+import { progressController } from './controllers/progress.controller.js';
 
 export const progressRouter: Router = Router();
 
-progressRouter.get('/', (_req: Request, res: Response) => {
-  const response: ApiResponse<{ module: string; status: string; description: string }> = {
-    success: true,
-    data: {
-      module: 'progress',
-      status: 'initialized',
-      description: 'User quiz attempts, scores & telemetry persistence module'
-    }
-  };
-  res.status(200).json(response);
-});
+// GET /api/v1/progress/:drugId - Retrieve user learning progress for a drug
+progressRouter.get('/:drugId', (req, res, next) => progressController.getProgress(req, res, next));
+
+// PUT /api/v1/progress/:drugId - Update/save user learning progress for a drug (requires authenticated context)
+progressRouter.put('/:drugId', (req, res, next) => progressController.saveProgress(req, res, next));

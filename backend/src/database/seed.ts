@@ -635,6 +635,146 @@ export async function seedDatabase(): Promise<void> {
     }
     console.log(`[Seeder] Seeded ${edges.length} pathway edges.`);
 
+    // 8. SEED QUIZZES, QUESTIONS, AND OPTIONS (Ibuprofen Quiz Fixture)
+    // Approved pedagogical development fixture from mockData.ts flagged with needs_scientific_review = true
+    const quizId = 'quiz-ibuprofen-001';
+    await client.query(
+      `INSERT INTO quizzes (id, drug_id, title, description, pass_percentage)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (id) DO UPDATE SET
+         drug_id = EXCLUDED.drug_id,
+         title = EXCLUDED.title,
+         description = EXCLUDED.description,
+         pass_percentage = EXCLUDED.pass_percentage;`,
+      [
+        quizId,
+        'drug-ibuprofen-001',
+        'Ibuprofen Pharmacokinetics & Mechanism Assessment',
+        'Test your understanding of physiological transit, chiral inversion, and food effects on Ibuprofen.',
+        70.0
+      ]
+    );
+
+    const questions = [
+      {
+        id: 'q1',
+        quiz_id: quizId,
+        question_order: 1,
+        question_text:
+          'Which organ is primarily responsible for the first-pass metabolism and chiral inversion of orally administered Ibuprofen?'
+      },
+      {
+        id: 'q2',
+        quiz_id: quizId,
+        question_order: 2,
+        question_text: 'How does taking Ibuprofen after a meal influence its pharmacokinetics?'
+      }
+    ];
+
+    for (const q of questions) {
+      await client.query(
+        `INSERT INTO quiz_questions (id, quiz_id, question_order, question_text)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (id) DO UPDATE SET
+           quiz_id = EXCLUDED.quiz_id,
+           question_order = EXCLUDED.question_order,
+           question_text = EXCLUDED.question_text;`,
+        [q.id, q.quiz_id, q.question_order, q.question_text]
+      );
+    }
+
+    const options = [
+      {
+        id: 'opt1-a',
+        question_id: 'q1',
+        option_text: 'Stomach mucosa',
+        is_correct: false,
+        explanation: null,
+        needs_scientific_review: true
+      },
+      {
+        id: 'opt1-b',
+        question_id: 'q1',
+        option_text: 'Liver (hepatic epimerase & CYP2C9)',
+        is_correct: true,
+        explanation:
+          'In the liver, the stereospecific enzyme 2-arylpropionyl-CoA epimerase converts ~60% of the inactive (R)-enantiomer into the active anti-inflammatory (S)-enantiomer.',
+        needs_scientific_review: true
+      },
+      {
+        id: 'opt1-c',
+        question_id: 'q1',
+        option_text: 'Kidney glomeruli',
+        is_correct: false,
+        explanation: null,
+        needs_scientific_review: true
+      },
+      {
+        id: 'opt1-d',
+        question_id: 'q1',
+        option_text: 'Oral cavity epithelium',
+        is_correct: false,
+        explanation: null,
+        needs_scientific_review: true
+      },
+      {
+        id: 'opt2-a',
+        question_id: 'q2',
+        option_text: 'It permanently destroys drug bioavailability',
+        is_correct: false,
+        explanation: null,
+        needs_scientific_review: true
+      },
+      {
+        id: 'opt2-b',
+        question_id: 'q2',
+        option_text: 'It delays gastric emptying, prolonging Tmax without significantly altering total AUC',
+        is_correct: true,
+        explanation:
+          'Food delays gastric emptying, which slows initial absorption rate and delays peak plasma concentration (Tmax) without reducing total systemic bioavailability.',
+        needs_scientific_review: true
+      },
+      {
+        id: 'opt2-c',
+        question_id: 'q2',
+        option_text: 'It converts Ibuprofen into an irreversible enzyme blocker',
+        is_correct: false,
+        explanation: null,
+        needs_scientific_review: true
+      },
+      {
+        id: 'opt2-d',
+        question_id: 'q2',
+        option_text: 'It increases peak plasma concentration tenfold',
+        is_correct: false,
+        explanation: null,
+        needs_scientific_review: true
+      }
+    ];
+
+    for (const opt of options) {
+      await client.query(
+        `INSERT INTO quiz_options (
+          id, question_id, option_text, is_correct, explanation, needs_scientific_review
+        ) VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (id) DO UPDATE SET
+          question_id = EXCLUDED.question_id,
+          option_text = EXCLUDED.option_text,
+          is_correct = EXCLUDED.is_correct,
+          explanation = EXCLUDED.explanation,
+          needs_scientific_review = EXCLUDED.needs_scientific_review;`,
+        [
+          opt.id,
+          opt.question_id,
+          opt.option_text,
+          opt.is_correct,
+          opt.explanation,
+          opt.needs_scientific_review
+        ]
+      );
+    }
+    console.log(`[Seeder] Seeded 1 quiz with ${questions.length} questions and ${options.length} options (flagged for review).`);
+
     await client.query('COMMIT');
     console.log('[Seeder] Database seeding completed successfully.');
   } catch (error) {
