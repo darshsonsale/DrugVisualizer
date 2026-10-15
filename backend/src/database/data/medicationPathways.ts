@@ -36,13 +36,22 @@ export interface SeedNode {
   camera_focus_z?: number;
 }
 
+export interface DefinedTerm {
+  term: string;
+  definition: string;
+}
+
 export interface SeedContent {
   id: string;
   node_id: string;
   general_description: string;
   physiological_role: string;
+  key_takeaway: string;
   key_cellular_mechanisms: string[];
+  defined_terms: DefinedTerm[];
   micro_environment_ph?: number;
+  references_list: string[];
+  review_status: string;
 }
 
 export interface SeedNodeVariation {
@@ -501,336 +510,822 @@ export const SEED_NODES: SeedNode[] = [
 // =========================================================================
 
 export const SEED_CONTENTS: SeedContent[] = [
-  // --- Ibuprofen (7 nodes) ---
+  // =========================================================================
+  // --- 1. Ibuprofen (7 nodes) ---
+  // =========================================================================
   {
     id: 'content-oral-cavity',
     node_id: 'node-oral-cavity',
     general_description:
-      'The solid ibuprofen tablet enters the oral cavity, lubricated by saliva. Minimal to zero drug dissolution occurs during this transit phase before peristaltic transport through the esophagus.',
+      'You swallow the solid ibuprofen tablet with water. Saliva moistens the tablet to help it glide smoothly down the throat into the esophagus. Because it moves so quickly through the mouth, virtually none of the medicine dissolves or enters your bloodstream here.',
     physiological_role:
-      'Acts strictly as an intake gateway. Because ibuprofen is poorly soluble in acidic to neutral saliva and transit is rapid, mucosal absorption here contributes less than 0.1% of systemic dosage.',
+      'Acts strictly as the intake gateway for oral solid dosage forms. Saliva (pH 6.8) lubricates the tablet surface for deglutition. Because ibuprofen is poorly soluble at neutral or acidic pH and transit takes under 10 seconds, buccal mucosal absorption contributes less than 0.1% of systemic dosage.',
+    key_takeaway:
+      'The mouth acts purely as an intake doorway; the tablet passes through quickly without dissolving.',
     key_cellular_mechanisms: [
-      'Saliva produces ~1.5 liters daily containing salivary amylase and mucins that safeguard the oral mucosa from solid tablet friction.'
+      'Salivary glands produce serous and mucinous secretions containing mucin glycoproteins that cushion mucosal surfaces against tablet friction.',
+      'Neutral saliva (pH ~6.8) keeps ibuprofen in an un-ionized, low-solubility state, preventing premature dissolution during swallowing.'
     ],
-    micro_environment_ph: 6.8
+    defined_terms: [
+      {
+        term: 'Deglutition',
+        definition: 'The medical term for the coordinated muscular process of swallowing food or medicine from the mouth into the esophagus.'
+      },
+      {
+        term: 'Buccal Absorption',
+        definition: 'The direct uptake of a drug across the inner cheek lining into nearby blood vessels.'
+      }
+    ],
+    micro_environment_ph: 6.8,
+    references_list: [
+      'Davies NM. Clinical Pharmacokinetics of Ibuprofen: The First 30 Years. Clin Pharmacokinet. 1998;34(2):101-154. PMID: 9512948. DOI: 10.2165/00003088-199834020-00002',
+      'FDA NDA 017463 (Motrin / Ibuprofen Oral Tablets Prescribing Information).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-stomach',
     node_id: 'node-stomach',
     general_description:
-      'Gastric acid (pH 1.5-2.0) causes tablet coat disintegration. Ibuprofen remains in an un-ionized lipophilic form due to its pKa of ~4.4, limiting gastric dissolution while preparing for intestinal entry.',
+      'In the stomach, strong gastric acid breaks apart the tablet outer binders, turning it into tiny particles. Because ibuprofen is a weak acid itself, it does not dissolve easily in stomach fluid, protecting the stomach lining temporarily while preparing the medicine to enter the intestine.',
     physiological_role:
-      'Gastric motility governs the gastric emptying rate, which serves as the principal rate-limiting step for onset of analgesic action.',
+      'Strong hydrochloric acid (pH 1.5–2.0) breaks down tablet excipients. Because ibuprofen has a pKa of approximately 4.4, it remains largely non-ionized and insoluble in gastric juice. Gastric motility and pyloric emptying govern the transit rate into the duodenum, acting as the primary physiological regulator of how quickly pain relief begins.',
+    key_takeaway:
+      'Stomach acid breaks the tablet into small particles, but the medicine does not dissolve significantly until it reaches the intestine.',
     key_cellular_mechanisms: [
-      'Taking ibuprofen after a meal delays gastric transit from 15 minutes to over an hour, flattening the plasma peak curve.'
+      'Gastric parietal cells secrete hydrochloric acid via H+/K+ ATPase pumps, establishing a low pH of 1.5–2.0.',
+      'At pH 1.8, over 99% of ibuprofen molecules exist in their non-ionized, lipophilic form, limiting gastric fluid dissolution.'
     ],
-    micro_environment_ph: 1.8
+    defined_terms: [
+      {
+        term: 'pKa',
+        definition: 'The pH level at which exactly half of a drug is ionized (electrically charged) and half is non-ionized (neutral). For weak acids like ibuprofen, lower pH means less ionization.'
+      },
+      {
+        term: 'Gastric Emptying',
+        definition: 'The rate at which the muscular stomach pumps digested liquid and medicine particles through the pyloric valve into the small intestine.'
+      }
+    ],
+    micro_environment_ph: 1.8,
+    references_list: [
+      'Davies NM. Clinical Pharmacokinetics of Ibuprofen. Clin Pharmacokinet. 1998;34(2):101-154. PMID: 9512948',
+      'FDA NDA 017463 (Motrin Labeling).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-intestine',
     node_id: 'node-small-intestine',
     general_description:
-      'Elevated pH (6.0-7.4) enhances drug ionization and massive surface area provided by microvilli facilitates passive transcellular absorption across the enterocyte lipid bilayer.',
+      'The small intestine is where the magic happens for absorption. In this gentler environment, ibuprofen dissolves completely. The vast, folded surface of the intestinal wall rapidly absorbs over 85% of the medicine into small blood vessels, sending it straight toward the liver.',
     physiological_role:
-      'Over 80-90% of the active molecule permeates the systemic portal system right here through high-capacity mesenteric capillaries.',
+      'In the duodenum and jejunum, intestinal secretions raise the luminal pH to 6.0–7.0, accelerating drug dissolution. Enterocyte microvilli provide a massive absorptive surface area (~30 square meters). Ibuprofen permeates the lipid bilayer via passive transcellular diffusion, delivering 85% to 90% oral bioavailability into mesenteric venules.',
+    key_takeaway:
+      'The small intestine absorbs over 85% of the dissolved ibuprofen into the bloodstream through passive diffusion.',
     key_cellular_mechanisms: [
-      'The intestinal villi expand the total absorbent surface area to approximately that of a standard badminton court!'
+      'Pancreatic bicarbonate secretion elevates luminal pH to ~6.5, promoting drug ionization and dissolution.',
+      'Passive transcellular permeation: Lipophilic drug molecules diffuse across apical enterocyte membranes into the mesenteric capillary network.'
     ],
-    micro_environment_ph: 6.5
+    defined_terms: [
+      {
+        term: 'Bioavailability',
+        definition: 'The fraction (or percentage) of an administered dose of unchanged drug that successfully reaches systemic circulation.'
+      },
+      {
+        term: 'Enterocytes',
+        definition: 'The specialized absorptive epithelial cells that line the inner surface of the small intestine.'
+      },
+      {
+        term: 'Passive Transcellular Diffusion',
+        definition: 'The movement of drug molecules directly through the fatty membranes of cells from high concentration to low concentration without using cellular energy.'
+      }
+    ],
+    micro_environment_ph: 6.5,
+    references_list: [
+      'Davies NM. Clinical Pharmacokinetics of Ibuprofen. Clin Pharmacokinet. 1998;34(2):101-154. PMID: 9512948',
+      'FDA NDA 017463 (Motrin Labeling).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-liver',
     node_id: 'node-liver',
     general_description:
-      'Portal venous blood carries the absorbed drug directly into hepatic lobules. Cytochrome P450 enzymes (mainly CYP2C9) catalyze oxidation into inactive metabolites.',
+      'Blood from the gut carries the medicine directly to the liver. Here, specialized liver enzymes convert inactive shapes of ibuprofen molecules into the active pain-fighting shape, while filtering out about 15% before sending the rest to your body.',
     physiological_role:
-      'Ibuprofen undergoes modest hepatic extraction (~15%), leaving ~85% of intact active molecule available for widespread systemic delivery.',
+      'First-pass hepatic metabolism. Cytochrome P450 enzymes (predominantly CYP2C9, with secondary CYP2C8) oxidize ~15% of the absorbed dose into inactive hydroxy- and carboxy-ibuprofen. In addition, hepatic 2-arylpropionyl-CoA epimerase unidirectionally converts roughly 53% to 65% of the inactive (R)-enantiomer into the pharmacologically active (S)-enantiomer.',
+    key_takeaway:
+      'The liver acts as a chemical conversion center, flipping inactive drug shapes into the active pain-relieving form.',
     key_cellular_mechanisms: [
-      'Genetic polymorphism in CYP2C9 can significantly extend ibuprofen half-life in up to 5% of diverse patient demographics.'
+      'Chiral Inversion: Inactive (R)-ibuprofen is converted to (R)-ibuprofenyl-CoA, epimerized to (S)-ibuprofenyl-CoA, and hydrolyzed to active (S)-ibuprofen.',
+      'Phase I Oxidation: Microsomal CYP2C9 enzymes oxidize the alkyl side chains to form 2-hydroxyibuprofen and 2-carboxyibuprofen.'
     ],
-    micro_environment_ph: 7.2
+    defined_terms: [
+      {
+        term: 'Chiral Inversion',
+        definition: 'A biological process in which the body converts a mirror-image molecule (an inactive stereoisomer) into its active therapeutic counterpart.'
+      },
+      {
+        term: 'CYP2C9',
+        definition: 'A major liver enzyme of the Cytochrome P450 family responsible for breaking down NSAIDs and blood thinners.'
+      },
+      {
+        term: 'First-Pass Metabolism',
+        definition: 'The initial filtering and chemical breakdown of an orally absorbed drug in the liver before it ever circulates to the rest of the body.'
+      }
+    ],
+    micro_environment_ph: 7.2,
+    references_list: [
+      'Hao H, Wang G, Sun J. Enantioselective pharmacokinetics of ibuprofen and its chiral inversion. Curr Drug Metab. 2005;6(3):215-226. PMID: 15975052. DOI: 10.2174/1367556054064977',
+      'Davies NM. Clinical Pharmacokinetics of Ibuprofen. Clin Pharmacokinet. 1998;34(2):101-154. PMID: 9512948'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-bloodstream',
     node_id: 'node-bloodstream',
     general_description:
-      'Upon emerging from hepatic veins, over 99% of circulating ibuprofen binds reversibly to human serum albumin (HSA) at designated Sudlow Site II cavities.',
+      'Once in the bloodstream, over 99% of ibuprofen hitches a ride on blood proteins (albumin). This protects the drug and acts like a steady supply tank, releasing small amounts of free medicine over two hours to travel into painful or inflamed tissues.',
     physiological_role:
-      'Plasma protein binding functions as a circulating reservoir, keeping active free drug concentration balanced while preventing premature clearance.',
+      'Over 99% of circulating ibuprofen binds reversibly to human serum albumin (HSA) at Sudlow Site II cavities. This high protein binding confines the drug volume of distribution to approximately 0.1 to 0.2 L/kg. Only the small unbound free fraction (<1%) can diffuse across capillary walls into inflamed target tissues to inhibit pain enzymes.',
+    key_takeaway:
+      'More than 99% of ibuprofen rides on blood proteins, creating a traveling reservoir that steadily feeds inflamed tissues for about 2 hours.',
     key_cellular_mechanisms: [
-      'Only the unbound (free) fraction (<1%) can diffuse across the vascular endothelium to reach extravascular nociceptive target sites.'
+      'Hydrophobic and electrostatic interactions anchor the carboxylate group of ibuprofen inside Sudlow Site II on human serum albumin.',
+      'Dynamic equilibrium: As free drug diffuses out of capillaries into tissues, albumin releases bound molecules to maintain constant free-drug levels.'
     ],
-    micro_environment_ph: 7.4
+    defined_terms: [
+      {
+        term: 'Human Serum Albumin (HSA)',
+        definition: 'The most abundant protein in human blood plasma, responsible for maintaining fluid balance and ferrying fatty acids and medications.'
+      },
+      {
+        term: 'Free Fraction',
+        definition: 'The unbound portion of a drug in the blood that is biologically active and free to cross into tissues.'
+      }
+    ],
+    micro_environment_ph: 7.4,
+    references_list: [
+      'Davies NM. Clinical Pharmacokinetics of Ibuprofen. Clin Pharmacokinet. 1998;34(2):101-154. PMID: 9512948',
+      'FDA NDA 017463 (Motrin Labeling).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-target-sites',
     node_id: 'node-target-sites',
     general_description:
-      'Free ibuprofen diffuses into inflamed peripheral synovial and muscular tissues. It enters the catalytic hydrophobic channel of COX-1 and COX-2 enzymes.',
+      'Free ibuprofen leaves blood vessels and enters painful, injured areas. It turns off the body’s pain alarm switches (called COX enzymes), stopping the production of chemicals that cause throbbing pain, swelling, and fever.',
     physiological_role:
-      'Competitively halts prostaglandin H2 (PGH2) synthesis, suppressing downstream PGE2 and PGI2 mediators to stop pain signaling and fever.',
+      'Free ibuprofen diffuses into inflamed peripheral synovial fluid and muscular tissues. It enters the catalytic hydrophobic channel of cyclooxygenase-1 (COX-1) and cyclooxygenase-2 (COX-2) enzymes. By competing with arachidonic acid, it blocks prostaglandin H2 (PGH2) synthesis, suppressing downstream prostaglandin E2 (PGE2) to relieve pain and reset hypothalamic fever centers.',
+    key_takeaway:
+      'Ibuprofen stops pain and reduces fever by blocking the COX enzymes that manufacture inflammatory prostaglandins.',
     key_cellular_mechanisms: [
-      'COX inhibition directly attenuates sensitization of peripheral nociceptors and resets hypothalamic thermoregulatory set-points.'
+      'Competitive reversible binding within the COX catalytic pocket blocks the binding of arachidonic acid.',
+      'Reduction of PGE2 production lowers the sensitivity of peripheral pain nerve endings (nociceptors) to mechanical and chemical stimulation.'
     ],
-    micro_environment_ph: 7.1
+    defined_terms: [
+      {
+        term: 'Cyclooxygenase (COX-1 and COX-2)',
+        definition: 'Enzymes that manufacture prostaglandins. COX-1 maintains stomach protection and kidney blood flow, while COX-2 is triggered during injury and inflammation.'
+      },
+      {
+        term: 'Prostaglandins',
+        definition: 'Hormone-like chemical messengers produced at injury sites that trigger inflammation, swelling, pain sensations, and fever.'
+      },
+      {
+        term: 'Nociceptors',
+        definition: 'Sensory nerve receptors that detect tissue damage and send pain signals to the spinal cord and brain.'
+      }
+    ],
+    micro_environment_ph: 7.1,
+    references_list: [
+      'Davies NM. Clinical Pharmacokinetics of Ibuprofen. Clin Pharmacokinet. 1998;34(2):101-154. PMID: 9512948',
+      'Goodman & Gilman’s The Pharmacological Basis of Therapeutics (14th Ed, Chapter 34: Nonsteroidal Anti-Inflammatory Drugs).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-kidneys',
     node_id: 'node-kidneys',
     general_description:
-      'Hydrophilic Phase I & Phase II oxidative and glucuronide metabolites enter the renal glomerulus for filtration and tubular excretion.',
+      'After the medicine has finished its job, the kidneys filter the broken-down pieces out of your blood and wash them away in your urine within 24 hours.',
     physiological_role:
-      'More than 95% of the administered dose is cleared in urine as hydroxy- and carboxy-ibuprofen within 24 hours of ingestion.',
+      'Hydrophilic Phase I (hydroxy- and carboxy-ibuprofen) and Phase II glucuronide conjugates are filtered at the renal glomerulus. Over 95% of the administered dose is excreted into the urine within 24 hours of ingestion, with less than 1% excreted as unchanged active ibuprofen.',
+    key_takeaway:
+      'The kidneys filter out metabolized ibuprofen, safely excreting more than 95% of the dose in urine within 24 hours.',
     key_cellular_mechanisms: [
-      'Glomerular filtration rate (GFR) and renal blood flow determine metabolite clearance without active tubular reabsorption.'
+      'Glomerular filtration: Water-soluble metabolites pass across the renal filtration barrier into Bowman’s capsule.',
+      'Absence of tubular reabsorption: Polar carboxylate and glucuronide metabolites remain trapped in the tubular lumen for urinary excretion.'
     ],
-    micro_environment_ph: 6.0
+    defined_terms: [
+      {
+        term: 'Glomerular Filtration',
+        definition: 'The initial filtering process in the kidneys where water and dissolved waste particles are strained out of blood capillaries into kidney tubules.'
+      },
+      {
+        term: 'Glucuronide Conjugate',
+        definition: 'A drug molecule bound to glucuronic acid by the liver, making it highly water-soluble so the kidneys can excrete it rapidly.'
+      }
+    ],
+    micro_environment_ph: 6.0,
+    references_list: [
+      'Davies NM. Clinical Pharmacokinetics of Ibuprofen. Clin Pharmacokinet. 1998;34(2):101-154. PMID: 9512948',
+      'FDA NDA 017463 (Motrin Labeling).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
 
-  // --- Amoxicillin (7 nodes) ---
+  // =========================================================================
+  // --- 2. Amoxicillin (7 nodes) ---
+  // =========================================================================
   {
     id: 'content-amox-mouth',
     node_id: 'node-amox-mouth',
     general_description:
-      'The gelatin capsule containing amoxicillin trihydrate powder is swallowed whole with water, passing through the oral cavity.',
+      'You swallow the amoxicillin capsule whole with a glass of water. The smooth gelatin shell protects the antibiotic powder inside, allowing it to slide comfortably down your throat without releasing any medicine in your mouth.',
     physiological_role:
-      'Acts strictly as an intake portal with negligible sublingual dissolution or mucosal absorption.',
+      'Ingestion gateway for oral solid capsules. The hard gelatin capsule protects the amoxicillin trihydrate powder from moisture and salivary contact. Ingestion with water triggers primary peristalsis with zero buccal dissolution or absorption.',
+    key_takeaway:
+      'The gelatin capsule protects the antibiotic powder during swallowing so none of it is lost or tasted in the mouth.',
     key_cellular_mechanisms: [
-      'Mucin-rich saliva provides hydrodynamic lubrication minimizing friction along the oral mucosa.'
+      'Salivary mucins hydrate the gelatin capsule shell, reducing surface friction during pharyngeal swallowing.',
+      'Intact capsule shell prevents premature exposure of amoxicillin trihydrate crystals to oral saliva (pH 6.8).'
     ],
-    micro_environment_ph: 6.8
+    defined_terms: [
+      {
+        term: 'Gelatin Capsule',
+        definition: 'A shell made of animal or plant protein that encloses medication powder, dissolving only after reaching stomach acid and warmth.'
+      }
+    ],
+    micro_environment_ph: 6.8,
+    references_list: [
+      'FDA NDA 050542 (Amoxil / Amoxicillin Capsules Prescribing Information).',
+      'Rolinson GN. A review of the microbiology and pharmacokinetics of ampicillin and amoxicillin. J Chemother. 1990;2(3):147-157. PMID: 2197415'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amox-esophagus',
     node_id: 'node-amox-esophagus',
     general_description:
-      'Primary peristaltic contractions propel the capsule down the muscular tubular esophagus through the relaxed lower esophageal sphincter.',
+      'Rhythmic waves of muscular contractions in the food pipe carry the capsule straight down toward the stomach in under 10 seconds.',
     physiological_role:
-      'Rapid transit conduit shielding the drug from premature degradation.',
+      'Primary esophageal peristalsis transports the capsule through the thoracic cavity. Coordinated relaxation of the lower esophageal sphincter (LES) allows entry into the gastric fundus in 5 to 10 seconds, maintaining a neutral transit environment (pH 7.0).',
+    key_takeaway:
+      'The esophagus acts as a high-speed muscular tube, delivering the capsule to the stomach in under 10 seconds.',
     key_cellular_mechanisms: [
-      'Esophageal transit of a gelatin capsule swallowed with water occurs in under 10 seconds.'
+      'Sequential contraction of circular and longitudinal smooth muscle layers (peristalsis) pushes the capsule downward.',
+      'Vagal nerve signaling triggers transient lower esophageal sphincter relaxation to allow entry into the stomach.'
     ],
-    micro_environment_ph: 7.0
+    defined_terms: [
+      {
+        term: 'Peristalsis',
+        definition: 'Involuntary wave-like muscle contractions that push food and medicine down the digestive tract.'
+      },
+      {
+        term: 'Lower Esophageal Sphincter (LES)',
+        definition: 'A muscular ring at the junction between the esophagus and stomach that opens to let medicine in and closes to prevent acid reflux.'
+      }
+    ],
+    micro_environment_ph: 7.0,
+    references_list: [
+      'FDA NDA 050542 (Amoxil Labeling).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amox-stomach',
     node_id: 'node-amox-stomach',
     general_description:
-      'The gelatin capsule hydrates and ruptures in the acidic gastric juice (pH 1.5–2.0), dispersing amoxicillin trihydrate powder. Unlike benzylpenicillin, the amino side chain protects the beta-lactam core from acid hydrolysis.',
+      'Inside the stomach, warm acid quickly dissolves the capsule shell, spilling out the antibiotic powder. Unlike older penicillins, amoxicillin has a built-in chemical shield that lets it survive strong stomach acid completely unharmed.',
     physiological_role:
-      'Dissolution and gastric emptying regulator. Amoxicillin does not undergo significant gastric absorption but is prepared for downstream intestinal transit.',
+      'Warmth and gastric juice (pH 1.8) dissolve the gelatin capsule within 5 to 10 minutes, dispersing amoxicillin trihydrate powder into solution. Unlike natural penicillin G, amoxicillin has an electron-withdrawing alpha-amino side chain that prevents acid-catalyzed ring opening, preserving >90% intact antibiotic for intestinal transit.',
+    key_takeaway:
+      'Amoxicillin is acid-resistant, surviving harsh stomach acid without breaking down so it can reach the intestine at full strength.',
     key_cellular_mechanisms: [
-      'Acid stability ensures that >90% of intact active beta-lactam antibiotic reaches the small intestine unharmed.'
+      'Capsule dissolution: Hydration of gelatin bonds in gastric fluid causes the capsule walls to rupture and release powder.',
+      'Chemical acid stability: Protonation of the amino group (-NH3+) reduces electron density on adjacent carbonyl carbons, preventing destructive acid cleavage of the beta-lactam ring.'
     ],
-    micro_environment_ph: 1.8
+    defined_terms: [
+      {
+        term: 'Beta-Lactam Ring',
+        definition: 'The four-sided chemical ring at the heart of penicillin antibiotics that binds to bacteria and prevents them from building cell walls.'
+      },
+      {
+        term: 'Acid Hydrolysis',
+        definition: 'The chemical breakdown of a compound caused by exposure to strong acid in water solutions.'
+      }
+    ],
+    micro_environment_ph: 1.8,
+    references_list: [
+      'Rolinson GN. A review of the microbiology and pharmacokinetics of ampicillin and amoxicillin. J Chemother. 1990;2(3):147-157. PMID: 2197415. DOI: 10.1080/1120009x.1990.11739014',
+      'FDA NDA 050542 (Amoxil Labeling).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amox-intestine',
     node_id: 'node-amox-small-intestine',
     general_description:
-      'Primary site of absorption. Amoxicillin is transported across the apical brush border membrane of duodenal and jejunal enterocytes predominantly via the proton-coupled oligopeptide transporter 1 (PEPT1 / SLC15A1) and passive transcellular diffusion.',
+      'In the small intestine, specialized microscopic transport pumps recognize amoxicillin like a food nutrient and actively pull it across the gut wall into your blood, absorbing about 75% to 80% of the dose.',
     physiological_role:
-      'Delivers high, consistent systemic bioavailability (~75–80%) across enterocyte microvilli into the mesenteric circulation.',
+      'Primary site of absorption. Amoxicillin is transported across the apical brush border membrane of duodenal and jejunal enterocytes primarily via the proton-coupled oligopeptide transporter 1 (PEPT1 / SLC15A1) in symport with H+ ions, along with passive transcellular diffusion. At clinical doses (250–500 mg), it achieves a high oral bioavailability of ~75% to 80%.',
+    key_takeaway:
+      'Nutrient pumps in the intestinal wall actively transport amoxicillin into the blood, achieving 75% to 80% absorption.',
     key_cellular_mechanisms: [
-      'PEPT1 carrier-mediated transport is saturable at very high oral doses, but supports high bioavailability at standard clinical therapeutic dosing.'
+      'Active PEPT1 transport: The PEPT1 carrier recognizes the amino-acid-like structure of amoxicillin, transporting it across enterocyte membranes using a proton gradient.',
+      'Basolateral exit: Unbound drug exits the enterocyte basolateral membrane via facilitated diffusion into mesenteric portal venules.'
     ],
-    micro_environment_ph: 6.5
+    defined_terms: [
+      {
+        term: 'PEPT1 (SLC15A1)',
+        definition: 'A specialized transport pump in intestinal cells that normally absorbs small protein fragments (peptides). Amoxicillin mimics a natural peptide, tricking PEPT1 into carrying it into the blood.'
+      },
+      {
+        term: 'Carrier-Mediated Transport',
+        definition: 'The movement of substances across a cell membrane with the assistance of specialized protein pumps or transporters.'
+      }
+    ],
+    micro_environment_ph: 6.5,
+    references_list: [
+      'Westphal JF et al. Amoxicillin intestinal absorption in humans. Clin Pharmacokinet. 1991;21(3):181-192. PMID: 1884568. DOI: 10.2165/00003088-199121030-00004',
+      'FDA NDA 050542 (Amoxil Labeling).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amox-bloodstream',
     node_id: 'node-amox-bloodstream',
     general_description:
-      'Absorbed amoxicillin enters systemic circulation with low plasma protein binding (only ~17–20% bound to albumin), leaving >80% as free active bactericidal antibiotic.',
+      'Unlike pain medications that stick heavily to blood proteins, amoxicillin barely sticks at all. Over 80% floats freely in your blood, fully armed and ready to attack invading bacteria.',
     physiological_role:
-      'Circulates and distributes rapidly into extracellular body fluids, middle ear effusions, sputum, tonsils, and peritoneal fluid.',
+      'Absorbed amoxicillin enters systemic circulation with low plasma protein binding (only ~17% to 20% bound to albumin), leaving >80% as active, unbound bactericidal antibiotic at physiological pH 7.4. Volume of distribution is ~0.3 L/kg, indicating rapid equilibrium into extracellular fluids.',
+    key_takeaway:
+      'Over 80% of amoxicillin remains unbound in the blood, allowing it to attack bacteria immediately.',
     key_cellular_mechanisms: [
-      'Low plasma protein binding allows high free-drug equilibrium into target infected extravascular compartments.'
+      'Low albumin affinity leaves >80% of drug molecules in the free active state.',
+      'Free amoxicillin equilibrates across capillary fenestrations into interstitial body fluids, middle ear effusions, sputum, tonsils, and infected tissues.'
     ],
-    micro_environment_ph: 7.4
+    defined_terms: [
+      {
+        term: 'Volume of Distribution (Vd)',
+        definition: 'A theoretical number showing how widely a drug disperses into body tissues versus staying concentrated in the bloodstream.'
+      },
+      {
+        term: 'Extracellular Fluid',
+        definition: 'All body fluids outside of cells, including blood plasma and the fluid bathing tissues where bacterial infections take hold.'
+      }
+    ],
+    micro_environment_ph: 7.4,
+    references_list: [
+      'FDA NDA 050542 (Amoxil Labeling).',
+      'Rolinson GN. A review of the microbiology and pharmacokinetics of ampicillin and amoxicillin. J Chemother. 1990;2(3):147-157. PMID: 2197415'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amox-infected-tissues',
     node_id: 'node-amox-infected-tissues',
     general_description:
-      'Free amoxicillin diffuses into bacterial infection foci and covalently acylates the active site serine of Penicillin-Binding Proteins (PBP-1A, 1B, 2, 3), inhibiting transpeptidation during peptidoglycan cell wall synthesis.',
+      'At the infection site, amoxicillin attacks dividing bacteria by sabotaging their cell wall construction. Without strong walls, water rushes into the bacteria until they burst open and die.',
     physiological_role:
-      'Bactericidal cell wall disruption. Loss of peptidoglycan structural integrity causes osmotic cell lysis and autolytic bacterial death in susceptible pathogens.',
+      'Free amoxicillin diffuses into infected tissue spaces and covalently acylates active-site serine residues on bacterial Penicillin-Binding Proteins (PBPs 1A, 1B, 2, 3). This irreversibly inhibits transpeptidation enzymes from cross-linking peptidoglycan polymers, weakening the cell wall and causing osmotic autolysis. Efficacy is time-dependent (Time > MIC).',
+    key_takeaway:
+      'Amoxicillin destroys bacteria by blocking their ability to build cell walls, causing them to burst and die.',
     key_cellular_mechanisms: [
-      'Efficacy is time-dependent (T > MIC): antimicrobial effect depends on the duration that free serum concentrations remain above the pathogen minimum inhibitory concentration.'
+      'Transpeptidase Inhibition: Covalent acylation of PBPs halts the final cross-linking step of bacterial peptidoglycan cell walls.',
+      'Osmotic Lysis: High internal bacterial osmotic pressure causes weakened bacteria to swell with water, activate bacterial autolysins, and rupture.'
     ],
-    micro_environment_ph: 7.35
+    defined_terms: [
+      {
+        term: 'Penicillin-Binding Proteins (PBPs)',
+        definition: 'Bacterial enzymes responsible for stitching together the structural mesh (peptidoglycan) that forms bacterial cell walls.'
+      },
+      {
+        term: 'Peptidoglycan',
+        definition: 'A strong mesh of sugars and amino acids that forms the protective outer wall of bacterial cells, maintaining their shape and structure.'
+      },
+      {
+        term: 'Time > MIC (T > MIC)',
+        definition: 'A pharmacology rule for beta-lactams stating that antibiotic success depends on how long blood levels stay above the minimum concentration needed to stop bacterial growth.'
+      }
+    ],
+    micro_environment_ph: 7.35,
+    references_list: [
+      'Rolinson GN. A review of the microbiology and pharmacokinetics of ampicillin and amoxicillin. J Chemother. 1990;2(3):147-157. PMID: 2197415',
+      'Goodman & Gilman’s The Pharmacological Basis of Therapeutics (14th Ed, Chapter 56: Penicillins and Other Beta-Lactams).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amox-kidneys',
     node_id: 'node-amox-kidneys',
     general_description:
-      'Amoxicillin is predominantly cleared by renal mechanisms: approximately 60%–70% of the active dose is excreted unchanged in urine within 6 hours by glomerular filtration and active organic anion tubular secretion (OAT3).',
+      'The kidneys work quickly to clear amoxicillin, filtering most of it directly into your urine within 6 hours. This makes it especially effective for treating urinary tract infections.',
     physiological_role:
-      'Renal elimination yields high therapeutic concentrations in urine while maintaining a short systemic elimination half-life (~1.0–1.2 hours).',
+      'Amoxicillin is predominantly cleared through renal mechanisms: 60% to 70% of the active dose is excreted unchanged in urine within 6 hours via glomerular filtration and active organic anion tubular secretion (OAT3). It has a short elimination half-life of 1.0 to 1.2 hours, achieving high urinary concentrations.',
+    key_takeaway:
+      'The kidneys rapidly pump amoxicillin into urine within 6 hours, maintaining a brief half-life of about 1 hour.',
     key_cellular_mechanisms: [
-      'Coadministration with probenecid competitively blocks OAT3 renal tubular secretion, significantly elevating amoxicillin peak and sustaining plasma levels.'
+      'Active tubular secretion: Basolateral OAT3 transporters actively pump amoxicillin from renal peritubular capillaries into proximal tubular cells for urinary discharge.',
+      'Competitive drug interactions: Probenecid competitively blocks OAT3 secretion, prolonging amoxicillin therapeutic blood levels.'
     ],
-    micro_environment_ph: 6.0
+    defined_terms: [
+      {
+        term: 'Organic Anion Transporter 3 (OAT3)',
+        definition: 'A kidney pump that grabs certain medicines from the blood and secretes them directly into urine tubules for rapid elimination.'
+      },
+      {
+        term: 'Elimination Half-Life (t1/2)',
+        definition: 'The time required for the body to eliminate half of the circulating drug concentration.'
+      }
+    ],
+    micro_environment_ph: 6.0,
+    references_list: [
+      'FDA NDA 050542 (Amoxil Labeling).',
+      'Westphal JF et al. Amoxicillin intestinal absorption in humans. Clin Pharmacokinet. 1991;21(3):181-192. PMID: 1884568'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
 
-  // --- Ambroxol Syrup (8 nodes) ---
+  // =========================================================================
+  // --- 3. Ambroxol Syrup (8 nodes) ---
+  // =========================================================================
   {
     id: 'content-amb-mouth',
     node_id: 'node-amb-mouth',
     general_description:
-      'Oral administration of aromatic viscous syrup containing dissolved ambroxol hydrochloride. The liquid vehicle coats and soothes irritated pharyngeal mucosa immediately upon deglutition.',
+      'You drink a spoonful of sweet, pleasant-tasting cough syrup. As you swallow, the syrup physically coats and soothes your dry, scratchy throat, easing irritation right away.',
     physiological_role:
-      'Ingestion gateway providing demulcent soothing and instant liquid swallowing without solid tablet disintegration latency.',
+      'Oral administration of aromatic liquid syrup containing dissolved ambroxol hydrochloride. The viscous syrup vehicle acts as a demulcent, physically lubricating and soothing irritated pharyngeal mucosal nerve endings during swallowing (pH 6.8), with minimal drug absorption in the mouth.',
+    key_takeaway:
+      'The sweet syrup physically coats and soothes a scratchy throat on its way down.',
     key_cellular_mechanisms: [
-      'Liquid formulations require zero dissolution latency, facilitating prompt gastric transfer.'
+      'Demulcent action: Viscous syrup vehicle creates a physical lubricating layer over inflamed pharyngeal mucosa.',
+      'Pre-dissolved state: Ambroxol molecules are already dissolved in liquid, eliminating any solid pill dissolution delay.'
     ],
-    micro_environment_ph: 6.8
+    defined_terms: [
+      {
+        term: 'Demulcent',
+        definition: 'A soothing liquid substance that coats inflamed or irritated mucous membranes, providing temporary relief from friction and coughing.'
+      }
+    ],
+    micro_environment_ph: 6.8,
+    references_list: [
+      'EMA SmPC Mucosolvan (Ambroxol Hydrochloride 15 mg / 5 mL Syrup).',
+      'Weiser T. Ambroxol: a review of its properties in treating sore throat. Respiration. 2008;76(3):344-350. PMID: 18784428. DOI: 10.1159/000155255'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amb-esophagus',
     node_id: 'node-amb-esophagus',
     general_description:
-      'Rapid gravity- and peristalsis-driven transit through the esophagus into the cardiac orifice of the stomach in under 5 seconds.',
+      'Because it is a smooth liquid, the syrup slides down your food pipe into your stomach in less than 5 seconds.',
     physiological_role:
-      'Unimpeded liquid transfer conduit.',
+      'Gravity- and peristalsis-driven liquid transit along the stratified squamous esophageal epithelium into the stomach in under 5 seconds (pH 7.0). Liquid bolus dynamics eliminate solid-tablet friction.',
+    key_takeaway:
+      'Liquid syrup glides through the food pipe in under 5 seconds with zero pill friction.',
     key_cellular_mechanisms: [
-      'Liquid bolus dynamics minimize esophageal mucosal residence time.'
+      'Low-viscosity liquid bolus flows smoothly under hydrostatic gravity and esophageal peristalsis.',
+      'Relaxation of the lower esophageal sphincter admits the syrup bolus directly into the stomach fundus.'
     ],
-    micro_environment_ph: 7.0
+    defined_terms: [
+      {
+        term: 'Liquid Bolus',
+        definition: 'A cohesive single swallow of liquid moving down the food pipe into the stomach.'
+      }
+    ],
+    micro_environment_ph: 7.0,
+    references_list: [
+      'EMA SmPC Mucosolvan.'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amb-stomach',
     node_id: 'node-amb-stomach',
     general_description:
-      'Because ambroxol is pre-dissolved in the syrup vehicle, it does not require disintegrative dissolution and passes rapidly through the gastric antrum and pyloric sphincter.',
+      'In the stomach, the syrup does not need to waste time dissolving like a tablet. It empties quickly into the small intestine, leading to faster relief.',
     physiological_role:
-      'Facilitates rapid gastric emptying compared to solid dosage forms, shortening the onset of therapeutic absorption.',
+      'Because ambroxol is already pre-dissolved in the syrup solution, it bypasses tablet disintegration latency. Gastric liquid emptying is rapid (half-life of ~10–15 min at pH 2.0), prompting rapid delivery into the duodenum for absorption.',
+    key_takeaway:
+      'Because it is already dissolved, the syrup leaves the stomach much faster than a solid pill.',
     key_cellular_mechanisms: [
-      'Liquid gastric emptying half-life is substantially shorter than solid food or compact tablets.'
+      'Rapid gastric emptying: Liquids pass quickly through the pylorus without requiring the antral grinding needed for solid tablets.',
+      'Chemical stability: Ambroxol hydrochloride remains completely stable in acidic gastric juice (pH ~2.0).'
     ],
-    micro_environment_ph: 2.0
+    defined_terms: [
+      {
+        term: 'Disintegration Latency',
+        definition: 'The delay required for a solid pill or tablet to physically break apart into small granules in stomach acid.'
+      }
+    ],
+    micro_environment_ph: 2.0,
+    references_list: [
+      'EMA SmPC Mucosolvan.'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amb-intestine',
     node_id: 'node-amb-small-intestine',
     general_description:
-      'Ambroxol is rapidly and almost completely absorbed across the duodenal and jejunal mucosal epithelium via passive transcellular diffusion into mesenteric capillaries.',
+      'The small intestine absorbs ambroxol rapidly and completely through its walls into blood vessels, capturing about 79% of the medicine.',
     physiological_role:
-      'Achieves systemic bioavailability of ~79% (attenuated primarily by hepatic first-pass metabolism).',
+      'Ambroxol is rapidly and near-completely absorbed across the jejunal mucosal epithelium via passive transcellular diffusion into mesenteric capillaries (pH 6.8). Systemic oral bioavailability reaches approximately 79% (attenuated primarily by hepatic first-pass metabolism).',
+    key_takeaway:
+      'The small intestine rapidly absorbs nearly 80% of the dissolved ambroxol into the bloodstream.',
     key_cellular_mechanisms: [
-      'Lipophilic basic properties (pKa ~8.0) favor mucosal permeation across enteric enterocyte membranes.'
+      'Passive transcellular permeation: Basic lipophilic properties (pKa ~8.0) allow rapid diffusion across the enterocyte membrane.',
+      'Enterocyte transit: Unaltered drug rapidly enters mesenteric venules leading to the portal vein.'
     ],
-    micro_environment_ph: 6.8
+    defined_terms: [
+      {
+        term: 'Systemic Bioavailability',
+        definition: 'The percentage of the swallowed drug that survives digestion and liver filtering to enter general circulation.'
+      }
+    ],
+    micro_environment_ph: 6.8,
+    references_list: [
+      'Malerba M, Ragnoli B. Ambroxol in the 21st century: pharmacological and clinical update. Expert Opin Drug Metab Toxicol. 2008;4(8):1119-1129. PMID: 18680446. DOI: 10.1517/17425255.4.8.1119',
+      'EMA SmPC Mucosolvan.'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amb-bloodstream',
     node_id: 'node-amb-bloodstream',
     general_description:
-      'Circulates in plasma with ~90% binding to serum proteins. Displays a large volume of distribution (~552 L) indicating extensive extravascular tissue distribution.',
+      'Blood delivers ambroxol all over the body. It binds moderately to blood proteins and spreads widely, heading straight for lung tissue where it is needed most.',
     physiological_role:
-      'Circulatory distribution carrier delivering molecule with selective affinity into pulmonary and respiratory tissues.',
+      'Circulates in plasma with approximately 90% binding to serum proteins (pH 7.4). Ambroxol displays an exceptionally high volume of distribution (~552 L), reflecting extensive tissue distribution and high lipophilic tissue penetration.',
+    key_takeaway:
+      'Ambroxol circulates in the blood and spreads extensively throughout the body, showing a natural affinity for lung tissue.',
     key_cellular_mechanisms: [
-      'Extensive tissue distribution maintains steady plasma-to-tissue concentration equilibria.'
+      'Plasma protein binding (~90%) acts as a mobile reservoir in balance with free drug.',
+      'High tissue affinity: The large volume of distribution (~552 L) indicates that most drug molecules leave the bloodstream to enter organs, especially the lungs.'
     ],
-    micro_environment_ph: 7.4
+    defined_terms: [
+      {
+        term: 'Tissue Distribution',
+        definition: 'How widely a drug leaves the bloodstream to enter target organs and body tissues.'
+      }
+    ],
+    micro_environment_ph: 7.4,
+    references_list: [
+      'EMA SmPC Mucosolvan.',
+      'Malerba M, Ragnoli B. Ambroxol in the 21st century. Expert Opin Drug Metab Toxicol. 2008;4(8):1119-1129. PMID: 18680446'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amb-respiratory-tissues',
     node_id: 'node-amb-respiratory-tissues',
     general_description:
-      'Ambroxol concentrates selectively in bronchial mucosa and lung parenchyma (tissue-to-serum concentration ratio reaching up to 15:1 to 20:1). It stimulates alveolar type II pneumocytes to synthesize and secrete pulmonary surfactant.',
+      'In the lungs, ambroxol stimulates specialized cells to release natural slippery fluid (surfactant). This thins out thick, stubborn phlegm so your airways can sweep it up and cough it out easily.',
     physiological_role:
-      'Decreases mucus viscosity, stimulates ciliary beat frequency, improves mucociliary clearance, and relieves productive cough.',
+      'Ambroxol concentrates preferentially in bronchial mucosa and lung tissue (achieving tissue levels 2.5- to 5-fold higher than plasma). It stimulates alveolar type II pneumocytes to synthesize and secrete pulmonary surfactant, decreases mucus viscosity, activates serous glandular secretion, and accelerates ciliary beat frequency to restore mucociliary clearance.',
+    key_takeaway:
+      'Ambroxol accumulates in the lungs and triggers natural surfactant release, thinning thick mucus so coughing clears airways easily.',
     key_cellular_mechanisms: [
-      'Pulmonary surfactant secretion reduces alveolar surface tension and prevents mucus adhesion to bronchial walls.'
+      'Surfactant secretion: Stimulates lamellar body exocytosis in alveolar type II pneumocytes, lowering airway surface tension.',
+      'Mucociliary clearance: Accelerates the coordinated beating frequency of airway cilia, propelling loosened mucus out of the bronchial tree.'
     ],
-    micro_environment_ph: 7.2
+    defined_terms: [
+      {
+        term: 'Alveolar Type II Pneumocytes',
+        definition: 'Specialized cells lining the tiny air sacs in lungs responsible for making pulmonary surfactant.'
+      },
+      {
+        term: 'Pulmonary Surfactant',
+        definition: 'A natural, slippery mixture of lipids and proteins that keeps air sacs open and prevents sticky mucus from adhering to airway walls.'
+      },
+      {
+        term: 'Mucociliary Clearance',
+        definition: 'The natural self-cleaning escalator of the respiratory system, where tiny hair-like cilia sweep mucus and trapped particles up toward the throat.'
+      }
+    ],
+    micro_environment_ph: 7.2,
+    references_list: [
+      'Malerba M, Ragnoli B. Ambroxol in the 21st century: pharmacological and clinical update. Expert Opin Drug Metab Toxicol. 2008;4(8):1119-1129. PMID: 18680446',
+      'EMA SmPC Mucosolvan.'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amb-liver',
     node_id: 'node-amb-liver',
     general_description:
-      'Undergoes hepatic metabolism via glucuronidation and CYP3A4-mediated oxidation into dibromoanthranilic acid and glucuronide conjugates (~30% first-pass effect).',
+      'The liver breaks down used ambroxol into harmless, water-soluble byproducts so your body can safely wash them away.',
     physiological_role:
-      'Converts lipophilic parent molecule into inactive water-soluble polar metabolites for subsequent excretory clearance.',
+      'Undergoes hepatic metabolism via CYP3A4 oxidation and glucuronidation, transforming the molecule into dibromoanthranilic acid and polar glucuronide conjugates (accounting for a ~30% first-pass effect at pH 7.2).',
+    key_takeaway:
+      'The liver breaks down ambroxol into water-soluble compounds that can be easily excreted.',
     key_cellular_mechanisms: [
-      'Hepatic CYP3A4 and glucuronyltransferase systems mediate primary metabolic transformation.'
+      'Phase I Oxidation: Cytochrome P450 3A4 cleaves the morpholine/cyclohexyl ring structure into dibromoanthranilic acid.',
+      'Phase II Glucuronidation: UDP-glucuronosyltransferases attach glucuronic acid to increase water solubility.'
     ],
-    micro_environment_ph: 7.2
+    defined_terms: [
+      {
+        term: 'Glucuronidation',
+        definition: 'A major liver detox process where a sugar acid molecule is attached to a drug, making it easily dissolvable in water for kidney clearance.'
+      }
+    ],
+    micro_environment_ph: 7.2,
+    references_list: [
+      'EMA SmPC Mucosolvan.'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-amb-kidneys',
     node_id: 'node-amb-kidneys',
     general_description:
-      'Approximately 83% of the administered dose is excreted in urine, predominantly as glucuronides and polar metabolites (with ~10% excreted as parent drug).',
+      'The kidneys steadily filter out the broken-down medicine into your urine over roughly 10 hours.',
     physiological_role:
-      'Renal elimination with a terminal elimination half-life of ~10 hours.',
+      'Renal excretion removes approximately 83% of the administered dose in urine (predominantly as glucuronide metabolites, with only ~10% excreted as parent drug). The terminal elimination half-life is approximately 10 hours at urinary pH 6.0.',
+    key_takeaway:
+      'The kidneys remove broken-down ambroxol into urine with a half-life of about 10 hours.',
     key_cellular_mechanisms: [
-      'Glomerular filtration and tubular excretion mediate steady renal elimination over 24–48 hours.'
+      'Glomerular filtration filters water-soluble polar metabolites across renal nephron membranes.',
+      'Terminal half-life of ~10 hours governs steady urinary clearance over 24 to 48 hours.'
     ],
-    micro_environment_ph: 6.0
+    defined_terms: [
+      {
+        term: 'Terminal Elimination Half-Life',
+        definition: 'The time needed for the final concentration of medicine in the body to drop by half during the elimination phase.'
+      }
+    ],
+    micro_environment_ph: 6.0,
+    references_list: [
+      'EMA SmPC Mucosolvan.',
+      'Malerba M, Ragnoli B. Ambroxol in the 21st century. Expert Opin Drug Metab Toxicol. 2008;4(8):1119-1129. PMID: 18680446'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
 
-  // --- Insulin (5 nodes) ---
+  // =========================================================================
+  // --- 4. Regular Recombinant Human Insulin (5 nodes) ---
+  // =========================================================================
   {
     id: 'content-ins-site',
     node_id: 'node-ins-injection-site',
     general_description:
-      'Injected subcutaneously into abdominal or thigh adipose tissue. Self-associated zinc-insulin hexamers in pharmaceutical solution slowly dissociate into dimers and absorbable monomers within the interstitial interstitial fluid.',
+      'Insulin is injected into the fatty layer just under your skin (like on your abdomen or thigh). Because it is a delicate protein hormone, stomach acid would destroy it if swallowed, so an injection is required. In the solution, insulin molecules cluster in groups of six (hexamers) with zinc. Under the skin, they slowly break apart into single units (monomers) that can enter your blood.',
     physiological_role:
-      'Parenteral subcutaneous depot that completely bypasses the gastrointestinal tract and stomach acid, preventing peptidase degradation.',
+      'Subcutaneous adipose tissue injection depot (pH ~7.35). Soluble Regular Human Insulin is formulated with zinc ions, stabilizing it as hexamers (MW ~36,000 Da). Upon injection, interstitial dilution causes zinc diffusion, allowing hexamers to dissociate into dimers and absorbable single monomers (MW ~5,808 Da), which represents the primary rate-limiting step governing absorption kinetics (onset ~30–45 min).',
+    key_takeaway:
+      'Injected under the skin to prevent stomach acid from destroying the protein; clusters of 6 insulin molecules break into single units to enter the blood.',
     key_cellular_mechanisms: [
-      'Zinc-insulin hexamer dissociation into monomeric insulin is the principal rate-limiting step governing subcutaneous absorption kinetics.'
+      'Hexamer dissociation: In the subcutaneous adipose interstitial fluid (pH 7.35), dilution prompts zinc ions to diffuse away, dissociating hexamers into absorbable monomers.',
+      'Capillary permeation: Single monomers (5.8 kDa) permeate across capillary endothelial fenestrations, whereas bulky hexamers cannot.'
     ],
-    micro_environment_ph: 7.35
+    defined_terms: [
+      {
+        term: 'Subcutaneous (SC) Injection',
+        definition: 'A shallow injection into the fatty tissue layer located directly beneath the skin.'
+      },
+      {
+        term: 'Zinc-Insulin Hexamer',
+        definition: 'A stable cluster of six insulin molecules held together around zinc atoms in medication vials. They must break apart into single monomers before they can enter the blood.'
+      },
+      {
+        term: 'Monomer',
+        definition: 'A single, individual molecule of insulin. Only single monomers are small enough to pass into capillaries and activate cell receptors.'
+      }
+    ],
+    micro_environment_ph: 7.35,
+    references_list: [
+      'FDA NDA 018780 (Humulin R / Regular Recombinant Human Insulin Labeling).',
+      'Kang S et al. Subcutaneous insulin absorption: explaining the variability. Diabetes Care. 1991;14(11):942-966. PMID: 1797491. DOI: 10.2337/diacare.14.11.942'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-ins-bloodstream',
     node_id: 'node-ins-bloodstream',
     general_description:
-      'Monomeric insulin diffuses across capillary endothelial fenestrations directly into systemic venous circulation, completely bypassing the portal first-pass hepatic extraction that occurs with endogenous pancreatic insulin.',
+      'Single insulin units slip directly into tiny blood capillaries and circulate freely in your blood, without needing blood proteins to carry them. They move fast and deliver their message to cells within minutes.',
     physiological_role:
-      'Rapid systemic delivery. Circulates as an unbound active peptide monomer with a short biological half-life of ~5–10 minutes.',
+      'Monomeric insulin diffuses across capillary endothelial fenestrations directly into systemic venous circulation at pH 7.4. Circulating insulin exists almost entirely in an unbound, monomeric peptide form with a short elimination half-life of 5 to 10 minutes, rapidly reaching insulin receptors across body tissues.',
+    key_takeaway:
+      'Insulin circulates as an unbound messenger in the blood, acting quickly with a brief half-life of 5 to 10 minutes.',
     key_cellular_mechanisms: [
-      'Unbound monomeric insulin rapidly equilibriums with peripheral interstitial fluid to engage target cell-surface receptors.'
+      'Direct vascular entry: Diffuses across continuous capillary endothelial fenestrations into peripheral venules.',
+      'Rapid plasma clearance: Rapid receptor binding and degradation maintain a tight 5–10 minute circulating half-life.'
     ],
-    micro_environment_ph: 7.4
+    defined_terms: [
+      {
+        term: 'Capillary Fenestrations',
+        definition: 'Microscopic pores in the walls of tiny blood vessels that allow small protein hormones like insulin monomers to pass through.'
+      },
+      {
+        term: 'Peptide Hormone',
+        definition: 'A chemical messenger made of amino acid chains that circulates in the blood to regulate major body processes like metabolism.'
+      }
+    ],
+    micro_environment_ph: 7.4,
+    references_list: [
+      'FDA NDA 018780 (Humulin R Labeling).',
+      'Goodman & Gilman’s The Pharmacological Basis of Therapeutics (14th Ed, Chapter 47: Endocrine Pancreas and Pharmacotherapy of Diabetes Mellitus).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
-    id: 'content-ins-tissues',
+    id: 'content-ins-body-tissues',
     node_id: 'node-ins-body-tissues',
     general_description:
-      'Binds with high affinity to alpha subunits of cell-surface insulin receptors (tyrosine kinase), activating beta-subunit autophosphorylation and the PI3K-Akt cascade to mobilize GLUT4 glucose transporter vesicles to the plasma membrane.',
+      'Insulin acts like a key unlocking muscle and fat cells. It docks onto cellular locks (insulin receptors) and signals the cell to open up glucose gates (GLUT4 doors), allowing blood sugar to move out of the blood and into cells for energy.',
     physiological_role:
-      'Drives cellular glucose uptake into skeletal muscle and adipose tissue, stimulating glycogen synthesis and lipogenesis while halting catabolic proteolysis.',
+      'Binds cell-surface insulin receptor alpha-subunits, triggering tyrosine kinase autophosphorylation of beta-subunits and activating the IRS-1/2, PI3K, and Akt/PKB signaling cascade. This stimulates intracellular GLUT4 storage vesicles to translocate and fuse with the plasma membrane, driving glucose uptake into skeletal muscle and adipose tissue and reducing blood glucose levels.',
+    key_takeaway:
+      'Insulin acts like a key that opens glucose gates (GLUT4) on muscle and fat cells, moving sugar from the blood into cells for fuel.',
     key_cellular_mechanisms: [
-      'GLUT4 translocation increases cellular glucose clearance from circulation up to 20- to 30-fold within target tissues.'
+      'Receptor activation: Binding activates intrinsic tyrosine kinase domains, prompting IRS-1 phosphorylation and PI3K/Akt signaling.',
+      'GLUT4 translocation: Akt signaling causes GLUT4 vesicles inside the cell to move and fuse with the outer cell membrane, increasing glucose entry up to 20- to 30-fold.'
     ],
-    micro_environment_ph: 7.35
+    defined_terms: [
+      {
+        term: 'Insulin Receptor (Tyrosine Kinase)',
+        definition: 'A specialized docking station on the surface of muscle and fat cells that triggers chemical messages inside the cell when insulin binds to it.'
+      },
+      {
+        term: 'GLUT4 Transporter',
+        definition: 'The primary glucose doorway protein in muscle and fat cells that moves to the cell surface in response to insulin to let sugar in.'
+      },
+      {
+        term: 'PI3K-Akt Pathway',
+        definition: 'The internal chemical relay chain inside a cell that translates the insulin signal into glucose door opening and energy storage.'
+      }
+    ],
+    micro_environment_ph: 7.35,
+    references_list: [
+      'Saltiel AR, Kahn CR. Insulin signalling and the regulation of glucose and lipid metabolism. Nature. 2001;414(6865):799-806. PMID: 11742412. DOI: 10.1038/414799a',
+      'Goodman & Gilman’s The Pharmacological Basis of Therapeutics (14th Ed, Chapter 47).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-ins-liver',
     node_id: 'node-ins-liver',
     general_description:
-      'Binds hepatic insulin receptors, suppressing gluconeogenesis and glycogenolysis while promoting glycogen storage. Approximately 50% of circulating insulin is bound, internalized, and degraded by hepatic insulin-degrading enzyme (IDE).',
+      'In the liver, insulin acts like a red stoplight for sugar production. It tells the liver to stop pumping backup sugar into your blood and stores it safely as fuel instead.',
     physiological_role:
-      'Suppresses endogenous hepatic glucose output to basal levels and accounts for approximately half of systemic hormone degradation.',
+      'Binds hepatic insulin receptors, suppressing gluconeogenesis and glycogenolysis while stimulating glycogen synthase. Concurrently, approximately 50% of circulating insulin is bound, internalized via receptor-mediated endocytosis, and degraded by hepatic insulin-degrading enzyme (IDE).',
+    key_takeaway:
+      'Insulin signals the liver to halt sugar release and store glucose, while the liver breaks down about half of the circulating insulin.',
     key_cellular_mechanisms: [
-      'Receptor-mediated endocytosis followed by lysosomal and IDE degradation clears active hormone from circulation.'
+      'Suppression of glucose output: Dephosphorylates key enzymes to turn off gluconeogenesis (making new glucose) and glycogenolysis (sugar breakdown).',
+      'Receptor-mediated clearance: Bound insulin-receptor complexes are engulfed into endosomes where insulin-degrading enzyme (IDE) breaks down the hormone.'
     ],
-    micro_environment_ph: 7.2
+    defined_terms: [
+      {
+        term: 'Gluconeogenesis',
+        definition: 'The liver’s production of new glucose sugar from non-carb sources like amino acids, which insulin actively turns off.'
+      },
+      {
+        term: 'Insulin-Degrading Enzyme (IDE)',
+        definition: 'A cellular enzyme found in the liver and muscles that breaks down insulin after it delivers its message.'
+      }
+    ],
+    micro_environment_ph: 7.2,
+    references_list: [
+      'Goodman & Gilman’s The Pharmacological Basis of Therapeutics (14th Ed, Chapter 47: Endocrine Pancreas).',
+      'Saltiel AR, Kahn CR. Insulin signalling. Nature. 2001;414(6865):799-806. PMID: 11742412'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   },
   {
     id: 'content-ins-kidneys',
     node_id: 'node-ins-kidneys',
     general_description:
-      'Insulin is filtered freely at the renal glomerulus and reabsorbed in the proximal convoluted tubules via receptor-mediated endocytosis, where it is degraded into amino acids. Less than 1% is excreted intact.',
+      'The kidneys clean up the remaining insulin from your blood, filtering it out and recycling it back into basic amino acid building blocks, so almost none is lost in urine.',
     physiological_role:
-      'Renal tubular catabolism accounts for ~30–40% of systemic insulin clearance.',
+      'Insulin is freely filtered across the renal glomerular basement membrane and reabsorbed in proximal convoluted tubular cells via receptor-mediated endocytosis. Tubular lysosomes break down the peptide into basic amino acids, accounting for ~30% to 40% of systemic insulin clearance. Less than 1% is excreted intact in urine.',
+    key_takeaway:
+      'The kidneys filter and recycle remaining insulin into amino acids, accounting for roughly a third of insulin clearance.',
     key_cellular_mechanisms: [
-      'Severe renal impairment diminishes tubular degradation, prolonging insulin half-life and increasing hypoglycemia risk.'
+      'Glomerular filtration: The small 5.8 kDa monomer easily passes through glomerular slits into the renal tubule.',
+      'Proximal tubular endocytosis: Reabsorbed by megalin-mediated endocytosis into proximal tubule epithelial cells for lysosomal proteolysis.'
     ],
-    micro_environment_ph: 6.0
+    defined_terms: [
+      {
+        term: 'Proximal Convoluted Tubule',
+        definition: 'The first section of the kidney filter tube where essential nutrients, proteins, and electrolytes are reabsorbed back into the body.'
+      },
+      {
+        term: 'Lysosomal Proteolysis',
+        definition: 'The breakdown of proteins into basic amino acid building blocks inside cellular digestion sacs called lysosomes.'
+      }
+    ],
+    micro_environment_ph: 6.0,
+    references_list: [
+      'FDA NDA 018780 (Humulin R Labeling).',
+      'Goodman & Gilman’s The Pharmacological Basis of Therapeutics (14th Ed, Chapter 47).'
+    ],
+    review_status: 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
   }
 ];
 

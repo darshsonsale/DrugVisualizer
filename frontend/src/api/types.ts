@@ -51,6 +51,11 @@ export interface PathwayNode {
   camera_focus_z?: number;
 }
 
+export interface DefinedTerm {
+  term: string;
+  definition: string;
+}
+
 export interface NodeContent {
   id: string;
   node_id: string;
@@ -58,6 +63,53 @@ export interface NodeContent {
   physiological_role: string;
   key_cellular_mechanisms?: string[];
   micro_environment_ph?: number;
+  key_takeaway?: string;
+  defined_terms?: DefinedTerm[];
+  references_list?: string[];
+  review_status?: string;
+}
+
+export interface EducationalNode {
+  node_id: string;
+  name: string;
+  node_order: number;
+  anatomical_location: string;
+  organ_system: string;
+  estimated_time_minutes: number;
+  general_description: string;
+  physiological_role: string;
+  key_takeaway: string;
+  key_cellular_mechanisms: string[];
+  defined_terms: DefinedTerm[];
+  micro_environment_ph?: number;
+  references_list: string[];
+  review_status: string;
+}
+
+export interface DrugFaq {
+  id: string;
+  question: string;
+  answer: string;
+  source_reference: string;
+  review_status: string;
+}
+
+export interface AdmeSummary {
+  absorption: string;
+  distribution: string;
+  metabolism: string;
+  excretion: string;
+  source: string;
+  review_status: string;
+}
+
+export interface DrugEducationalContent {
+  drug: DrugSummary;
+  pathway_id: string;
+  review_status: string;
+  adme_overview: AdmeSummary;
+  nodes: EducationalNode[];
+  faqs: DrugFaq[];
 }
 
 export interface NodeVariation {

@@ -9,7 +9,8 @@ import type {
   PathwayNodeWithDetailsDto,
   PathwayEdgeDto,
   NodeContentDto,
-  NodeVariationDto
+  NodeVariationDto,
+  DefinedTermDto
 } from '../dto/pathway.dto.js';
 
 interface RawPathwayRow {
@@ -43,6 +44,10 @@ interface RawNodeJoinedRow {
   physiological_role: string | null;
   key_cellular_mechanisms: string[] | null;
   micro_environment_ph: string | number | null;
+  key_takeaway: string | null;
+  defined_terms: Array<{ term: string; definition: string }> | string | null;
+  references_list: string[] | null;
+  review_status: string | null;
   variation_id: string | null;
   condition: FoodCondition | null;
   transit_time_modifier_pct: string | number | null;
@@ -195,6 +200,10 @@ export class PathwaysService {
         nc.physiological_role,
         nc.key_cellular_mechanisms,
         nc.micro_environment_ph,
+        nc.key_takeaway,
+        nc.defined_terms,
+        nc.references_list,
+        nc.review_status,
         nv.id AS variation_id,
         nv.condition,
         nv.transit_time_modifier_pct,
@@ -220,6 +229,19 @@ export class PathwaysService {
 
       let content: NodeContentDto | undefined;
       if (row.content_id && row.general_description && row.physiological_role) {
+        let parsedTerms: DefinedTermDto[] = [];
+        if (row.defined_terms) {
+          if (Array.isArray(row.defined_terms)) {
+            parsedTerms = row.defined_terms as DefinedTermDto[];
+          } else if (typeof row.defined_terms === 'string') {
+            try {
+              parsedTerms = JSON.parse(row.defined_terms);
+            } catch {
+              parsedTerms = [];
+            }
+          }
+        }
+
         content = {
           id: row.content_id,
           node_id: row.id,
@@ -227,7 +249,11 @@ export class PathwaysService {
           physiological_role: row.physiological_role,
           key_cellular_mechanisms: row.key_cellular_mechanisms || [],
           micro_environment_ph:
-            row.micro_environment_ph != null ? parseFloat(String(row.micro_environment_ph)) : undefined
+            row.micro_environment_ph != null ? parseFloat(String(row.micro_environment_ph)) : undefined,
+          key_takeaway: row.key_takeaway ?? undefined,
+          defined_terms: parsedTerms.length > 0 ? parsedTerms : undefined,
+          references_list: row.references_list || [],
+          review_status: row.review_status ?? 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
         };
       }
 

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import type { ApiResponse } from '../../common/types/index.js';
+import { contentController } from './controllers/content.controller.js';
 
 export const contentRouter: Router = Router();
 
@@ -9,8 +10,8 @@ contentRouter.get('/', (_req: Request, res: Response) => {
     success: true,
     data: {
       module: 'content',
-      status: 'initialized',
-      description: 'Educational definitions, organ roles & fun facts module'
+      status: 'active',
+      description: 'Educational definitions, organ roles, student key takeaways, and verified scientific references module'
     },
     meta: {
       timestamp
@@ -18,3 +19,6 @@ contentRouter.get('/', (_req: Request, res: Response) => {
   };
   res.status(200).json(response);
 });
+
+contentRouter.get('/drugs/:drugId', contentController.getDrugContent.bind(contentController));
+contentRouter.get('/drug/:drugId', contentController.getDrugContent.bind(contentController));

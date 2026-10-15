@@ -14,6 +14,11 @@ export interface PathwayNodeDto {
   camera_focus_z?: number;
 }
 
+export interface DefinedTermDto {
+  term: string;
+  definition: string;
+}
+
 export interface NodeContentDto {
   id: string;
   node_id: string;
@@ -21,6 +26,10 @@ export interface NodeContentDto {
   physiological_role: string;
   key_cellular_mechanisms?: string[];
   micro_environment_ph?: number;
+  key_takeaway?: string;
+  defined_terms?: DefinedTermDto[];
+  references_list?: string[];
+  review_status?: string;
 }
 
 export interface NodeVariationDto {

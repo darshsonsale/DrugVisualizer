@@ -204,26 +204,35 @@ export async function seedDatabase(): Promise<void> {
     }
     console.log(`[Seeder] Seeded ${SEED_NODES.length} pathway nodes.`);
 
-    // 5. SEED NODE CONTENT (With verified scientific rationales and review flags)
+    // 5. SEED NODE CONTENT (With verified scientific rationales, student key takeaways, and review flags)
     for (const c of SEED_CONTENTS) {
       await client.query(
         `INSERT INTO node_content (
           id, node_id, general_description, physiological_role,
-          key_cellular_mechanisms, micro_environment_ph
-        ) VALUES ($1, $2, $3, $4, $5, $6)
-        ON CONFLICT (id) DO UPDATE SET
-          node_id = EXCLUDED.node_id,
+          key_cellular_mechanisms, micro_environment_ph,
+          key_takeaway, defined_terms, references_list, review_status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        ON CONFLICT (node_id) DO UPDATE SET
+          id = EXCLUDED.id,
           general_description = EXCLUDED.general_description,
           physiological_role = EXCLUDED.physiological_role,
           key_cellular_mechanisms = EXCLUDED.key_cellular_mechanisms,
-          micro_environment_ph = EXCLUDED.micro_environment_ph;`,
+          micro_environment_ph = EXCLUDED.micro_environment_ph,
+          key_takeaway = EXCLUDED.key_takeaway,
+          defined_terms = EXCLUDED.defined_terms,
+          references_list = EXCLUDED.references_list,
+          review_status = EXCLUDED.review_status;`,
         [
           c.id,
           c.node_id,
           c.general_description,
           c.physiological_role,
           c.key_cellular_mechanisms,
-          c.micro_environment_ph
+          c.micro_environment_ph ?? null,
+          c.key_takeaway || null,
+          JSON.stringify(c.defined_terms || []),
+          c.references_list || [],
+          c.review_status || 'FLAGGED_FOR_SCIENTIFIC_REVIEW'
         ]
       );
     }

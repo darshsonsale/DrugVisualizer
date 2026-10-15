@@ -396,3 +396,219 @@
   flex-direction: column;
   gap: 0.25rem;
 }
+
+/* ----------------------------------------------------
+   Task 21: Medication Selector Tabs
+   ---------------------------------------------------- */
+.learn-drug-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.learn-drug-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  background: rgba(25, 32, 42, 0.7);
+  border: 1px solid rgba(59, 73, 76, 0.35);
+  color: var(--color-on-surface-variant, #bac9cc);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.learn-drug-tab:hover {
+  background: rgba(36, 42, 52, 0.9);
+  color: var(--color-on-surface, #dce3f0);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.learn-drug-tab--active {
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--color-primary-container, #00e5ff);
+  border-color: var(--color-primary-container, #00e5ff);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+}
+
+/* ----------------------------------------------------
+   Scientific Review Status Banner
+   ---------------------------------------------------- */
+.learn-review-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg, 12px);
+  background: rgba(255, 184, 0, 0.08);
+  border: 1px solid rgba(255, 184, 0, 0.25);
+  color: var(--color-on-surface, #dce3f0);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.learn-review-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(255, 184, 0, 0.15);
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  color: #ffb800;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------
+   pH Badge & Key Takeaway Card
+   ---------------------------------------------------- */
+.learn-ph-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(156, 240, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--color-primary-container, #00e5ff);
+  font-size: 0.725rem;
+  font-weight: 700;
+}
+
+.learn-takeaway-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(0, 229, 255, 0.06);
+  border-left: 3px solid var(--color-primary-container, #00e5ff);
+  margin-top: 0.5rem;
+}
+
+.learn-takeaway-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--color-on-surface, #dce3f0);
+  margin: 0;
+}
+
+/* ----------------------------------------------------
+   Collapsible Scientific Deep Dive Drawer
+   ---------------------------------------------------- */
+.learn-scientific-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid rgba(59, 73, 76, 0.4);
+  color: var(--color-on-surface-variant, #bac9cc);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}
+
+.learn-scientific-toggle:hover {
+  background: rgba(36, 42, 52, 0.6);
+  color: var(--color-primary-container, #00e5ff);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.learn-scientific-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-md, 10px);
+  background: rgba(16, 22, 30, 0.75);
+  border: 1px solid rgba(59, 73, 76, 0.35);
+  margin-top: 0.75rem;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.learn-glossary-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.learn-glossary-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #4edea3);
+  margin: 0;
+}
+
+.learn-terms-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .learn-terms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.learn-term-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 6px;
+  background: rgba(25, 32, 42, 0.5);
+  border: 1px solid rgba(59, 73, 76, 0.25);
+}
+
+.learn-term-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-on-surface, #dce3f0);
+}
+
+.learn-term-def {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-on-surface-variant, #bac9cc);
+  margin: 0;
+}
+
+.learn-references-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(59, 73, 76, 0.25);
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant, #bac9cc);
+}
+
+.learn-reference-item {
+  font-family: monospace;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: #8da4a8;
+}
+
