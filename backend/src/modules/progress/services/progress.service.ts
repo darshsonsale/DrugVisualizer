@@ -1,5 +1,6 @@
 import { getPool } from '../../../database/pool.js';
-import { UnauthorizedError, BadRequestError } from '../../../common/errors/AppError.js';
+import { UnauthorizedError, BadRequestError, ForbiddenError } from '../../../common/errors/AppError.js';
+import { drugsService } from '../../drugs/services/drugs.service.js';
 import type { UserProgressDto, UpdateProgressDto } from '../dto/progress.dto.js';
 
 interface RawProgressRow {
@@ -30,10 +31,13 @@ export class ProgressService {
    * If caller is anonymous (userId === null), returns a non-persistent default baseline.
    */
   public async getProgress(userId: string | null, drugId: string): Promise<UserProgressDto> {
+    const resolvedDrug = await drugsService.getDrugById(drugId).catch(() => null);
+    const canonicalDrugId = resolvedDrug ? resolvedDrug.id : drugId;
+
     if (!userId) {
       return {
-        id: `anon-${drugId}`,
-        drug_id: drugId,
+        id: `anon-${canonicalDrugId}`,
+        drug_id: canonicalDrugId,
         completed_nodes: [],
         quiz_score: undefined,
         quiz_completed: false,
@@ -47,12 +51,12 @@ export class ProgressService {
       WHERE user_id = $1 AND drug_id = $2;
     `;
 
-    const result = await getPool().query<RawProgressRow>(query, [userId, drugId]);
+    const result = await getPool().query<RawProgressRow>(query, [userId, canonicalDrugId]);
     if (result.rows.length === 0) {
       return {
-        id: `init-${userId}-${drugId}`,
+        id: `init-${userId}-${canonicalDrugId}`,
         user_id: userId,
-        drug_id: drugId,
+        drug_id: canonicalDrugId,
         completed_nodes: [],
         quiz_score: undefined,
         quiz_completed: false,
@@ -74,6 +78,15 @@ export class ProgressService {
   ): Promise<UserProgressDto> {
     if (!userId) {
       throw new UnauthorizedError('Authentication required to persist progress to the database.');
+    }
+
+    // Resolve canonical drug ID (supports both full ID and short slug)
+    const resolvedDrug = await drugsService.getDrugById(drugId).catch(() => null);
+    const canonicalDrugId = resolvedDrug ? resolvedDrug.id : drugId;
+
+    // Explicitly reject user_id tampering in request payload
+    if ((update as any).user_id && (update as any).user_id !== userId) {
+      throw new ForbiddenError('Access denied: Cannot modify progress belonging to another user.');
     }
 
     // Input validation
@@ -98,7 +111,7 @@ export class ProgressService {
       }
     }
 
-    const progressId = `prog-${userId}-${drugId}`;
+    const progressId = `prog-${userId}-${canonicalDrugId}`;
     const completedNodes = update.completed_nodes ?? null;
     const quizScore = update.quiz_score ?? null;
     const quizCompleted = update.quiz_completed ?? null;

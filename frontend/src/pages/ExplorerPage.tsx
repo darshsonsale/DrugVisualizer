@@ -56,6 +56,7 @@ export const ExplorerPage: React.FC = () => {
     loading,
     error,
     condition,
+    isMockData,
     setCondition,
     refetch,
   } = usePathway(selectedDrugId, 'BEFORE_FOOD');
@@ -235,6 +236,7 @@ export const ExplorerPage: React.FC = () => {
         onConditionChange={(newCondition: FoodCondition) => setCondition(newCondition)}
         loading={loading}
         onBackToSelector={handleBackToSelector}
+        isMockData={isMockData}
       />
 
       {/* 2. Total Pharmacokinetic Progression Timeline Strip (Above Diagram) */}

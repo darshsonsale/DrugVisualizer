@@ -20,7 +20,9 @@
     "db:seed": "tsx src/database/seed.ts",
     "test:api": "tsx src/database/verifyApi.ts",
     "db:test:quiz": "tsx src/database/verifyQuizProgress.ts",
-    "test:auth": "tsx src/database/verifyAuth.ts"
+    "test:auth": "tsx src/database/verifyAuth.ts",
+    "test:authz": "tsx src/database/verifyAuthorization.ts",
+    "test:pathways": "tsx src/database/verifyPathways.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

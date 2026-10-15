@@ -95,8 +95,15 @@ export class PathwaysService {
 
     // If AFTER_FOOD and drug has altered Tmax, overlay condition on drug response
     const drugDto = { ...drug };
-    if (condition === 'AFTER_FOOD' && drugDto.id === 'drug-ibuprofen-001') {
-      drugDto.tmax_hours = 2.5;
+    if (condition === 'AFTER_FOOD') {
+      if (drugDto.id === 'drug-ibuprofen-001') {
+        drugDto.tmax_hours = 2.5;
+      } else if (drugDto.id === 'drug-amoxicillin-002') {
+        drugDto.tmax_hours = 1.8;
+      } else if (drugDto.id === 'drug-ambroxol-003') {
+        drugDto.tmax_hours = 2.5;
+      }
+      // Note: drug-insulin-004 Tmax remains 0.5h (subcutaneous absorption is independent of gastrointestinal contents)
     }
 
     // 3. Fetch nodes with joined content and condition variation
@@ -117,13 +124,16 @@ export class PathwaysService {
    * Retrieves full pathway graph response for a drug and condition (BEFORE_FOOD or AFTER_FOOD).
    */
   public async getPathwayForDrug(drugId: string, conditionInput?: unknown): Promise<PathwayGraphResponseDto> {
+    // 1. Resolve canonical drug record (supports canonical ID and short slug)
+    const drug = await drugsService.getDrugById(drugId);
+
     const pathwayQuery = `
       SELECT id, drug_id, name, description
       FROM pathways
       WHERE drug_id = $1
       LIMIT 1;
     `;
-    const pathwayResult = await getPool().query<RawPathwayRow>(pathwayQuery, [drugId]);
+    const pathwayResult = await getPool().query<RawPathwayRow>(pathwayQuery, [drug.id]);
     if (pathwayResult.rows.length === 0) {
       throw new NotFoundError('Pathway for drug', drugId);
     }

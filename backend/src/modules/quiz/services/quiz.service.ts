@@ -1,6 +1,7 @@
 import { getPool } from '../../../database/pool.js';
 import { NotFoundError, BadRequestError } from '../../../common/errors/AppError.js';
 import { progressService } from '../../progress/services/progress.service.js';
+import { drugsService } from '../../drugs/services/drugs.service.js';
 import type {
   QuizResponseDto,
   QuizQuestionDto,
@@ -105,13 +106,14 @@ export class QuizService {
    * Retrieves quiz for a specific drug.
    */
   public async getQuizForDrug(drugId: string): Promise<QuizResponseDto> {
+    const drug = await drugsService.getDrugById(drugId);
     const query = `
       SELECT id
       FROM quizzes
       WHERE drug_id = $1
       LIMIT 1;
     `;
-    const result = await getPool().query<{ id: string }>(query, [drugId]);
+    const result = await getPool().query<{ id: string }>(query, [drug.id]);
     if (result.rows.length === 0) {
       throw new NotFoundError('Quiz for drug', drugId);
     }

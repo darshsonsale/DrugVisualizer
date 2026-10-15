@@ -80,17 +80,18 @@ export class PathwayService {
    * Helper to resolve the correct mock pathway based on drug ID and condition.
    */
   private static resolveMockPathway(drugId: string, condition: FoodCondition): PathwayGraphResponse {
-    if (drugId === 'drug-amoxicillin-002') {
+    const id = (drugId || '').trim().toLowerCase();
+    if (id === 'drug-amoxicillin-002' || id === 'amoxicillin') {
       return condition === 'AFTER_FOOD'
         ? MOCK_AMOXICILLIN_PATHWAY_AFTER_FOOD
         : MOCK_AMOXICILLIN_PATHWAY_BEFORE_FOOD;
     }
-    if (drugId === 'drug-ambroxol-003') {
+    if (id === 'drug-ambroxol-003' || id === 'ambroxol') {
       return condition === 'AFTER_FOOD'
         ? MOCK_AMBROXOL_PATHWAY_AFTER_FOOD
         : MOCK_AMBROXOL_PATHWAY_BEFORE_FOOD;
     }
-    if (drugId === 'drug-insulin-004') {
+    if (id === 'drug-insulin-004' || id === 'insulin') {
       return condition === 'AFTER_FOOD'
         ? MOCK_INSULIN_PATHWAY_AFTER_FOOD
         : MOCK_INSULIN_PATHWAY_BEFORE_FOOD;

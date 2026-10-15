@@ -8,6 +8,7 @@ export interface ExplorerHeaderProps {
   onConditionChange: (condition: FoodCondition) => void;
   loading?: boolean;
   onBackToSelector?: () => void;
+  isMockData?: boolean;
 }
 
 export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
@@ -16,6 +17,7 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
   onConditionChange,
   loading = false,
   onBackToSelector,
+  isMockData = false,
 }) => {
   // Scientific telemetry readouts derived directly from the drug data object
   const tmaxDisplay = drug.tmax_hours != null ? `${drug.tmax_hours} hrs` : '—';
@@ -77,6 +79,27 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
               >
                 {drug.dosage || '400 mg'}
               </span>
+              {isMockData && (
+                <span
+                  title="Displaying offline mock data fixture"
+                  style={{
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    padding: '0.15rem 0.45rem',
+                    borderRadius: '4px',
+                    background: 'rgba(245, 158, 11, 0.15)',
+                    color: '#f59e0b',
+                    border: '1px solid rgba(245, 158, 11, 0.4)',
+                    letterSpacing: '0.04em',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                  }}
+                >
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#f59e0b' }} />
+                  MOCK DATA
+                </span>
+              )}
             </div>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               <span

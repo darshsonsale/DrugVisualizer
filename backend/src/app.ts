@@ -13,6 +13,7 @@ import { pathwaysRouter } from './modules/pathways/index.js';
 import { contentRouter } from './modules/content/index.js';
 import { quizRouter } from './modules/quiz/index.js';
 import { progressRouter } from './modules/progress/index.js';
+import { usersRouter } from './modules/users/index.js';
 import { adminRouter } from './modules/admin/index.js';
 
 export function createApp(): Express {
@@ -67,6 +68,7 @@ export function createApp(): Express {
   apiV1Router.use('/quiz', quizRouter);
   apiV1Router.use('/quizzes', quizRouter);
   apiV1Router.use('/progress', progressRouter);
+  apiV1Router.use('/users', usersRouter);
   apiV1Router.use('/admin', adminRouter);
 
   app.use(config.apiPrefix, apiV1Router);

@@ -74,7 +74,8 @@ export class DrugsService {
    * Retrieves a single drug by unique identifier.
    * Throws NotFoundError (404) if drug is not found.
    */
-  public async getDrugById(drugId: string): Promise<DrugSummaryDto> {
+  public async getDrugById(drugIdOrSlug: string): Promise<DrugSummaryDto> {
+    const trimmed = drugIdOrSlug.trim();
     const query = `
       SELECT
         id,
@@ -93,12 +94,23 @@ export class DrugsService {
         route,
         image_url
       FROM drugs
-      WHERE id = $1;
+      WHERE id = $1
+         OR LOWER(name) = LOWER($1)
+         OR id ILIKE 'drug-' || $1 || '-%'
+         OR LOWER(name) LIKE LOWER($1) || '%'
+      ORDER BY
+        CASE
+          WHEN id = $1 THEN 1
+          WHEN LOWER(name) = LOWER($1) THEN 2
+          WHEN id ILIKE 'drug-' || $1 || '-%' THEN 3
+          ELSE 4
+        END
+      LIMIT 1;
     `;
 
-    const result = await getPool().query<RawDrugRow>(query, [drugId]);
+    const result = await getPool().query<RawDrugRow>(query, [trimmed]);
     if (result.rows.length === 0) {
-      throw new NotFoundError('Drug', drugId);
+      throw new NotFoundError('Drug', drugIdOrSlug);
     }
 
     return mapDrugRowToDto(result.rows[0]);
