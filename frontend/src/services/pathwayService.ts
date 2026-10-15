@@ -13,6 +13,12 @@ import {
   MOCK_DRUGS,
   MOCK_IBUPROFEN_PATHWAY_BEFORE_FOOD,
   MOCK_IBUPROFEN_PATHWAY_AFTER_FOOD,
+  MOCK_AMOXICILLIN_PATHWAY_BEFORE_FOOD,
+  MOCK_AMOXICILLIN_PATHWAY_AFTER_FOOD,
+  MOCK_AMBROXOL_PATHWAY_BEFORE_FOOD,
+  MOCK_AMBROXOL_PATHWAY_AFTER_FOOD,
+  MOCK_INSULIN_PATHWAY_BEFORE_FOOD,
+  MOCK_INSULIN_PATHWAY_AFTER_FOOD,
 } from '../api/mockData';
 
 export interface ServiceFetchResult<T> {
@@ -71,6 +77,30 @@ export class PathwayService {
   }
 
   /**
+   * Helper to resolve the correct mock pathway based on drug ID and condition.
+   */
+  private static resolveMockPathway(drugId: string, condition: FoodCondition): PathwayGraphResponse {
+    if (drugId === 'drug-amoxicillin-002') {
+      return condition === 'AFTER_FOOD'
+        ? MOCK_AMOXICILLIN_PATHWAY_AFTER_FOOD
+        : MOCK_AMOXICILLIN_PATHWAY_BEFORE_FOOD;
+    }
+    if (drugId === 'drug-ambroxol-003') {
+      return condition === 'AFTER_FOOD'
+        ? MOCK_AMBROXOL_PATHWAY_AFTER_FOOD
+        : MOCK_AMBROXOL_PATHWAY_BEFORE_FOOD;
+    }
+    if (drugId === 'drug-insulin-004') {
+      return condition === 'AFTER_FOOD'
+        ? MOCK_INSULIN_PATHWAY_AFTER_FOOD
+        : MOCK_INSULIN_PATHWAY_BEFORE_FOOD;
+    }
+    return condition === 'AFTER_FOOD'
+      ? MOCK_IBUPROFEN_PATHWAY_AFTER_FOOD
+      : MOCK_IBUPROFEN_PATHWAY_BEFORE_FOOD;
+  }
+
+  /**
    * Retrieves pathway graph for a drug under a specific physiological state (BEFORE_FOOD / AFTER_FOOD).
    */
   public static async getPathway(
@@ -79,10 +109,7 @@ export class PathwayService {
     options: FetchOptions = {}
   ): Promise<ServiceFetchResult<PathwayGraphResponse>> {
     if (options.preferMock) {
-      const mockResult =
-        condition === 'AFTER_FOOD'
-          ? MOCK_IBUPROFEN_PATHWAY_AFTER_FOOD
-          : MOCK_IBUPROFEN_PATHWAY_BEFORE_FOOD;
+      const mockResult = this.resolveMockPathway(drugId, condition);
       return {
         data: mockResult,
         isMockData: true,
@@ -107,10 +134,7 @@ export class PathwayService {
           `[PathwayService] Real API request failed for /drugs/${drugId}/pathway?condition=${condition}. VITE_ENABLE_MOCK_FALLBACK is enabled in development. Serving development mock fixture.`,
           err
         );
-        const mockResult =
-          condition === 'AFTER_FOOD'
-            ? MOCK_IBUPROFEN_PATHWAY_AFTER_FOOD
-            : MOCK_IBUPROFEN_PATHWAY_BEFORE_FOOD;
+        const mockResult = this.resolveMockPathway(drugId, condition);
         return {
           data: mockResult,
           isMockData: true,

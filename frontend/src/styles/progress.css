@@ -1,0 +1,302 @@
+/**
+ * Drug Path Visualiser - Progress Page Styles
+ * Matching Stitch Spacious Edition & BioLumen Pharmacology Design System
+ */
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  gap: 2.5rem;
+  overflow-x: hidden;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .progress-container {
+    padding: 4rem 2rem 6rem;
+  }
+}
+
+.progress-glow-1 {
+  position: absolute;
+  top: 2rem;
+  left: 20%;
+  width: 400px;
+  height: 400px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.progress-glow-2 {
+  position: absolute;
+  top: 18rem;
+  right: 5%;
+  width: 360px;
+  height: 360px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(78, 222, 163, 0.06) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------
+   Header Block & Identity Chips
+   ---------------------------------------------------- */
+.progress-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .progress-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.progress-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(36, 42, 52, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary-container, #00e5ff);
+}
+
+.progress-title {
+  font-family: var(--font-headline);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-on-surface, #dce3f0);
+  margin: 0.35rem 0 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .progress-title {
+    font-size: 2.6rem;
+  }
+}
+
+.progress-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-on-surface-variant, #bac9cc);
+  margin-top: 0.35rem;
+  max-width: 680px;
+  line-height: 1.6;
+}
+
+.progress-identity-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-xl, 16px);
+  background: rgba(21, 28, 38, 0.8);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+}
+
+.progress-identity-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-surface-container, #19202a);
+}
+
+/* ----------------------------------------------------
+   4 KPI Summary Cards
+   ---------------------------------------------------- */
+.progress-kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .progress-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .progress-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.progress-kpi-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.75rem 1.5rem;
+  border-radius: var(--radius-xl, 18px);
+  background: rgba(21, 28, 38, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.progress-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 229, 255, 0.35);
+}
+
+.progress-kpi-card--highlight {
+  background: rgba(25, 32, 42, 0.88);
+  border-color: rgba(0, 229, 255, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 229, 255, 0.12);
+}
+
+.progress-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress-kpi-title {
+  font-size: 0.675rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant, #bac9cc);
+}
+
+.progress-kpi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface-container-high, #242a34);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----------------------------------------------------
+   Main 2-Column Mastery Layout
+   ---------------------------------------------------- */
+.progress-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .progress-layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+
+/* Left Column: Physiological Waypoints */
+.progress-waypoints-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.progress-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .progress-section-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.progress-waypoint-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-xl, 16px);
+  background: rgba(21, 28, 38, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 73, 76, 0.25);
+  transition: all 0.2s ease;
+}
+
+.progress-waypoint-card:hover {
+  background: rgba(25, 32, 42, 0.85);
+}
+
+.progress-waypoint-card--active {
+  border-color: var(--color-primary-container, #00e5ff);
+  background: rgba(25, 32, 42, 0.95);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.15);
+}
+
+.progress-waypoint-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg, 12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------
+   Right Column Sidebar
+   ---------------------------------------------------- */
+.progress-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.progress-sidebar-card {
+  padding: 1.5rem;
+  border-radius: var(--radius-xl, 18px);
+  background: rgba(21, 28, 38, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.progress-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface-container, #19202a);
+  border: 1px solid rgba(59, 73, 76, 0.25);
+}
+
+.progress-badge-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

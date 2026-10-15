@@ -1,0 +1,398 @@
+/**
+ * Drug Path Visualiser - Learn Page Styles
+ * Matching Stitch Spacious Edition & BioLumen Pharmacology Design System
+ */
+
+.learn-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  gap: 4.5rem;
+  overflow-x: hidden;
+}
+
+@media (min-width: 1024px) {
+  .learn-container {
+    padding: 4rem 2rem 6rem;
+    gap: 5.5rem;
+  }
+}
+
+/* ----------------------------------------------------
+   Header Section & Snapshot Metrics
+   ---------------------------------------------------- */
+.learn-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.learn-header__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 760px;
+}
+
+.learn-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(36, 42, 52, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-fixed, #9cf0ff);
+}
+
+.learn-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary-container, #00e5ff);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
+}
+
+.learn-title {
+  font-family: var(--font-headline);
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-on-surface, #dce3f0);
+  margin: 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .learn-title {
+    font-size: 3rem;
+  }
+}
+
+.learn-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--color-on-surface-variant, #bac9cc);
+  margin: 0;
+}
+
+/* 4 Metrics Highlight Grid */
+.learn-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .learn-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .learn-metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.learn-metric-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg, 14px);
+  background: rgba(21, 28, 38, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.learn-metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 229, 255, 0.35);
+}
+
+.learn-metric-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.learn-metric-card__label {
+  font-size: 0.675rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant, #bac9cc);
+}
+
+.learn-metric-card__val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-on-surface, #dce3f0);
+}
+
+.learn-metric-card__desc {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant, #bac9cc);
+}
+
+/* ----------------------------------------------------
+   Section Generic Header
+   ---------------------------------------------------- */
+.learn-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.learn-section__tag {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.675rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary-container, #00e5ff);
+}
+
+.learn-section__tag-line {
+  width: 28px;
+  height: 1px;
+  background: var(--color-surface-container-highest, #2e353f);
+}
+
+.learn-section__heading {
+  font-family: var(--font-headline);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-on-surface, #dce3f0);
+  margin: 0;
+  line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+  .learn-section__heading {
+    font-size: 2.15rem;
+  }
+}
+
+.learn-section__desc {
+  font-size: 0.95rem;
+  color: var(--color-on-surface-variant, #bac9cc);
+  line-height: 1.6;
+  max-width: 680px;
+  margin: 0;
+}
+
+/* ----------------------------------------------------
+   Section 01: Mechanism of Action Split Card
+   ---------------------------------------------------- */
+.learn-mechanism-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  border-radius: var(--radius-xl, 18px);
+  background: rgba(21, 28, 38, 0.75);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 1024px) {
+  .learn-mechanism-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 2.5rem;
+  }
+}
+
+.learn-mechanism-card__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.learn-mechanism-card__callouts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-md, 10px);
+  background: rgba(25, 32, 42, 0.6);
+  border: 1px solid rgba(59, 73, 76, 0.25);
+}
+
+@media (min-width: 640px) {
+  .learn-mechanism-card__callouts {
+    flex-direction: row;
+  }
+}
+
+.learn-mechanism-callout-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.learn-mechanism-card__media {
+  width: 100%;
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  background: #080f18;
+  border: 1px solid rgba(59, 73, 76, 0.3);
+}
+
+@media (min-width: 1024px) {
+  .learn-mechanism-card__media {
+    width: 380px;
+    flex-shrink: 0;
+  }
+}
+
+.learn-mechanism-card__img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .learn-mechanism-card__img {
+    height: 280px;
+  }
+}
+
+/* ----------------------------------------------------
+   Section 02: 7 Milestones Stack
+   ---------------------------------------------------- */
+.learn-milestones-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.learn-milestone-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.75rem 2rem;
+  border-radius: var(--radius-xl, 16px);
+  background: rgba(21, 28, 38, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+@media (min-width: 768px) {
+  .learn-milestone-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.learn-milestone-row:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 229, 255, 0.35);
+}
+
+.learn-milestone-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  max-width: 720px;
+}
+
+.learn-milestone-badge {
+  font-family: var(--font-headline);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-primary-container, #00e5ff);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface-container-high, #242a34);
+  flex-shrink: 0;
+}
+
+.learn-milestone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  background: var(--color-surface-container, #19202a);
+  color: var(--color-primary-container, #00e5ff);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+@media (min-width: 768px) {
+  .learn-milestone-btn {
+    align-self: center;
+  }
+}
+
+.learn-milestone-btn:hover {
+  background: rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.3);
+  transform: translateX(2px);
+}
+
+/* ----------------------------------------------------
+   Section 03: Fasted vs Fed Comparison Cards
+   ---------------------------------------------------- */
+.learn-comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .learn-comparison-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.learn-comparison-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: var(--radius-xl, 18px);
+  background: rgba(21, 28, 38, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 73, 76, 0.3);
+}
+
+.learn-clinical-note {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(25, 32, 42, 0.6);
+  border: 1px solid rgba(59, 73, 76, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}

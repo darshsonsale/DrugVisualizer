@@ -6,3 +6,4 @@ export * from './StatCard';
 export * from './Panel';
 export * from './ProgressBar';
 export * from './Accordion';
+export * from './CircularGauge';

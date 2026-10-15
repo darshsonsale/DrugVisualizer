@@ -9,3 +9,4 @@ export * from './Viewport3DCanvas';
 export * from './NodeInspector';
 export * from './TimelineBar';
 export * from './ExplorerSkeleton';
+export * from './MedicineSelector';

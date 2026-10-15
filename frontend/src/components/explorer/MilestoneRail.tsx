@@ -44,7 +44,7 @@ export const MilestoneRail: React.FC<MilestoneRailProps> = ({
         {nodes.map((node, index) => {
           const isActive = node.id === selectedNodeId;
           const stageNumber = node.node_order || index + 1;
-          const subtitle = STAGE_SUBTITLES[node.id] || `${node.estimated_time_minutes} min transit`;
+          const subtitle = STAGE_SUBTITLES[node.id] || node.anatomical_location || `${node.estimated_time_minutes} min transit`;
 
           return (
             <button

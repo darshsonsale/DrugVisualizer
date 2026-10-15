@@ -26,6 +26,12 @@ export interface DrugSummary {
   bioavailability_pct?: number;
   cmax_ug_ml?: number;
   tmax_hours?: number;
+  form?: 'Tablets' | 'Capsules' | 'Syrups' | 'Injections';
+  dosage?: string;
+  indication?: string;
+  route?: 'Oral Route' | 'Injection Route';
+  image_url?: string;
+  journey_stages?: Array<{ name: string; organ?: string; icon?: string }>;
 }
 
 // ==========================================

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { usePathway } from '../hooks/usePathway';
-import { FoodCondition } from '../api/types';
+import { FoodCondition, DrugSummary } from '../api/types';
+import { PathwayService } from '../services/pathwayService';
 import {
   ExplorerHeader,
   MilestoneRail,
@@ -9,11 +11,46 @@ import {
   TimelineBar,
   ExplorerSkeleton,
   InspectorTab,
+  MedicineSelector,
 } from '../components/explorer';
 import { Button, Card } from '../components/ui';
 import '../components/explorer/explorer.css';
 
 export const ExplorerPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paramDrug = searchParams.get('drug');
+  const paramView = searchParams.get('view');
+
+  const [availableDrugs, setAvailableDrugs] = useState<DrugSummary[]>([]);
+  const [selectedDrugId, setSelectedDrugId] = useState<string>(paramDrug || 'drug-ibuprofen-001');
+  // Default to selector view unless user requested 3d view via param
+  const [currentView, setCurrentView] = useState<'selector' | 'workspace'>(
+    paramView === '3d' ? 'workspace' : 'selector'
+  );
+
+  // Load drug metadata from PathwayService
+  useEffect(() => {
+    PathwayService.getDrugs()
+      .then((res) => {
+        setAvailableDrugs(res.data);
+      })
+      .catch((err) => {
+        console.warn('Failed to load drugs list:', err);
+      });
+  }, []);
+
+  // Synchronize state with URL parameters
+  useEffect(() => {
+    if (paramDrug) {
+      setSelectedDrugId(paramDrug);
+    }
+    if (paramView === '3d') {
+      setCurrentView('workspace');
+    } else if (paramView === 'selector') {
+      setCurrentView('selector');
+    }
+  }, [paramDrug, paramView]);
+
   const {
     data,
     loading,
@@ -21,19 +58,20 @@ export const ExplorerPage: React.FC = () => {
     condition,
     setCondition,
     refetch,
-  } = usePathway('drug-ibuprofen-001', 'BEFORE_FOOD');
+  } = usePathway(selectedDrugId, 'BEFORE_FOOD');
 
   // Selected node state for the workspace
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<InspectorTab>('overview');
   const [isAutoTransitActive, setIsAutoTransitActive] = useState<boolean>(false);
+  const [transitSpeed, setTransitSpeed] = useState<number>(1);
 
-  // Synchronize initial node selection when data arrives
+  // Synchronize initial node selection when data arrives or drug changes
   useEffect(() => {
-    if (data?.nodes?.length && !selectedNodeId) {
+    if (data?.nodes?.length) {
       setSelectedNodeId(data.nodes[0].id);
     }
-  }, [data, selectedNodeId]);
+  }, [data]);
 
   // If selected node is no longer in nodes list, fallback to first node
   const activeNodeId = useMemo(() => {
@@ -57,10 +95,46 @@ export const ExplorerPage: React.FC = () => {
     setIsAutoTransitActive((prev) => !prev);
   }, []);
 
-  // Auto-transit animation loop
+  const handleNextNode = useCallback(() => {
+    if (!data?.nodes?.length) return;
+    const currentIndex = data.nodes.findIndex((n) => n.id === activeNodeId);
+    const nextIndex = (currentIndex + 1) % data.nodes.length;
+    setSelectedNodeId(data.nodes[nextIndex].id);
+  }, [data, activeNodeId]);
+
+  const handlePrevNode = useCallback(() => {
+    if (!data?.nodes?.length) return;
+    const currentIndex = data.nodes.findIndex((n) => n.id === activeNodeId);
+    const prevIndex = (currentIndex - 1 + data.nodes.length) % data.nodes.length;
+    setSelectedNodeId(data.nodes[prevIndex].id);
+  }, [data, activeNodeId]);
+
+  const handleResetTransit = useCallback(() => {
+    if (data?.nodes?.length) {
+      setSelectedNodeId(data.nodes[0].id);
+    }
+  }, [data]);
+
+  const handleSelectDrug = useCallback(
+    (drugId: string) => {
+      setSelectedDrugId(drugId);
+      setSelectedNodeId(null);
+      setCurrentView('workspace');
+      setSearchParams({ drug: drugId, view: '3d' });
+    },
+    [setSearchParams]
+  );
+
+  const handleBackToSelector = useCallback(() => {
+    setCurrentView('selector');
+    setSearchParams({});
+  }, [setSearchParams]);
+
+  // Auto-transit animation loop with speed scaling
   useEffect(() => {
     if (!isAutoTransitActive || !data?.nodes?.length) return;
 
+    const intervalTime = Math.max(1200, Math.round(3600 / transitSpeed));
     const interval = setInterval(() => {
       setSelectedNodeId((currentId) => {
         const nodes = data.nodes;
@@ -68,12 +142,24 @@ export const ExplorerPage: React.FC = () => {
         const nextIndex = (currentIndex + 1) % nodes.length;
         return nodes[nextIndex].id;
       });
-    }, 3800);
+    }, intervalTime);
 
     return () => clearInterval(interval);
-  }, [isAutoTransitActive, data]);
+  }, [isAutoTransitActive, data, transitSpeed]);
 
-  // Loading State
+  // If in selector view, render the Choose a Medicine screen!
+  if (currentView === 'selector') {
+    return (
+      <main className="explorer-page-root" aria-label="Choose a Medicine">
+        <MedicineSelector
+          drugs={availableDrugs.length > 0 ? availableDrugs : (data?.drug ? [data.drug] : [])}
+          onSelectDrug={handleSelectDrug}
+        />
+      </main>
+    );
+  }
+
+  // Loading State for Workspace
   if (loading && !data) {
     return <ExplorerSkeleton />;
   }
@@ -107,9 +193,14 @@ export const ExplorerPage: React.FC = () => {
             {error}
           </p>
 
-          <Button variant="primary" icon="refresh" onClick={() => refetch()}>
-            Retry Connection
-          </Button>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <Button variant="secondary" onClick={handleBackToSelector}>
+              Back to Medicines
+            </Button>
+            <Button variant="primary" icon="refresh" onClick={() => refetch()}>
+              Retry Connection
+            </Button>
+          </div>
         </Card>
       </div>
     );
@@ -126,8 +217,8 @@ export const ExplorerPage: React.FC = () => {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
             No anatomical milestones found for the selected drug regimen.
           </p>
-          <Button variant="secondary" onClick={() => refetch()}>
-            Reload Data
+          <Button variant="secondary" onClick={handleBackToSelector}>
+            Back to Medicines
           </Button>
         </Card>
       </div>
@@ -143,9 +234,18 @@ export const ExplorerPage: React.FC = () => {
         condition={condition}
         onConditionChange={(newCondition: FoodCondition) => setCondition(newCondition)}
         loading={loading}
+        onBackToSelector={handleBackToSelector}
       />
 
-      {/* 2. Main Tri-Pane Workstation Grid */}
+      {/* 2. Total Pharmacokinetic Progression Timeline Strip (Above Diagram) */}
+      <TimelineBar
+        nodes={data.nodes}
+        selectedNodeId={activeNodeId}
+        onSelectNode={handleSelectNode}
+        condition={condition}
+      />
+
+      {/* 3. Main Tri-Pane Workstation Grid */}
       <div className="explorer-grid">
         {/* Left Column: Milestones Rail */}
         <MilestoneRail
@@ -163,6 +263,12 @@ export const ExplorerPage: React.FC = () => {
           isAutoTransitActive={isAutoTransitActive}
           onToggleAutoTransit={handleToggleAutoTransit}
           condition={condition}
+          transitSpeed={transitSpeed}
+          onSpeedChange={setTransitSpeed}
+          onNextNode={handleNextNode}
+          onPrevNode={handlePrevNode}
+          onResetTransit={handleResetTransit}
+          drugName={data.drug?.name}
         />
 
         {/* Right Column: Node Detailed Inspector Drawer */}
@@ -174,14 +280,6 @@ export const ExplorerPage: React.FC = () => {
           onTabChange={setActiveTab}
         />
       </div>
-
-      {/* 3. Bottom Horizontal Pharmacokinetic Progression Timeline */}
-      <TimelineBar
-        nodes={data.nodes}
-        selectedNodeId={activeNodeId}
-        onSelectNode={handleSelectNode}
-        condition={condition}
-      />
     </main>
   );
 };

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { PathwayNodeWithDetails } from '../../api/types';
 import { Button } from '../ui';
@@ -25,6 +26,7 @@ const STAGE_METRICS: Record<
     imgUrl: string;
   }
 > = {
+  // Ibuprofen
   'node-oral-cavity': {
     phLabel: 'Salivary pH',
     phValue: '6.8 – 7.2',
@@ -32,8 +34,7 @@ const STAGE_METRICS: Record<
     timeValue: '5 – 10 sec',
     funFact:
       'Saliva produces ~1.5 liters daily containing salivary amylase and mucins that safeguard the oral mucosa from solid tablet friction.',
-    imgUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+    imgUrl: '/assets/organs/micro/mouth.jpg',
   },
   'node-stomach': {
     phLabel: 'Gastric pH',
@@ -42,8 +43,7 @@ const STAGE_METRICS: Record<
     timeValue: '15 – 60 min',
     funFact:
       'Taking ibuprofen after a meal delays gastric transit from 15 minutes to over an hour, flattening the plasma peak curve.',
-    imgUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+    imgUrl: '/assets/organs/micro/stomach.jpg',
   },
   'node-small-intestine': {
     phLabel: 'Intestinal pH',
@@ -52,8 +52,7 @@ const STAGE_METRICS: Record<
     timeValue: '1 – 2 hrs',
     funFact:
       'The intestinal villi expand the total absorbent surface area to approximately that of a standard badminton court!',
-    imgUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+    imgUrl: '/assets/organs/micro/small-intestine.jpg',
   },
   'node-liver': {
     phLabel: 'Hepatic pH',
@@ -62,8 +61,7 @@ const STAGE_METRICS: Record<
     timeValue: '20 – 40 min',
     funFact:
       'Genetic polymorphism in CYP2C9 can significantly extend ibuprofen half-life in up to 5% of diverse patient demographics.',
-    imgUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+    imgUrl: '/assets/organs/micro/liver.jpg',
   },
   'node-bloodstream': {
     phLabel: 'Plasma pH',
@@ -72,8 +70,7 @@ const STAGE_METRICS: Record<
     timeValue: '45 – 90 min',
     funFact:
       'Only the ~1% unbound fraction of ibuprofen is pharmacologically active and able to cross endothelial barriers into tissues.',
-    imgUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+    imgUrl: '/assets/organs/micro/bloodstream.jpg',
   },
   'node-target-sites': {
     phLabel: 'Synovial pH',
@@ -82,8 +79,7 @@ const STAGE_METRICS: Record<
     timeValue: '1 – 2 hrs',
     funFact:
       'COX-1 inhibition also reduces protective stomach prostaglandins, which is why chronic dosing requires food buffering.',
-    imgUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+    imgUrl: '/assets/organs/micro/target-tissue.jpg',
   },
   'node-kidneys': {
     phLabel: 'Urinary pH',
@@ -92,9 +88,196 @@ const STAGE_METRICS: Record<
     timeValue: '2 – 4 hrs',
     funFact:
       'Less than 1% of parent ibuprofen is eliminated unchanged, underscoring the vital efficiency of prior hepatic conversion.',
-    imgUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAgGhLVFPQl2OOaTRVSHEGHBfNKsJnfZbPrfAGVIx9GGGWzNpD8D5o9tDQI2XEwKVMmb-oeZeaIWi3W0jjji4TnkQb51MmSCXOqiCHYqrhygWgDRxbE3cjuTCgO2eoCzX6rlumsBMb3sG7gIzC-m39R_87PEOxbR61fKv9ShpXHcQ2bIDOALSj9oGD-JAeo9xL2h7Kc9qpa_4V4XxNJXiw5yxJTvUSxjgNQ9wYVf-Od',
+    imgUrl: '/assets/organs/micro/kidneys.jpg',
   },
+
+  // Amoxicillin
+  'node-amox-mouth': {
+    phLabel: 'Salivary pH',
+    phValue: '6.8 – 7.2',
+    timeLabel: 'Transit Time',
+    timeValue: '5 – 10 sec',
+    funFact: 'Capsule gelatin shell softens in oral secretions prior to deglutition.',
+    imgUrl: '/assets/organs/micro/mouth.jpg',
+  },
+  'node-amox-esophagus': {
+    phLabel: 'Esophageal pH',
+    phValue: '6.8 – 7.0',
+    timeLabel: 'Transit Time',
+    timeValue: '4 – 8 sec',
+    funFact: 'Peristaltic muscle contractions rapidly propel the capsule down the esophagus into the stomach.',
+    imgUrl: '/assets/organs/micro/mouth.jpg',
+  },
+  'node-amox-stomach': {
+    phLabel: 'Gastric pH',
+    phValue: '1.5 – 2.0',
+    timeLabel: 'Transit Time',
+    timeValue: '30 – 60 min',
+    funFact: 'Amoxicillin is remarkably stable against gastric acid breakdown compared to natural penicillins.',
+    imgUrl: '/assets/organs/micro/stomach.jpg',
+  },
+  'node-amox-small-intestine': {
+    phLabel: 'Intestinal pH',
+    phValue: '6.5 – 7.5',
+    timeLabel: 'Absorption Time',
+    timeValue: '1 – 2 hrs',
+    funFact: 'Absorption occurs primarily in the duodenum and jejunum via carrier-mediated dipeptide transporters.',
+    imgUrl: '/assets/organs/micro/small-intestine.jpg',
+  },
+  'node-amox-bloodstream': {
+    phLabel: 'Plasma pH',
+    phValue: '7.35 – 7.45',
+    timeLabel: 'Distribution Time',
+    timeValue: '1 – 2 hrs',
+    funFact: 'Only ~20% of amoxicillin binds to plasma proteins, allowing 80% free bactericidal antibiotic circulation.',
+    imgUrl: '/assets/organs/micro/bloodstream.jpg',
+  },
+  'node-amox-infected-tissues': {
+    phLabel: 'Tissue pH',
+    phValue: '6.8 – 7.2',
+    timeLabel: 'Bactericidal Action',
+    timeValue: '2 – 4 hrs',
+    funFact: 'Inhibits bacterial penicillin-binding proteins (PBPs), causing cell wall autolysis and bacterial destruction.',
+    imgUrl: '/assets/organs/micro/infected-tissues.jpg',
+  },
+  'node-amox-kidneys': {
+    phLabel: 'Urinary pH',
+    phValue: '5.5 – 6.5',
+    timeLabel: 'Excretion Half-life',
+    timeValue: '1 – 1.5 hrs',
+    funFact: 'Approximately 60% of amoxicillin is excreted unchanged in the urine via active tubular secretion.',
+    imgUrl: '/assets/organs/micro/kidneys.jpg',
+  },
+
+  // Ambroxol
+  'node-amb-mouth': {
+    phLabel: 'Salivary pH',
+    phValue: '6.8 – 7.2',
+    timeLabel: 'Transit Time',
+    timeValue: 'Immediate',
+    funFact: 'Oral liquid formulation allows instant swallowing without disintegration latency.',
+    imgUrl: '/assets/organs/micro/mouth.jpg',
+  },
+  'node-amb-esophagus': {
+    phLabel: 'Esophageal pH',
+    phValue: '6.8 – 7.0',
+    timeLabel: 'Transit Time',
+    timeValue: '2 – 5 sec',
+    funFact: 'Liquid syrup flows smoothly coated by protective oral demulcents.',
+    imgUrl: '/assets/organs/micro/mouth.jpg',
+  },
+  'node-amb-stomach': {
+    phLabel: 'Gastric pH',
+    phValue: '1.5 – 2.0',
+    timeLabel: 'Transit Time',
+    timeValue: '15 – 30 min',
+    funFact: 'Rapid gastric emptying occurs due to the liquid syrup formulation.',
+    imgUrl: '/assets/organs/micro/stomach.jpg',
+  },
+  'node-amb-small-intestine': {
+    phLabel: 'Intestinal pH',
+    phValue: '6.5 – 7.5',
+    timeLabel: 'Absorption Time',
+    timeValue: '45 – 90 min',
+    funFact: 'Rapid and almost complete gastrointestinal absorption occurs in the proximal small bowel.',
+    imgUrl: '/assets/organs/micro/small-intestine.jpg',
+  },
+  'node-amb-bloodstream': {
+    phLabel: 'Plasma pH',
+    phValue: '7.35 – 7.45',
+    timeLabel: 'Distribution Time',
+    timeValue: '1 – 2 hrs',
+    funFact: 'High tissue affinity distributes active ambroxol predominantly into bronchial tissue.',
+    imgUrl: '/assets/organs/micro/bloodstream.jpg',
+  },
+  'node-amb-respiratory-tissues': {
+    phLabel: 'Bronchial pH',
+    phValue: '6.8 – 7.4',
+    timeLabel: 'Secretolytic Action',
+    timeValue: '2 – 3 hrs',
+    funFact: 'Stimulates pulmonary surfactant production and accelerates mucociliary clearance of thick sputum.',
+    imgUrl: '/assets/organs/micro/respiratory-tissues.jpg',
+  },
+  'node-amb-liver': {
+    phLabel: 'Hepatic pH',
+    phValue: '7.2 – 7.4',
+    timeLabel: 'Metabolism',
+    timeValue: '1 – 2 hrs',
+    funFact: 'Metabolized primarily via CYP3A4 into dibromanthranilic acid and glucuronide conjugates.',
+    imgUrl: '/assets/organs/micro/liver.jpg',
+  },
+  'node-amb-kidneys': {
+    phLabel: 'Urinary pH',
+    phValue: '5.5 – 6.5',
+    timeLabel: 'Renal Clearance',
+    timeValue: '10 hrs terminal t1/2',
+    funFact: 'Renal elimination accounts for 85% of total ambroxol metabolite excretion.',
+    imgUrl: '/assets/organs/micro/kidneys.jpg',
+  },
+
+  // Insulin
+  'node-ins-injection-site': {
+    phLabel: 'Subcutaneous pH',
+    phValue: '7.35 – 7.40',
+    timeLabel: 'Absorption Onset',
+    timeValue: '15 – 30 min',
+    funFact: 'Subcutaneous hexameric insulin dissociates into active monomers to cross capillary walls.',
+    imgUrl: '/assets/organs/micro/injection-site.jpg',
+  },
+  'node-ins-bloodstream': {
+    phLabel: 'Plasma pH',
+    phValue: '7.35 – 7.45',
+    timeLabel: 'Circulation Peak',
+    timeValue: '1 – 2 hrs',
+    funFact: 'Circulating monomeric insulin binds with high affinity to cell-surface tyrosine kinase receptors.',
+    imgUrl: '/assets/organs/micro/bloodstream.jpg',
+  },
+  'node-ins-body-tissues': {
+    phLabel: 'Cellular pH',
+    phValue: '7.0 – 7.2',
+    timeLabel: 'Glucose Uptake',
+    timeValue: '2 – 4 hrs',
+    funFact: 'Stimulates translocation of GLUT4 glucose transporters to muscle and adipose cell membranes.',
+    imgUrl: '/assets/organs/micro/target-tissue.jpg',
+  },
+  'node-ins-liver': {
+    phLabel: 'Hepatic pH',
+    phValue: '7.2 – 7.4',
+    timeLabel: 'Insulin Clearance',
+    timeValue: '4 – 6 min half-life',
+    funFact: 'The liver degrades ~50% of circulating insulin via hepatic insulin-degrading enzyme (IDE).',
+    imgUrl: '/assets/organs/micro/liver.jpg',
+  },
+  'node-ins-kidneys': {
+    phLabel: 'Renal pH',
+    phValue: '5.5 – 6.5',
+    timeLabel: 'Renal Degradation',
+    timeValue: 'Continuous',
+    funFact: 'Kidneys clear and degrade remaining filtered insulin in proximal convoluted tubules.',
+    imgUrl: '/assets/organs/micro/kidneys.jpg',
+  },
+};
+
+// Dynamic helper ensuring all nodes get the proper organ micrograph
+const resolveStageImage = (node: PathwayNodeWithDetails): string => {
+  if (STAGE_METRICS[node.id]?.imgUrl) {
+    return STAGE_METRICS[node.id].imgUrl;
+  }
+  const id = node.id.toLowerCase();
+  const name = node.name.toLowerCase();
+
+  if (id.includes('mouth') || name.includes('mouth') || name.includes('oral')) return '/assets/organs/micro/mouth.jpg';
+  if (id.includes('stomach') || name.includes('stomach') || name.includes('gastric')) return '/assets/organs/micro/stomach.jpg';
+  if (id.includes('intestine') || name.includes('intestine') || name.includes('enteric')) return '/assets/organs/micro/small-intestine.jpg';
+  if (id.includes('liver') || name.includes('liver') || name.includes('hepatic')) return '/assets/organs/micro/liver.jpg';
+  if (id.includes('blood') || name.includes('blood') || name.includes('plasma')) return '/assets/organs/micro/bloodstream.jpg';
+  if (id.includes('kidney') || name.includes('kidney') || name.includes('renal')) return '/assets/organs/micro/kidneys.jpg';
+  if (id.includes('respiratory') || name.includes('respiratory') || name.includes('lung')) return '/assets/organs/micro/respiratory-tissues.jpg';
+  if (id.includes('infect') || name.includes('infect') || name.includes('pathogen')) return '/assets/organs/micro/infected-tissues.jpg';
+  if (id.includes('inject') || name.includes('inject')) return '/assets/organs/micro/injection-site.jpg';
+  if (id.includes('target') || name.includes('target') || name.includes('tissue')) return '/assets/organs/micro/target-tissue.jpg';
+
+  return '/assets/organs/micro/mouth.jpg';
 };
 
 export const NodeInspector: React.FC<NodeInspectorProps> = ({
@@ -105,6 +288,8 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
   onTabChange,
 }) => {
   const navigate = useNavigate();
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [zoomScale, setZoomScale] = useState<number>(1.5);
 
   const currentIndex = nodes.findIndex((n) => n.id === selectedNode.id);
   const stageNumber = currentIndex >= 0 ? currentIndex + 1 : 1;
@@ -113,7 +298,16 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
   const prevNode = currentIndex > 0 ? nodes[currentIndex - 1] : null;
   const nextNode = currentIndex < totalStages - 1 ? nodes[currentIndex + 1] : null;
 
-  const metrics = STAGE_METRICS[selectedNode.id] || STAGE_METRICS['node-oral-cavity'];
+  const organImgUrl = resolveStageImage(selectedNode);
+
+  const metrics = STAGE_METRICS[selectedNode.id] || {
+    phLabel: 'Micro-pH',
+    phValue: selectedNode.content?.micro_environment_ph != null ? `pH ${selectedNode.content.micro_environment_ph}` : 'pH 7.0',
+    timeLabel: 'Transit Time',
+    timeValue: `${selectedNode.estimated_time_minutes} min`,
+    funFact: selectedNode.variation?.clinical_observation || selectedNode.content?.physiological_role || 'Physiological transit station.',
+    imgUrl: organImgUrl,
+  };
 
   // Body content based on active tab
   let bodyContent = '';
@@ -209,7 +403,17 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
       </div>
 
       {/* High-Magnification Organ Focus View */}
-      <div className="inspector-organ-view" aria-hidden="true">
+      <div
+        className="inspector-organ-view"
+        onClick={() => setIsZoomOpen(true)}
+        style={{ cursor: 'pointer', position: 'relative' }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') setIsZoomOpen(true);
+        }}
+        aria-label={`Open high-magnification zoom view of ${selectedNode.name}`}
+      >
         <img
           alt={`${selectedNode.name} Close-up View`}
           className="inspector-organ-img"
@@ -250,6 +454,32 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             }}
           />
           High-Magnification View
+        </div>
+
+        {/* Click to Zoom In Badge */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '0.75rem',
+            right: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            background: 'rgba(0, 229, 255, 0.2)',
+            border: '1px solid rgba(0, 229, 255, 0.5)',
+            backdropFilter: 'blur(8px)',
+            padding: '0.25rem 0.6rem',
+            borderRadius: '9999px',
+            fontSize: '0.675rem',
+            color: '#00e5ff',
+            fontWeight: 700,
+            boxShadow: '0 0 12px rgba(0, 229, 255, 0.3)',
+            transition: 'transform 0.2s ease',
+          }}
+          className="organ-zoom-badge"
+        >
+          <span className="material-symbols-outlined text-[14px]">zoom_in</span>
+          <span>Zoom In</span>
         </div>
       </div>
 
@@ -493,6 +723,211 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
           Verify
         </button>
       </div>
+
+      {/* High-Magnification Organ Zoom Modal */}
+      {isZoomOpen && createPortal(
+        <div
+          className="organ-zoom-modal-backdrop"
+          onClick={() => setIsZoomOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="organ-zoom-title"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            background: 'rgba(5, 10, 20, 0.88)',
+            backdropFilter: 'blur(16px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+          }}
+        >
+          <div
+            className="organ-zoom-modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '920px',
+              background: '#09121f',
+              border: '1px solid rgba(0, 229, 255, 0.35)',
+              borderRadius: '20px',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 229, 255, 0.18)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '90vh',
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '1.1rem 1.5rem',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                background: 'rgba(15, 24, 38, 0.9)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'rgba(0, 229, 255, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--brand-cyan, #00e5ff)',
+                  }}
+                >
+                  <span className="material-symbols-outlined text-[20px]">biotech</span>
+                </div>
+                <div>
+                  <h3
+                    id="organ-zoom-title"
+                    style={{
+                      fontSize: '1.15rem',
+                      fontWeight: 800,
+                      color: '#ffffff',
+                      margin: 0,
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    {selectedNode.name} — High-Magnification View
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8' }}>
+                    Stage {stageNumber} of {totalStages} • Microscopic Physiological Cross-Section
+                  </p>
+                </div>
+              </div>
+
+              {/* Zoom Controls & Close Button */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    borderRadius: '9999px',
+                    padding: '0.2rem 0.4rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  {[1, 1.5, 2, 2.5].map((scale) => (
+                    <button
+                      key={scale}
+                      type="button"
+                      onClick={() => setZoomScale(scale)}
+                      style={{
+                        padding: '0.2rem 0.55rem',
+                        borderRadius: '9999px',
+                        background: zoomScale === scale ? 'var(--brand-cyan, #00e5ff)' : 'transparent',
+                        color: zoomScale === scale ? '#09121f' : '#94a3b8',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {scale}x
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsZoomOpen(false)}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    color: '#e2e8f0',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title="Close Zoom View (Esc)"
+                  aria-label="Close zoom modal"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Image Canvas Container */}
+            <div
+              style={{
+                position: 'relative',
+                flex: 1,
+                overflow: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#040810',
+                padding: '1rem',
+                minHeight: '380px',
+                cursor: 'grab',
+              }}
+            >
+              <img
+                src={metrics.imgUrl}
+                alt={`${selectedNode.name} Microscopic Cellular Zoom`}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '52vh',
+                  objectFit: 'contain',
+                  borderRadius: '12px',
+                  transform: `scale(${zoomScale})`,
+                  transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.7)',
+                }}
+              />
+            </div>
+
+            {/* Modal Bottom Physiological Diagnostics */}
+            <div
+              style={{
+                padding: '1rem 1.5rem',
+                background: 'rgba(12, 20, 32, 0.95)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '1rem',
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--brand-cyan)', fontWeight: 700, letterSpacing: '0.05em' }}>
+                  Micro-Environment
+                </span>
+                <span style={{ fontSize: '0.85rem', color: '#f1f5f9', fontWeight: 600 }}>
+                  {displayedPhValue} • Transit: {displayedTimeValue}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', gridColumn: 'span 2' }}>
+                <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>
+                  Physiological & Cellular Mechanism
+                </span>
+                <span style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.45 }}>
+                  {metrics.funFact}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </aside>
   );
 };
