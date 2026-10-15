@@ -13,9 +13,12 @@
     "db:check": "tsx src/database/checkConnection.ts",
     "db:create": "tsx src/database/createDb.ts",
     "db:test": "tsx src/database/verifySchema.ts",
+    "db:test:variations": "tsx src/database/verifyVariations.ts",
     "migrate:up": "tsx src/database/migrator.ts up",
     "migrate:down": "tsx src/database/migrator.ts down",
-    "migrate:status": "tsx src/database/migrator.ts status"
+    "migrate:status": "tsx src/database/migrator.ts status",
+    "db:seed": "tsx src/database/seed.ts",
+    "test:api": "tsx src/database/verifyApi.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

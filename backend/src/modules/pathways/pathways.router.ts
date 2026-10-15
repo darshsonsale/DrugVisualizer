@@ -1,16 +1,13 @@
-import { Router, type Request, type Response } from 'express';
-import type { ApiResponse } from '../../common/types/index.js';
+import { Router } from 'express';
+import { pathwaysController } from './controllers/pathways.controller.js';
 
 export const pathwaysRouter: Router = Router();
 
-pathwaysRouter.get('/', (_req: Request, res: Response) => {
-  const response: ApiResponse<{ module: string; status: string; description: string }> = {
-    success: true,
-    data: {
-      module: 'pathways',
-      status: 'initialized',
-      description: 'Biological pathways, nodes, edges & condition variations module'
-    }
-  };
-  res.status(200).json(response);
-});
+// GET /api/v1/pathways/:pathwayId - Retrieve pathway metadata by ID
+pathwaysRouter.get('/:pathwayId', (req, res, next) => pathwaysController.getPathwayById(req, res, next));
+
+// GET /api/v1/pathways/:pathwayId/nodes - Retrieve nodes for a pathway (with optional ?condition=BEFORE_FOOD|AFTER_FOOD)
+pathwaysRouter.get('/:pathwayId/nodes', (req, res, next) => pathwaysController.getNodesByPathwayId(req, res, next));
+
+// GET /api/v1/pathways/:pathwayId/edges - Retrieve edges for a pathway
+pathwaysRouter.get('/:pathwayId/edges', (req, res, next) => pathwaysController.getEdgesByPathwayId(req, res, next));

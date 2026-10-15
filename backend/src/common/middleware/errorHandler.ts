@@ -3,7 +3,7 @@ import type { ApiErrorResponse } from '../types/index.js';
 import { config } from '../../config/index.js';
 
 export function errorHandler(
-  err: Error & { statusCode?: number; code?: string },
+  err: Error & { statusCode?: number; code?: string; details?: unknown },
   _req: Request,
   res: Response,
   _next: NextFunction
@@ -16,7 +16,7 @@ export function errorHandler(
     error: {
       code: err.code || (isServerFault ? 'INTERNAL_SERVER_ERROR' : 'BAD_REQUEST'),
       message: isServerFault && config.isProduction ? 'An unexpected internal error occurred' : err.message || 'Internal server error',
-      details: !config.isProduction ? { stack: err.stack } : undefined
+      details: err.details !== undefined ? err.details : (!config.isProduction ? { stack: err.stack } : undefined)
     },
     meta: {
       timestamp: new Date().toISOString()

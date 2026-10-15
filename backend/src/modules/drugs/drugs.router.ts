@@ -1,16 +1,14 @@
-import { Router, type Request, type Response } from 'express';
-import type { ApiResponse } from '../../common/types/index.js';
+import { Router } from 'express';
+import { drugsController } from './controllers/drugs.controller.js';
+import { pathwaysController } from '../pathways/controllers/pathways.controller.js';
 
 export const drugsRouter: Router = Router();
 
-drugsRouter.get('/', (_req: Request, res: Response) => {
-  const response: ApiResponse<{ module: string; status: string; description: string }> = {
-    success: true,
-    data: {
-      module: 'drugs',
-      status: 'initialized',
-      description: 'Pharmaceutical drug catalog & metadata module'
-    }
-  };
-  res.status(200).json(response);
-});
+// GET /api/v1/drugs - List all drugs
+drugsRouter.get('/', (req, res, next) => drugsController.listDrugs(req, res, next));
+
+// GET /api/v1/drugs/:drugId/pathway - Retrieve physiological pathway graph for drug (with ?condition=BEFORE_FOOD|AFTER_FOOD)
+drugsRouter.get('/:drugId/pathway', (req, res, next) => pathwaysController.getPathwayForDrug(req, res, next));
+
+// GET /api/v1/drugs/:drugId - Retrieve single drug by ID
+drugsRouter.get('/:drugId', (req, res, next) => drugsController.getDrug(req, res, next));
