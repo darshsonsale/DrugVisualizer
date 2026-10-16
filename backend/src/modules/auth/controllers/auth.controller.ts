@@ -158,6 +158,66 @@ export class AuthController {
   }
 
   /**
+   * POST /api/v1/auth/register
+   * Registers a new regular user with username, email, and password.
+   */
+  public async register(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const session = await authService.registerWithPassword(req.body);
+      const response: ApiResponse<AuthSessionResponseDto> = {
+        success: true,
+        data: session,
+        meta: {
+          timestamp: new Date().toISOString()
+        }
+      };
+      res.status(201).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * POST /api/v1/auth/login
+   * Authenticates regular users with email and password.
+   */
+  public async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const session = await authService.loginWithPassword(req.body);
+      const response: ApiResponse<AuthSessionResponseDto> = {
+        success: true,
+        data: session,
+        meta: {
+          timestamp: new Date().toISOString()
+        }
+      };
+      res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * POST /api/v1/auth/admin/login
+   * Dedicated administrator authentication. Enforces database 'admin' role.
+   */
+  public async loginAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const session = await authService.loginAdministrator(req.body);
+      const response: ApiResponse<AuthSessionResponseDto> = {
+        success: true,
+        data: session,
+        meta: {
+          timestamp: new Date().toISOString()
+        }
+      };
+      res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
    * POST /api/v1/auth/logout
    * Safe logout endpoint to signal session termination.
    */

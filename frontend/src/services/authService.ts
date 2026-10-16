@@ -42,6 +42,27 @@ export class AuthService {
   }
 
   /**
+   * Logs in a regular user with email and password.
+   */
+  public static async loginWithPassword(email: string, password: string): Promise<AuthSessionResponse> {
+    return apiClient.post<AuthSessionResponse>('/auth/login', { email, password });
+  }
+
+  /**
+   * Registers a new regular user with username, email, and password.
+   */
+  public static async registerWithPassword(email: string, password: string, name?: string): Promise<AuthSessionResponse> {
+    return apiClient.post<AuthSessionResponse>('/auth/register', { email, password, name });
+  }
+
+  /**
+   * Logs in an administrator via dedicated endpoint enforcing database 'admin' role.
+   */
+  public static async loginAdministrator(email: string, password: string): Promise<AuthSessionResponse> {
+    return apiClient.post<AuthSessionResponse>('/auth/admin/login', { email, password });
+  }
+
+  /**
    * Signals session termination to backend.
    */
   public static async logout(): Promise<{ message: string }> {

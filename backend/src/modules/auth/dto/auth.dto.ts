@@ -39,3 +39,15 @@ export interface JwtTokenPayload {
   iat?: number;
   exp?: number;
 }
+
+export interface LoginRequestDto {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequestDto {
+  email: string;
+  password: string;
+  name?: string;
+}
+

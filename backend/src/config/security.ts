@@ -50,10 +50,10 @@ export const securityConfig: SecurityConfig = Object.freeze({
       message: 'Too many sensitive requests from this client. Please wait before retrying.'
     }),
 
-    // Admin endpoints (privilege elevation, user management)
+    // Admin endpoints (privilege elevation, content editing, user management)
     admin: Object.freeze({
       windowMs: Number(process.env.RATE_LIMIT_ADMIN_WINDOW_MS) || 5 * 60 * 1000, // 5 minutes
-      maxRequests: Number(process.env.RATE_LIMIT_ADMIN_MAX) || 30,
+      maxRequests: Number(process.env.RATE_LIMIT_ADMIN_MAX) || (config.isDevelopment ? 1000 : 300),
       message: 'Too many administrative requests. Access temporarily restricted.'
     })
   }),

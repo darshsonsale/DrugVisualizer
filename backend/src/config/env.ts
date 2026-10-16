@@ -35,6 +35,7 @@ export interface AuthConfig {
   googleRedirectUri: string;
   jwtSecret: string;
   jwtExpiresIn: string;
+  adminEmails: string[];
 }
 
 export interface AppConfig {
@@ -77,6 +78,12 @@ if (nodeEnv === 'production' && (!jwtSecret || jwtSecret.length < 32)) {
   console.warn('[Security Warning] JWT_SECRET is not configured or too short for production use.');
 }
 
+const rawAdminEmails = process.env.ADMIN_EMAILS || 'admin@biolumen.org,demo.admin@biolumen.org';
+const parsedAdminEmails = rawAdminEmails
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 export const config: AppConfig = Object.freeze({
   port,
   env: nodeEnv,
@@ -90,7 +97,8 @@ export const config: AppConfig = Object.freeze({
     googleRedirectUri:
       process.env.GOOGLE_REDIRECT_URI || `http://localhost:${port}${apiPrefix}/auth/google/callback`,
     jwtSecret,
-    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    adminEmails: parsedAdminEmails
   })
 });
 

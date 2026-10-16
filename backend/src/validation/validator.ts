@@ -348,6 +348,39 @@ export class ObjectSchema<T extends Record<string, unknown>> implements Schema<T
 }
 
 // ============================================================================
+// Boolean Schema
+// ============================================================================
+export class BooleanSchema implements Schema<boolean> {
+  private _isOptional = false;
+
+  optional(): Schema<boolean | undefined> {
+    this._isOptional = true;
+    return this as unknown as Schema<boolean | undefined>;
+  }
+
+  parse(input: unknown, path = 'value'): ValidationResult<boolean> {
+    if (input === undefined || input === null) {
+      if (this._isOptional) {
+        return { success: true, data: undefined as unknown as boolean };
+      }
+      return {
+        success: false,
+        issues: [{ field: path, message: `${path} is required`, code: 'REQUIRED' }]
+      };
+    }
+
+    if (typeof input !== 'boolean') {
+      return {
+        success: false,
+        issues: [{ field: path, message: `${path} must be a boolean`, code: 'INVALID_TYPE' }]
+      };
+    }
+
+    return { success: true, data: input };
+  }
+}
+
+// ============================================================================
 // Fluent Builder API
 // ============================================================================
 export const v = {
@@ -356,6 +389,9 @@ export const v = {
   },
   number(): NumberSchema {
     return new NumberSchema();
+  },
+  boolean(): BooleanSchema {
+    return new BooleanSchema();
   },
   array<T>(itemSchema: Schema<T>): ArraySchema<T> {
     return new ArraySchema(itemSchema);

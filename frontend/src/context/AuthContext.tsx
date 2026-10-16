@@ -11,7 +11,11 @@ export interface AuthContextType {
   error: string | null;
   loginWithGoogle: () => Promise<void>;
   loginWithGoogleIdToken: (idToken: string) => Promise<void>;
-  loginWithDemoAccount: () => Promise<void>;
+  loginWithPassword: (email: string, password: string) => Promise<UserProfile>;
+  registerWithPassword: (email: string, password: string, name?: string) => Promise<UserProfile>;
+  loginAdministrator: (email: string, password: string) => Promise<UserProfile>;
+  loginWithDemoAccount: (role?: 'learner' | 'admin') => Promise<void>;
+  loginAsAdmin: () => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
@@ -20,20 +24,46 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('biolumen_auth_token'));
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Synchronize memory-only session token with apiClient
+  // Synchronize session token with apiClient and localStorage
   const setSession = useCallback((session: AuthSessionResponse | null) => {
     if (session && session.token) {
       setToken(session.token);
       setUser(session.user);
       apiClient.setAuthToken(session.token);
+      localStorage.setItem('biolumen_auth_token', session.token);
     } else {
       setToken(null);
       setUser(null);
       apiClient.setAuthToken(null);
+      localStorage.removeItem('biolumen_auth_token');
+    }
+  }, []);
+
+  // Restore authenticated session from persistent storage on initial load
+  useEffect(() => {
+    const savedToken = localStorage.getItem('biolumen_auth_token');
+    if (savedToken && !user) {
+      setLoading(true);
+      apiClient.setAuthToken(savedToken);
+      AuthService.getMe()
+        .then((profile) => {
+          setUser(profile);
+          setError(null);
+        })
+        .catch((err) => {
+          console.warn('[AuthContext] Stored session verification failed:', err);
+          localStorage.removeItem('biolumen_auth_token');
+          apiClient.setAuthToken(null);
+          setToken(null);
+          setUser(null);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, []);
 
@@ -179,8 +209,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [setSession]
   );
 
-  // Authenticate with development demo account
-  const loginWithDemoAccount = useCallback(async () => {
+  // Authenticate as verified administrator for testing & content management
+  const loginAsAdmin = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const adminToken = 'mock-google-token:google-demo-admin-biolumen:admin@biolumen.org:BioLumen+Admin';
+      const session = await AuthService.verifyGoogleIdToken(adminToken);
+      setSession(session);
+      setError(null);
+    } catch (err: unknown) {
+      let message = 'Admin sign-in failed';
+      if (err instanceof ApiError) {
+        if (err.code === 'NETWORK_ERROR') {
+          message = 'Cannot connect to backend server at http://localhost:3000. Ensure the backend server is running.';
+        } else {
+          message = `${err.message} (${err.code || `HTTP ${err.status}`})`;
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [setSession]);
+
+  // Authenticate with development demo account (learner or admin)
+  const loginWithDemoAccount = useCallback(async (role: 'learner' | 'admin' = 'learner') => {
+    if (role === 'admin') {
+      return loginAsAdmin();
+    }
     setLoading(true);
     setError(null);
     try {
@@ -200,6 +259,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         message = err.message;
       }
       setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [setSession, loginAsAdmin]);
+
+  // Log in regular user with email and password
+  const loginWithPassword = useCallback(async (email: string, password: string): Promise<UserProfile> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const session = await AuthService.loginWithPassword(email, password);
+      setSession(session);
+      return session.user;
+    } catch (err: unknown) {
+      let message = 'Login failed';
+      if (err instanceof ApiError) {
+        message = err.message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setSession]);
+
+  // Register regular user with username, email, and password (role = 'learner')
+  const registerWithPassword = useCallback(async (email: string, password: string, name?: string): Promise<UserProfile> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const session = await AuthService.registerWithPassword(email, password, name);
+      setSession(session);
+      return session.user;
+    } catch (err: unknown) {
+      let message = 'Registration failed';
+      if (err instanceof ApiError) {
+        message = err.message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setSession]);
+
+  // Dedicated administrator login (strictly enforces database role = 'admin')
+  const loginAdministrator = useCallback(async (email: string, password: string): Promise<UserProfile> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const session = await AuthService.loginAdministrator(email, password);
+      setSession(session);
+      return session.user;
+    } catch (err: unknown) {
+      let message = 'Administrator login failed';
+      if (err instanceof ApiError) {
+        message = err.message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -231,7 +356,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         loginWithGoogle,
         loginWithGoogleIdToken,
+        loginWithPassword,
+        registerWithPassword,
+        loginAdministrator,
         loginWithDemoAccount,
+        loginAsAdmin,
         logout,
         clearError
       }}

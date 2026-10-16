@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { usePathway } from '../hooks/usePathway';
 import { useProgress } from '../hooks/useProgress';
+import { useAuth } from '../context/AuthContext';
 import { CircularGauge } from '../components/ui/CircularGauge';
 import '../styles/progress.css';
 
 export const ProgressPage: React.FC = () => {
+  const { user } = useAuth();
   const { data: pathwayData, loading: pathwayLoading } = usePathway('drug-ibuprofen-001');
   const { data: progressData, loading: progressLoading } = useProgress('drug-ibuprofen-001');
 
@@ -108,6 +110,32 @@ export const ProgressPage: React.FC = () => {
 
         {/* Identity & Cloud Sync Badges */}
         <div className="progress-identity-bar">
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin/content"
+              className="progress-identity-chip"
+              style={{
+                background: 'rgba(0, 229, 255, 0.12)',
+                border: '1px solid rgba(0, 229, 255, 0.35)',
+                textDecoration: 'none',
+                cursor: 'pointer'
+              }}
+              title="Open Administrative Content Management Portal"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary-container, #00e5ff)' }}>
+                admin_panel_settings
+              </span>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant, #bac9cc)', lineHeight: 1 }}>
+                  ADMIN ACCESS
+                </span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-primary-container, #00e5ff)' }}>
+                  Admin Portal &rarr;
+                </span>
+              </div>
+            </Link>
+          )}
+
           <div className="progress-identity-chip">
             <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary-container, #00e5ff)' }}>
               fingerprint

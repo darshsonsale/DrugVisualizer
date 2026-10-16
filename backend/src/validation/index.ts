@@ -9,3 +9,4 @@ export * from './schemas/quiz.schema.js';
 export * from './schemas/progress.schema.js';
 export * from './schemas/auth.schema.js';
 export * from './schemas/admin.schema.js';
+export * from './schemas/adminContent.schema.js';

@@ -28,7 +28,9 @@
     "test:content": "tsx src/database/verifyContent.ts",
     "test:condition-content": "tsx src/database/verifyConditionContent.ts",
     "test:quiz-bank": "tsx src/database/verifyQuizBank.ts",
-    "test:seeder": "tsx src/database/verifySeeder.ts"
+    "test:seeder": "tsx src/database/verifySeeder.ts",
+    "test:admin-content": "tsx src/database/verifyAdminContent.ts",
+    "test:admin-auth": "tsx src/database/verifyDedicatedAdminAuth.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
