@@ -5,10 +5,19 @@ import { CircularGauge } from '../components/ui/CircularGauge';
 import { Button } from '../components/ui/Button';
 import {
   getQuizLogs,
+  getLatestQuizResult,
   LatestQuizResult,
   QuizQuestionResult,
 } from '../services/quizProgressService';
+import { UserService } from '../services/userService';
 import '../styles/progress.css';
+
+const DRUG_NAMES_BY_QUIZ: Record<string, string> = {
+  'quiz-ibuprofen-001': 'Ibuprofen',
+  'quiz-amoxicillin-002': 'Amoxicillin',
+  'quiz-ambroxol-003': 'Ambroxol Syrup',
+  'quiz-insulin-004': 'Regular Insulin',
+};
 
 export const ProgressPage: React.FC = () => {
   const { user } = useAuth();
@@ -16,23 +25,95 @@ export const ProgressPage: React.FC = () => {
 
   // Mode: show only current candidate's attempts by default, allow viewing all attempts
   const [showAllCandidates, setShowAllCandidates] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(Boolean(user));
 
   // Load quiz logs for candidate
-  const [logs, setLogs] = useState<LatestQuizResult[]>(() =>
-    getQuizLogs(user, { filterByUser: !showAllCandidates })
-  );
+  const [logs, setLogs] = useState<LatestQuizResult[]>(() => {
+    const latest = getLatestQuizResult();
+    const sessionLogs = getQuizLogs(user, { filterByUser: true });
+    if (latest && !sessionLogs.some((l) => l.id === latest.id)) {
+      return [latest, ...sessionLogs];
+    }
+    return sessionLogs;
+  });
 
   // Tracks which quiz card is currently expanded to show Screenshot 2 (Question Review)
-  // Defaults to null or the first log so the user can tap to expand any quiz card!
   const [expandedQuizId, setExpandedQuizId] = useState<string | null>(null);
 
   // Active question per quiz attempt
   const [activeQuestionMap, setActiveQuestionMap] = useState<Record<string, string>>({});
 
-  // Sync on user change or mode toggle
+  // Sync with real backend attempts when authenticated
   useEffect(() => {
-    const freshLogs = getQuizLogs(user, { filterByUser: !showAllCandidates });
-    setLogs(freshLogs);
+    let isCancelled = false;
+    const sessionLogs = getQuizLogs(user, { filterByUser: !showAllCandidates });
+    const latest = getLatestQuizResult();
+    const initialCombined = latest && !sessionLogs.some((l) => l.id === latest.id)
+      ? [latest, ...sessionLogs]
+      : sessionLogs;
+
+    if (!user) {
+      setLogs(initialCombined);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    UserService.getMyAttempts()
+      .then((attempts) => {
+        if (isCancelled) return;
+        const candidateName = user.name || (user.email ? user.email.split('@')[0] : 'Learner');
+        const candidateEmail = user.email;
+
+        // Map genuine database attempts
+        const dbLogs: LatestQuizResult[] = attempts.map((att, idx) => {
+          const matchedSession = initialCombined.find(
+            (s) => s.id === att.id || s.quizId === att.quiz_id
+          );
+
+          const drugName =
+            DRUG_NAMES_BY_QUIZ[att.quiz_id] ||
+            matchedSession?.drugName ||
+            att.quiz_id.replace(/^quiz-/, '').replace(/-\d+$/, '').toUpperCase();
+
+          return {
+            id: att.id,
+            logNumber: attempts.length - idx,
+            userId: att.user_id,
+            quizId: att.quiz_id,
+            drugId: att.quiz_id.replace(/^quiz-/, 'drug-'),
+            drugName,
+            userName: candidateName,
+            userEmail: candidateEmail,
+            userAvatar: user.avatar_url || null,
+            submittedAt: att.completed_at || att.started_at,
+            score: Math.round(att.score),
+            correctCount: att.correct_count,
+            totalQuestions: att.total_questions,
+            passed: att.passed,
+            questions: matchedSession?.questions || [],
+          };
+        });
+
+        // Retain any in-session attempt that is still being mirrored
+        const extraSession = initialCombined.filter(
+          (sl) => !dbLogs.some((dl) => dl.id === sl.id)
+        );
+
+        setLogs([...extraSession, ...dbLogs]);
+        setLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (!isCancelled) {
+          console.warn('[ProgressPage] Could not load database attempts, using session records:', err);
+          setLogs(initialCombined);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [user, showAllCandidates]);
 
   const toggleExpand = (quizId: string) => {
@@ -133,7 +214,7 @@ export const ProgressPage: React.FC = () => {
                 LOGGED-IN CANDIDATE
               </span>
               <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-on-surface, #1E293B)', letterSpacing: '0.01em' }}>
-                {user?.name || logs[0]?.userName || 'Sarthak Tagalpallewar'}
+                {user?.name || (logs.length > 0 && logs[0]?.userName ? logs[0].userName : 'Guest Learner')}
               </span>
             </div>
           </div>
@@ -175,7 +256,16 @@ export const ProgressPage: React.FC = () => {
 
       {/* 2. LIST OF QUIZ ATTEMPTS */}
       <div className="progress-quiz-logs-stack">
-        {logs.length === 0 ? (
+        {loading && logs.length === 0 ? (
+          <div className="quiz-results-card" style={{ maxWidth: '640px', width: '100%', margin: '2rem auto', textAlign: 'center', padding: '2.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '40px', color: 'var(--color-primary, #167D78)', animation: 'spin 1.5s linear infinite' }}>
+              sync
+            </span>
+            <p style={{ marginTop: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+              Loading candidate assessment history...
+            </p>
+          </div>
+        ) : logs.length === 0 ? (
           <div className="quiz-results-card" style={{ maxWidth: '640px', width: '100%', margin: '2rem auto', textAlign: 'center', padding: '2.5rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'var(--color-primary)' }}>
               history_edu
@@ -317,15 +407,27 @@ export const ProgressPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="progress-mini-bar-track">
-                    {questions.map((q, idx) => (
-                      <div
-                        key={q.id || idx}
-                        className={`progress-mini-bar-seg ${
-                          q.isCorrect ? 'progress-mini-bar-seg--correct' : 'progress-mini-bar-seg--wrong'
-                        }`}
-                        title={`Question ${idx + 1}: ${q.isCorrect ? 'Correct' : 'Incorrect'}`}
-                      />
-                    ))}
+                    {questions.length > 0 ? (
+                      questions.map((q, idx) => (
+                        <div
+                          key={q.id || idx}
+                          className={`progress-mini-bar-seg ${
+                            q.isCorrect ? 'progress-mini-bar-seg--correct' : 'progress-mini-bar-seg--wrong'
+                          }`}
+                          title={`Question ${idx + 1}: ${q.isCorrect ? 'Correct' : 'Incorrect'}`}
+                        />
+                      ))
+                    ) : (
+                      Array.from({ length: totalQuestions }).map((_, idx) => (
+                        <div
+                          key={idx}
+                          className={`progress-mini-bar-seg ${
+                            idx < correctCount ? 'progress-mini-bar-seg--correct' : 'progress-mini-bar-seg--wrong'
+                          }`}
+                          title={`Question ${idx + 1}: ${idx < correctCount ? 'Correct' : 'Incorrect'}`}
+                        />
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -359,7 +461,9 @@ export const ProgressPage: React.FC = () => {
                   <span>
                     {isExpanded
                       ? 'Collapse Question Review ▲'
-                      : `Click to Inspect Questions, Mistakes & Correct Answers (${questions.length} Questions) ▼`}
+                      : questions.length > 0
+                      ? `Click to Inspect Questions, Mistakes & Correct Answers (${questions.length} Questions) ▼`
+                      : 'Click to View Assessment Audit & Telemetry Breakdown ▼'}
                   </span>
                 </button>
               </div>
@@ -392,54 +496,69 @@ export const ProgressPage: React.FC = () => {
                     </div>
 
                     {/* Question Boxes Grid: Q1, Q2, Q3, Q4, Q5 */}
-                    <div className="progress-question-grid">
-                      {questions.map((q, index) => {
-                        const isQSelected = activeQuestion?.id === q.id;
-                        return (
-                          <button
-                            key={q.id}
-                            type="button"
-                            onClick={() => handleSelectQuestion(quiz.id, q.id)}
-                            className={`progress-question-box ${
-                              q.isCorrect ? 'progress-question-box--correct' : 'progress-question-box--wrong'
-                            } ${isQSelected ? 'progress-question-box--selected' : ''}`}
-                          >
-                            <div className="progress-question-box-header">
-                              <span className="progress-question-number">Question {q.order || index + 1}</span>
-                              <span
-                                className={`progress-question-status-pill ${
-                                  q.isCorrect
-                                    ? 'progress-question-status-pill--correct'
-                                    : 'progress-question-status-pill--wrong'
-                                }`}
-                              >
-                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                                  {q.isCorrect ? 'check_circle' : 'cancel'}
+                    {questions.length > 0 ? (
+                      <div className="progress-question-grid">
+                        {questions.map((q, index) => {
+                          const isQSelected = activeQuestion?.id === q.id;
+                          return (
+                            <button
+                              key={q.id}
+                              type="button"
+                              onClick={() => handleSelectQuestion(quiz.id, q.id)}
+                              className={`progress-question-box ${
+                                q.isCorrect ? 'progress-question-box--correct' : 'progress-question-box--wrong'
+                              } ${isQSelected ? 'progress-question-box--selected' : ''}`}
+                            >
+                              <div className="progress-question-box-header">
+                                <span className="progress-question-number">Question {q.order || index + 1}</span>
+                                <span
+                                  className={`progress-question-status-pill ${
+                                    q.isCorrect
+                                      ? 'progress-question-status-pill--correct'
+                                      : 'progress-question-status-pill--wrong'
+                                  }`}
+                                >
+                                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                                    {q.isCorrect ? 'check_circle' : 'cancel'}
+                                  </span>
+                                  <span>{q.isCorrect ? 'RIGHT' : 'WRONG'}</span>
                                 </span>
-                                <span>{q.isCorrect ? 'RIGHT' : 'WRONG'}</span>
-                              </span>
-                            </div>
+                              </div>
 
-                            <div className="progress-question-box-stage">
-                              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                                conversion_path
-                              </span>
-                              <span>{q.stage}</span>
-                            </div>
+                              <div className="progress-question-box-stage">
+                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                                  conversion_path
+                                </span>
+                                <span>{q.stage}</span>
+                              </div>
 
-                            <p className="progress-question-box-text">
-                              {q.questionText}
-                            </p>
+                              <p className="progress-question-box-text">
+                                {q.questionText}
+                              </p>
 
-                            <div className="progress-question-box-footer">
-                              <span className="progress-click-hint">
-                                {isQSelected ? 'Currently Viewing Review ↓' : 'Click to View Review →'}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
+                              <div className="progress-question-box-footer">
+                                <span className="progress-click-hint">
+                                  {isQSelected ? 'Currently Viewing Review ↓' : 'Click to View Review →'}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div style={{ padding: '1.25rem 1.5rem', background: 'var(--color-surface-container-low, #F8FAFC)', borderRadius: '10px', border: '1px solid var(--color-surface-container-high, #EDF3EF)', margin: '1rem 0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--color-primary, #167D78)', fontWeight: 700 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                            verified
+                          </span>
+                          <span>PostgreSQL Clinical Examination Telemetry Record</span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant, #475569)', lineHeight: 1.6 }}>
+                          This assessment for <strong>{quiz.drugName}</strong> was evaluated server-side and recorded in the database.
+                          Candidate achieved a certified score of <strong>{scorePercent}%</strong> ({correctCount} / {totalQuestions} correct) with status <strong>{isPassed ? 'PROFICIENCY VERIFIED' : 'REVIEW RECOMMENDED'}</strong>.
+                        </p>
+                      </div>
+                    )}
 
                     {/* In-Page Question Review Dialog Box */}
                     {activeQuestion && (

@@ -47,12 +47,8 @@ export class QuizService {
         source: 'api',
       };
     } catch (err: unknown) {
-      if (this.isMockFallbackAllowed()) {
+      if (options.preferMock && this.isMockFallbackAllowed()) {
         const mockQuiz = Object.values(MOCK_QUIZZES_BY_DRUG).find((q) => q.id === quizOrDrugId) || MOCK_IBUPROFEN_QUIZ;
-        console.warn(
-          `[QuizService] Real API request failed for /quizzes/${quizOrDrugId}. Serving developmental mock fixture.`,
-          err
-        );
         return {
           data: mockQuiz,
           isMockData: true,
@@ -89,12 +85,8 @@ export class QuizService {
         source: 'api',
       };
     } catch (err: unknown) {
-      if (this.isMockFallbackAllowed()) {
+      if (options.preferMock && this.isMockFallbackAllowed()) {
         const mockQuiz = MOCK_QUIZZES_BY_DRUG[drugId] || MOCK_IBUPROFEN_QUIZ;
-        console.warn(
-          `[QuizService] Real API request failed for /quizzes/drug/${drugId}. Serving developmental mock fixture.`,
-          err
-        );
         return {
           data: mockQuiz,
           isMockData: true,
@@ -146,11 +138,7 @@ export class QuizService {
         source: 'api',
       };
     } catch (err: unknown) {
-      if (this.isMockFallbackAllowed()) {
-        console.warn(
-          `[QuizService] Real API submission failed for /quizzes/${quizId}/attempts. Returning fallback result in development.`,
-          err
-        );
+      if (options.preferMock && this.isMockFallbackAllowed()) {
         const total = submission.answers.length;
         return {
           data: {

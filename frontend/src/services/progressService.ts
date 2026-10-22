@@ -38,11 +38,7 @@ export class ProgressService {
         source: 'api',
       };
     } catch (err: unknown) {
-      if (this.isMockFallbackAllowed()) {
-        console.warn(
-          `[ProgressService] Real API request failed for /progress/${drugId}. VITE_ENABLE_MOCK_FALLBACK is enabled in development. Serving development mock fixture.`,
-          err
-        );
+      if (options.preferMock && this.isMockFallbackAllowed()) {
         return {
           data: MOCK_USER_PROGRESS,
           isMockData: true,
@@ -85,11 +81,7 @@ export class ProgressService {
         source: 'api',
       };
     } catch (err: unknown) {
-      if (this.isMockFallbackAllowed()) {
-        console.warn(
-          `[ProgressService] Real API request failed for /progress/${drugId}. Saving to local in-memory fallback in development.`,
-          err
-        );
+      if (options.preferMock && this.isMockFallbackAllowed()) {
         return {
           data: {
             ...MOCK_USER_PROGRESS,

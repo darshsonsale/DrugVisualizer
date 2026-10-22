@@ -832,16 +832,23 @@ export function getQuizLogs(
           return userLogs;
         }
 
-        return normalized;
+        // Filter out dummy starter fixtures so genuine user attempts are not polluted
+        const nonDummy = normalized.filter(
+          (item) =>
+            !item.id.startsWith('log-ibuprofen-0') &&
+            !item.id.startsWith('log-amox-0') &&
+            !item.id.startsWith('log-amb-0') &&
+            !item.id.startsWith('log-ins-0')
+        );
+
+        return nonDummy;
       }
     }
   } catch (err) {
     console.warn('[QuizProgressService] Failed to load quiz logs:', err);
   }
 
-  // Fallback to default starter logs and persist them
-  const defaults = getDefaultQuizLogs(user);
-  return defaults;
+  return [];
 }
 
 export function getDefaultQuizResult(user: UserProfile | null): LatestQuizResult {

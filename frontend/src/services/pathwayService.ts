@@ -60,18 +60,14 @@ export class PathwayService {
         source: 'api',
       };
     } catch (err: unknown) {
-      if (this.isMockFallbackAllowed()) {
-        console.warn(
-          '[PathwayService] Real API request failed for /drugs. VITE_ENABLE_MOCK_FALLBACK is enabled in development. Serving development mock fixture.',
-          err
-        );
+      if (options.preferMock && this.isMockFallbackAllowed()) {
         return {
           data: MOCK_DRUGS,
           isMockData: true,
           source: 'mock-fixture',
         };
       }
-      // Re-throw if fallback is not explicitly permitted
+      // Re-throw genuine API / network error to prevent hiding backend integration issues
       throw err;
     }
   }
@@ -130,11 +126,7 @@ export class PathwayService {
         source: 'api',
       };
     } catch (err: unknown) {
-      if (this.isMockFallbackAllowed()) {
-        console.warn(
-          `[PathwayService] Real API request failed for /drugs/${drugId}/pathway?condition=${condition}. VITE_ENABLE_MOCK_FALLBACK is enabled in development. Serving development mock fixture.`,
-          err
-        );
+      if (options.preferMock && this.isMockFallbackAllowed()) {
         const mockResult = this.resolveMockPathway(drugId, condition);
         return {
           data: mockResult,

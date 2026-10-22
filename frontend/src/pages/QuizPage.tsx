@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { saveLatestQuizResult } from '../services/quizProgressService';
+import { saveLatestQuizResult, getQuestionMetadata } from '../services/quizProgressService';
+import { QuizService } from '../services/quizService';
 import {
   getQuizSetsForDrug,
   evaluateQuizSetAttempt,
   DrugQuizSet,
+  QuestionBankItem,
 } from '../data/quizQuestionBank';
-import { QuizAttemptSubmission, QuizAttemptResult } from '../api/types';
+import { QuizAttemptSubmission, QuizAttemptResult, QuizResponse } from '../api/types';
 import { CircularGauge } from '../components/ui/CircularGauge';
 import { Button } from '../components/ui/Button';
 import '../styles/quiz.css';
@@ -60,9 +62,63 @@ export const QuizPage: React.FC = () => {
     }
   }, [selectedMed.key, searchParams, availableSets.length]);
 
-  // Active quiz set & questions
+  // Fetch real diagnostic quiz from backend API
+  const [backendQuiz, setBackendQuiz] = useState<QuizResponse | null>(null);
+  const [loadingQuiz, setLoadingQuiz] = useState<boolean>(true);
+  const [quizError, setQuizError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCancelled = false;
+    setLoadingQuiz(true);
+    setQuizError(null);
+
+    QuizService.getQuizForDrug(selectedMed.id)
+      .then((res) => {
+        if (!isCancelled) {
+          setBackendQuiz(res.data);
+          setLoadingQuiz(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!isCancelled) {
+          console.warn('[QuizPage] Failed to fetch quiz from backend API:', err);
+          setQuizError(err instanceof Error ? err.message : 'Unable to load quiz questions');
+          setLoadingQuiz(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedMed.id]);
+
+  // Active quiz set & questions (uses real backend questions for Set 1 / diagnostic assessment)
   const activeQuizSet: DrugQuizSet = availableSets[currentSetIndex] || availableSets[0];
-  const questions = activeQuizSet.questions;
+
+  const questions: QuestionBankItem[] = useMemo(() => {
+    if (currentSetIndex === 0 && backendQuiz && Array.isArray(backendQuiz.questions) && backendQuiz.questions.length > 0) {
+      return backendQuiz.questions.map((bq, idx) => {
+        const meta = getQuestionMetadata(bq.id, bq.question_text);
+        return {
+          id: bq.id,
+          quiz_id: backendQuiz.id,
+          question_order: bq.question_order || idx + 1,
+          question_text: bq.question_text,
+          stage: meta.stage,
+          topic: meta.topic,
+          correct_option_id: '',
+          correct_answer_text: meta.correctAnswer,
+          explanation: meta.explanation,
+          options: bq.options.map((opt) => ({
+            id: opt.id,
+            question_id: bq.id,
+            option_text: opt.option_text,
+          })),
+        };
+      });
+    }
+    return activeQuizSet.questions;
+  }, [currentSetIndex, backendQuiz, activeQuizSet]);
 
   // 3. Quiz workstation interactive state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -71,6 +127,7 @@ export const QuizPage: React.FC = () => {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [submissionResult, setSubmissionResult] = useState<QuizAttemptResult | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   // Timer countdown simulation (14:28 minutes per session)
   const [secondsRemaining, setSecondsRemaining] = useState<number>(14 * 60 + 28);
@@ -188,9 +245,10 @@ export const QuizPage: React.FC = () => {
     setSecondsRemaining(14 * 60 + 28);
   };
 
-  const handleSubmitQuiz = () => {
+  const handleSubmitQuiz = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setSubmissionError(null);
     try {
       const submission: QuizAttemptSubmission = {
         answers: Object.entries(selectedAnswers).map(([question_id, selected_option_id]) => ({
@@ -199,8 +257,16 @@ export const QuizPage: React.FC = () => {
         })),
       };
 
-      // Genuine clinical grading against the active question set
-      const evaluated = evaluateQuizSetAttempt(activeQuizSet, submission);
+      let evaluated: QuizAttemptResult;
+
+      // If official backend quiz is active, submit to PostgreSQL for authoritative server-side grading
+      if (currentSetIndex === 0 && backendQuiz?.id) {
+        const res = await QuizService.submitQuizAttempt(backendQuiz.id, submission);
+        evaluated = res.data;
+      } else {
+        // Fallback or alternative set evaluation
+        evaluated = evaluateQuizSetAttempt(activeQuizSet, submission);
+      }
 
       saveLatestQuizResult({
         questions,
@@ -216,8 +282,10 @@ export const QuizPage: React.FC = () => {
 
       setSubmissionResult(evaluated);
       setSubmitted(true);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('[QuizPage] Submission grading error:', err);
+      const message = err instanceof Error ? err.message : 'Failed to submit quiz attempt. Please try again.';
+      setSubmissionError(message);
     } finally {
       setSubmitting(false);
     }
@@ -568,6 +636,20 @@ export const QuizPage: React.FC = () => {
         </button>
       </section>
 
+      {/* Live Backend Telemetry Notice */}
+      {loadingQuiz && currentSetIndex === 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '8px', background: 'rgba(22, 125, 120, 0.08)', color: 'var(--color-primary, #167D78)', fontSize: '0.85rem', marginBottom: '1rem', border: '1px solid rgba(22, 125, 120, 0.2)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '18px', animation: 'spin 1.5s linear infinite' }}>sync</span>
+          <span>Fetching authoritative clinical quiz from backend database...</span>
+        </div>
+      )}
+      {quizError && currentSetIndex === 0 && !loadingQuiz && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '8px', background: 'rgba(255, 180, 171, 0.15)', color: 'var(--color-error, #ba1a1a)', fontSize: '0.85rem', marginBottom: '1rem', border: '1px solid rgba(255, 180, 171, 0.3)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>warning</span>
+          <span>{quizError} (Active fallback: verified offline question bank)</span>
+        </div>
+      )}
+
       {/* Header & Telemetry Pills */}
       <header className="quiz-header">
         <div className="quiz-header__top">
@@ -734,6 +816,28 @@ export const QuizPage: React.FC = () => {
                 </p>
               </div>
             </div>
+
+            {submissionError && (
+              <div
+                style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#ef4444',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  marginTop: '1rem',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                  error
+                </span>
+                <span>{submissionError}</span>
+              </div>
+            )}
 
             {/* Action Footer */}
             <footer className="quiz-action-footer">

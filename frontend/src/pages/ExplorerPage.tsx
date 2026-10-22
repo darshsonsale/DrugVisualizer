@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useProgress } from '../hooks/useProgress';
 import { usePathway } from '../hooks/usePathway';
 import { FoodCondition, DrugSummary, PathwayNodeWithDetails } from '../api/types';
 import { PathwayService } from '../services/pathwayService';
@@ -17,12 +19,16 @@ import { Button, Card } from '../components/ui';
 import '../components/explorer/explorer.css';
 
 export const ExplorerPage: React.FC = () => {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramDrug = searchParams.get('drug');
   const paramView = searchParams.get('view');
 
   const [availableDrugs, setAvailableDrugs] = useState<DrugSummary[]>([]);
   const [selectedDrugId, setSelectedDrugId] = useState<string>(paramDrug || 'drug-ibuprofen-001');
+
+  // Authenticated station exploration progress
+  const { markNodeCompleted } = useProgress(selectedDrugId, { autoFetch: Boolean(user) });
   // Default to selector view unless user requested 3d view via param
   const [currentView, setCurrentView] = useState<'selector' | 'workspace'>(
     paramView === '3d' ? 'workspace' : 'selector'
@@ -132,9 +138,17 @@ export const ExplorerPage: React.FC = () => {
     return data.nodes[0];
   }, [data, activeNodeId]);
 
-  const handleSelectNode = useCallback((nodeId: string) => {
-    setSelectedNodeId(nodeId);
-  }, []);
+  const handleSelectNode = useCallback(
+    (nodeId: string) => {
+      setSelectedNodeId(nodeId);
+      if (user && nodeId && !nodeId.startsWith('landmark-')) {
+        markNodeCompleted(nodeId).catch((err) => {
+          console.warn('[ExplorerPage] Could not persist node completion:', err);
+        });
+      }
+    },
+    [user, markNodeCompleted]
+  );
 
   const handleToggleAutoTransit = useCallback(() => {
     setIsAutoTransitActive((prev) => {
