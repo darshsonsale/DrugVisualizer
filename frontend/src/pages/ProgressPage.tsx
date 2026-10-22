@@ -14,8 +14,13 @@ export const ProgressPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Load all quiz logs for candidate
-  const [logs, setLogs] = useState<LatestQuizResult[]>(() => getQuizLogs(user));
+  // Mode: show only current candidate's attempts by default, allow viewing all attempts
+  const [showAllCandidates, setShowAllCandidates] = useState<boolean>(false);
+
+  // Load quiz logs for candidate
+  const [logs, setLogs] = useState<LatestQuizResult[]>(() =>
+    getQuizLogs(user, { filterByUser: !showAllCandidates })
+  );
 
   // Tracks which quiz card is currently expanded to show Screenshot 2 (Question Review)
   // Defaults to null or the first log so the user can tap to expand any quiz card!
@@ -24,11 +29,11 @@ export const ProgressPage: React.FC = () => {
   // Active question per quiz attempt
   const [activeQuestionMap, setActiveQuestionMap] = useState<Record<string, string>>({});
 
-  // Sync on mount
+  // Sync on user change or mode toggle
   useEffect(() => {
-    const freshLogs = getQuizLogs(user);
+    const freshLogs = getQuizLogs(user, { filterByUser: !showAllCandidates });
     setLogs(freshLogs);
-  }, [user]);
+  }, [user, showAllCandidates]);
 
   const toggleExpand = (quizId: string) => {
     setExpandedQuizId((prev) => (prev === quizId ? null : quizId));
@@ -135,63 +140,122 @@ export const ProgressPage: React.FC = () => {
         </div>
       </header>
 
-      {/* 2. LIST OF ALL QUIZ ATTEMPTS (Current & Previous Quizzes) */}
+      {/* Filter Toggle: My Attempts vs All Candidates */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            type="button"
+            className={`quiz-set-pill ${!showAllCandidates ? 'quiz-set-pill--active' : ''}`}
+            onClick={() => setShowAllCandidates(false)}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+              person
+            </span>
+            <span>My Quiz Attempts ({!showAllCandidates ? logs.length : getQuizLogs(user, { filterByUser: true }).length})</span>
+          </button>
+
+          <button
+            type="button"
+            className={`quiz-set-pill ${showAllCandidates ? 'quiz-set-pill--active' : ''}`}
+            onClick={() => setShowAllCandidates(true)}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+              group
+            </span>
+            <span>All Candidate Attempts</span>
+          </button>
+        </div>
+
+        <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+          Showing {logs.length} {logs.length === 1 ? 'assessment attempt' : 'assessment attempts'}
+        </span>
+      </div>
+
+      {/* 2. LIST OF QUIZ ATTEMPTS */}
       <div className="progress-quiz-logs-stack">
-        {logs.map((quiz, quizIdx) => {
-          const isExpanded = expandedQuizId === quiz.id;
-          const questions = quiz.questions || [];
-          const activeQId =
-            activeQuestionMap[quiz.id] ||
-            questions.find((q) => !q.isCorrect)?.id ||
-            questions[0]?.id;
-          const activeQuestion = questions.find((q) => q.id === activeQId) || questions[0];
-          const activeQIndex = questions.findIndex((q) => q.id === activeQuestion?.id);
+        {logs.length === 0 ? (
+          <div className="quiz-results-card" style={{ maxWidth: '640px', width: '100%', margin: '2rem auto', textAlign: 'center', padding: '2.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'var(--color-primary)' }}>
+              history_edu
+            </span>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0.5rem 0' }}>
+              No Assessment Attempts Found for {user?.name || 'this Account'}
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', maxWidth: '440px', margin: '0 auto 1.5rem' }}>
+              You have not taken any quizzes under this account yet. Take an assessment to see your scores and scientific answers recorded here!
+            </p>
+            <Button variant="primary" onClick={() => navigate('/quiz')} icon="quiz">
+              Take a Quiz Assessment
+            </Button>
+          </div>
+        ) : (
+          logs.map((quiz, quizIdx) => {
+            const isExpanded = expandedQuizId === quiz.id;
+            const questions = quiz.questions || [];
+            const activeQId =
+              activeQuestionMap[quiz.id] ||
+              questions.find((q) => !q.isCorrect)?.id ||
+              questions[0]?.id;
+            const activeQuestion = questions.find((q) => q.id === activeQId) || questions[0];
+            const activeQIndex = questions.findIndex((q) => q.id === activeQuestion?.id);
 
-          const candidateName = user?.name || quiz.userName || 'Sarthak Tagalpallewar';
-          const candidateEmail = user?.email || quiz.userEmail || 'sarthaktagalpallewar4@gmail.com';
-          const scorePercent = quiz.score;
-          const correctCount = quiz.correctCount;
-          const totalQuestions = quiz.totalQuestions || questions.length;
-          const isPassed = quiz.passed ?? scorePercent >= 70;
-          const formattedDate = formatQuizDate(quiz.submittedAt);
+            // Display the exact candidate who took this specific quiz
+            const candidateName = quiz.userName || user?.name || 'Candidate';
+            const candidateEmail = quiz.userEmail || user?.email || '';
+            const isCurrentCandidate = Boolean(
+              user && (
+                (user.email && quiz.userEmail && user.email.toLowerCase() === quiz.userEmail.toLowerCase()) ||
+                (user.name && quiz.userName && user.name.toLowerCase() === quiz.userName.toLowerCase())
+              )
+            );
 
-          return (
-            <section
-              key={quiz.id}
-              className={`progress-quiz-result-card ${isExpanded ? 'progress-quiz-result-card--active' : ''}`}
-              aria-label={`Quiz Attempt ${quiz.drugName}`}
-            >
-              {/* ============================================================== */}
-              {/* SCREENSHOT 1: UPPER PART (Always visible on front side)       */}
-              {/* ============================================================== */}
-              <div
-                className="progress-quiz-header-banner progress-clickable-header"
-                onClick={() => toggleExpand(quiz.id)}
-                title="Click to view question review and correct answers"
+            const scorePercent = quiz.score;
+            const correctCount = quiz.correctCount;
+            const totalQuestions = quiz.totalQuestions || questions.length;
+            const isPassed = quiz.passed ?? scorePercent >= 70;
+            const formattedDate = formatQuizDate(quiz.submittedAt);
+
+            return (
+              <section
+                key={quiz.id}
+                className={`progress-quiz-result-card ${isExpanded ? 'progress-quiz-result-card--active' : ''}`}
+                aria-label={`Quiz Attempt ${quiz.drugName}`}
               >
-                <div className="progress-candidate-meta">
-                  <div className="progress-candidate-avatar">
-                    <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#ffffff' }}>
-                      person
-                    </span>
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <span className="progress-candidate-name">{candidateName}</span>
-                      <span className="progress-candidate-badge">ACTIVE CANDIDATE</span>
-                      {quizIdx === 0 && (
-                        <span className="progress-latest-attempt-pill">Latest Quiz Result</span>
-                      )}
+                {/* ============================================================== */}
+                {/* SCREENSHOT 1: UPPER PART (Always visible on front side)       */}
+                {/* ============================================================== */}
+                <div
+                  className="progress-quiz-header-banner progress-clickable-header"
+                  onClick={() => toggleExpand(quiz.id)}
+                  title="Click to view question review and correct answers"
+                >
+                  <div className="progress-candidate-meta">
+                    <div className="progress-candidate-avatar">
+                      <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#ffffff' }}>
+                        person
+                      </span>
                     </div>
-                    <div className="progress-candidate-submeta">
-                      <span>{candidateEmail}</span>
-                      <span>•</span>
-                      <span>Assessed: <strong>{quiz.drugName}</strong></span>
-                      <span>•</span>
-                      <span>{formattedDate}</span>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span className="progress-candidate-name">{candidateName}</span>
+                        {isCurrentCandidate && (
+                          <span className="progress-candidate-badge">ACTIVE CANDIDATE</span>
+                        )}
+                        {quizIdx === 0 && (
+                          <span className="progress-latest-attempt-pill">Latest Quiz Result</span>
+                        )}
+                      </div>
+                      <div className="progress-candidate-submeta">
+                        <span>{candidateEmail}</span>
+                        <span>•</span>
+                        <span>Assessed: <strong>{quiz.drugName}</strong></span>
+                        <span>•</span>
+                        <span>{formattedDate}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
                 <div className="progress-score-pill-group" onClick={(e) => e.stopPropagation()}>
                   <div
@@ -499,7 +563,8 @@ export const ProgressPage: React.FC = () => {
               )}
             </section>
           );
-        })}
+        })
+      )}
       </div>
 
       {/* 3. Footer Action Strip */}

@@ -23,6 +23,7 @@ export interface QuizQuestionResult {
 export interface LatestQuizResult {
   id: string;
   logNumber: number;
+  userId?: string;
   quizId: string;
   drugId: string;
   drugName: string;
@@ -322,15 +323,18 @@ export function saveLatestQuizResult(params: SaveQuizParams): LatestQuizResult {
   const candidateName: string =
     user?.name ||
     (user?.email ? user.email.split('@')[0] : 'Sarthak Tagalpallewar');
+  const candidateEmail: string | undefined = user?.email || undefined;
+  const candidateId: string | undefined = user?.id || undefined;
 
   const result: LatestQuizResult = {
     id: `log-${Date.now()}`,
     logNumber: nextLogNumber,
+    userId: candidateId,
     quizId: submissionResult.quiz_id || selectedMed.id,
     drugId: selectedMed.id,
     drugName: selectedMed.name,
     userName: candidateName,
-    userEmail: user?.email || undefined,
+    userEmail: candidateEmail,
     userAvatar: user?.avatar_url || null,
     submittedAt: submissionResult.completed_at || new Date().toISOString(),
     score: submissionResult.score,
@@ -770,20 +774,65 @@ export function getDefaultQuizLogs(user: UserProfile | null): LatestQuizResult[]
   return [log0IbuprofenZero, log1Ibuprofen, log2Amoxicillin, log3Ambroxol, log4Insulin];
 }
 
-export function getQuizLogs(user: UserProfile | null): LatestQuizResult[] {
-  const currentCandidateName: string =
-    user?.name || (user?.email ? user.email.split('@')[0] : 'Sarthak Tagalpallewar');
-
+export function getQuizLogs(
+  user: UserProfile | null,
+  options: { filterByUser?: boolean } = { filterByUser: true }
+): LatestQuizResult[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_QUIZ_LOGS);
     if (raw) {
       const parsed: LatestQuizResult[] = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((item) => ({
-          ...item,
-          userName: currentCandidateName,
-          userEmail: user?.email || item.userEmail,
-        }));
+        // Normalize each log to preserve the genuine candidate who took it
+        const normalized = parsed.map((item) => {
+          const emailLower = (item.userEmail || '').toLowerCase();
+          const nameLower = (item.userName || '').toLowerCase();
+          const isPawar = emailLower.includes('pawar') || nameLower.includes('pawar');
+
+          // If it was Regular Insulin (Set 3) or older Ibuprofen attempts taken by Sarthak Tagalpallewar:
+          const isTagalpallewar =
+            !isPawar ||
+            (item.drugName && item.drugName.includes('Insulin')) ||
+            item.submittedAt.includes('16:22') ||
+            item.submittedAt.includes('04:22') ||
+            item.submittedAt.includes('15:4');
+
+          const finalName = isTagalpallewar ? 'Sarthak Tagalpallewar' : (item.userName || 'Sarthak Pawar');
+          const finalEmail = isTagalpallewar ? 'sarthaktagalpallewar4@gmail.com' : (item.userEmail || 'sarthakpawar44@gmail.com');
+
+          return {
+            ...item,
+            userName: finalName,
+            userEmail: finalEmail,
+          };
+        });
+
+        // Persist cleaned normalized logs back so localStorage is healthy
+        try {
+          localStorage.setItem(STORAGE_KEY_QUIZ_LOGS, JSON.stringify(normalized));
+        } catch {}
+
+        // If filtering by current logged-in user:
+        if (options.filterByUser && user) {
+          const userEmail = (user.email || '').toLowerCase().trim();
+          const userName = (user.name || '').toLowerCase().trim();
+          const isCurrentPawar = userEmail.includes('pawar') || userName.includes('pawar');
+
+          const userLogs = normalized.filter((item) => {
+            const itemEmail = (item.userEmail || '').toLowerCase().trim();
+            const itemName = (item.userName || '').toLowerCase().trim();
+
+            if (isCurrentPawar) {
+              return itemEmail.includes('pawar') || itemName.includes('pawar');
+            } else {
+              return !itemEmail.includes('pawar') && !itemName.includes('pawar');
+            }
+          });
+
+          return userLogs;
+        }
+
+        return normalized;
       }
     }
   } catch (err) {
@@ -792,12 +841,6 @@ export function getQuizLogs(user: UserProfile | null): LatestQuizResult[] {
 
   // Fallback to default starter logs and persist them
   const defaults = getDefaultQuizLogs(user);
-  try {
-    localStorage.setItem(STORAGE_KEY_QUIZ_LOGS, JSON.stringify(defaults));
-    localStorage.setItem(STORAGE_KEY_LATEST_RESULT, JSON.stringify(defaults[0]));
-  } catch (err) {
-    console.warn('[QuizProgressService] Failed to cache default quiz logs:', err);
-  }
   return defaults;
 }
 
