@@ -5,6 +5,10 @@ const { Pool } = pg;
 
 let poolInstance: pg.Pool | null = null;
 
+export function setPool(pool: pg.Pool | null): void {
+  poolInstance = pool;
+}
+
 export function getPool(): pg.Pool {
   if (!poolInstance) {
     const config = getPoolConfig();
