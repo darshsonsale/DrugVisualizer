@@ -1,0 +1,83 @@
+# ==============================================================================
+# Drug Path Visualiser (BioLumen) — Production Compose Template (Example)
+# Demonstrates containerized modular-monolith backend, frontend Nginx, & PostgreSQL.
+# Copy to docker-compose.prod.yml and supply production secrets via environment.
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # Relational Database: PostgreSQL 16 Alpine
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: biolumen_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-drug_visualizer_prod}
+      POSTGRES_USER: ${DB_USER:-biolumen_app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Database password is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-biolumen_app} -d ${DB_NAME:-drug_visualizer_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - biolumen_internal
+
+  # ----------------------------------------------------------------------------
+  # Backend API Server: Node.js + TypeScript Modular Monolith
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: biolumen_backend_prod
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${DB_USER:-biolumen_app}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-drug_visualizer_prod}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://yourdomain.com}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required and must be >= 32 chars}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-admin@biolumen.org}
+    networks:
+      - biolumen_internal
+
+  # ----------------------------------------------------------------------------
+  # Frontend Web Client: Nginx Reverse Proxy & Static Asset Server
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    container_name: biolumen_frontend_prod
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf.example:/etc/nginx/nginx.conf:ro
+    networks:
+      - biolumen_internal
+
+networks:
+  biolumen_internal:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

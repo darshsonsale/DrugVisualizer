@@ -102,3 +102,67 @@ export const config: AppConfig = Object.freeze({
   })
 });
 
+export interface ProductionConfigValidation {
+  valid: boolean;
+  warnings: string[];
+  errors: string[];
+}
+
+export function validateProductionConfig(): ProductionConfigValidation {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // 1. JWT Secret Validation
+  const jwt = config.auth.jwtSecret;
+  if (!jwt || jwt.trim() === '') {
+    errors.push('JWT_SECRET is required in production.');
+  } else if (jwt.length < 32) {
+    errors.push(`JWT_SECRET must be at least 32 characters long (received ${jwt.length}).`);
+  } else if (
+    jwt.includes('development-insecure') ||
+    jwt.startsWith('<') ||
+    jwt.includes('your-secret')
+  ) {
+    errors.push('JWT_SECRET contains an insecure development default or placeholder value.');
+  }
+
+  // 2. Database Production Configuration
+  const dbUrl = process.env.DATABASE_URL?.trim();
+  const dbPassword = process.env.DB_PASSWORD?.trim();
+  const dbName = (process.env.DB_NAME || 'drug_visualizer_dev').trim();
+
+  if (!dbUrl && !dbPassword) {
+    errors.push('Neither DATABASE_URL nor DB_PASSWORD is provided for production database connection.');
+  } else if (dbPassword && (dbPassword.startsWith('<') || dbPassword.includes('your-db-password'))) {
+    errors.push('DB_PASSWORD contains an unreplaced placeholder value.');
+  } else if (dbUrl && (dbUrl.includes('<') || dbUrl.includes('your-db-'))) {
+    errors.push('DATABASE_URL contains an unreplaced placeholder value.');
+  }
+
+  if (dbName === 'drug_visualizer_dev' || dbName === 'drug_visualizer_test') {
+    warnings.push(`DB_NAME is set to "${dbName}". Production should typically target a dedicated production database.`);
+  }
+
+  // 3. CORS & Origin Validation
+  if (Array.isArray(config.corsOrigin)) {
+    if (config.corsOrigin.includes('*')) {
+      warnings.push('CORS_ORIGIN is configured to wildcard (*); specify exact production domain(s).');
+    }
+    const hasLocalhost = config.corsOrigin.some((origin) => origin.includes('localhost') || origin.includes('127.0.0.1'));
+    if (hasLocalhost && config.isProduction) {
+      warnings.push('CORS_ORIGIN includes localhost/127.0.0.1 in production mode.');
+    }
+  }
+
+  // 4. OAuth Credentials
+  if (!config.auth.googleClientId || !config.auth.googleClientSecret) {
+    warnings.push('Google OAuth credentials not provided; Google Sign-in will operate in local credential fallback mode.');
+  }
+
+  return {
+    valid: errors.length === 0,
+    warnings,
+    errors
+  };
+}
+

@@ -31,9 +31,9 @@ export class ApiClient {
   private baseUrl: string;
   private defaultTimeoutMs: number;
   private authToken: string | null = null;
-
   constructor(baseUrl?: string, defaultTimeoutMs: number = 10000) {
-    this.baseUrl = (baseUrl || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1').replace(/\/+$/, '');
+    const fallbackUrl = import.meta.env.PROD ? '/api/v1' : 'http://localhost:3000/api/v1';
+    this.baseUrl = (baseUrl || import.meta.env.VITE_API_BASE_URL || fallbackUrl).replace(/\/+$/, '');
     this.defaultTimeoutMs = defaultTimeoutMs;
   }
 

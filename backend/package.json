@@ -17,7 +17,10 @@
     "migrate:up": "tsx src/database/migrator.ts up",
     "migrate:down": "tsx src/database/migrator.ts down",
     "migrate:status": "tsx src/database/migrator.ts status",
+    "db:migrate": "tsx src/database/migrator.ts up",
+    "db:migrate:prod": "node dist/database/migrator.js up",
     "db:seed": "tsx src/database/seed.ts",
+    "db:seed:prod": "node dist/database/seed.js",
     "test:api": "tsx src/database/verifyApi.ts",
     "db:test:quiz": "tsx src/database/verifyQuizProgress.ts",
     "test:auth": "tsx src/database/verifyAuth.ts",
@@ -33,7 +36,8 @@
     "test:admin-auth": "tsx src/database/verifyDedicatedAdminAuth.ts",
     "test:security-suite": "tsx tests/security/runAllSecurityTests.ts",
     "test:integration": "tsx tests/integration/runAllIntegrationTests.ts",
-    "test:e2e": "tsx tests/e2e/runAllE2ETests.ts"
+    "test:e2e": "tsx tests/e2e/runAllE2ETests.ts",
+    "test:recovery": "tsx src/database/verifyBackupRecovery.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
