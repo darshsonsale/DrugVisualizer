@@ -5,6 +5,7 @@ import ExplorerPage from '../pages/ExplorerPage';
 import LearnPage from '../pages/LearnPage';
 import QuizPage from '../pages/QuizPage';
 import ProgressPage from '../pages/ProgressPage';
+import AboutPage from '../pages/AboutPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import AdminContentPage from '../pages/admin/AdminContentPage';
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
@@ -35,6 +36,14 @@ export const router = createBrowserRouter([
       {
         path: 'progress',
         element: <ProgressPage />,
+      },
+      {
+        path: 'about',
+        element: <AboutPage />,
+      },
+      {
+        path: 'about-us',
+        element: <AboutPage />,
       },
       {
         path: 'login',

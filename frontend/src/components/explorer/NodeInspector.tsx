@@ -36,6 +36,15 @@ const STAGE_METRICS: Record<
       'Saliva produces ~1.5 liters daily containing salivary amylase and mucins that safeguard the oral mucosa from solid tablet friction.',
     imgUrl: '/assets/organs/micro/mouth.jpg',
   },
+  'node-esophagus': {
+    phLabel: 'Esophageal pH',
+    phValue: '6.8 – 7.0',
+    timeLabel: 'Transit Time',
+    timeValue: '4 – 8 sec',
+    funFact:
+      'Peristaltic striated and smooth muscle contractions propel the tablet swiftly downward, preventing local mucosal irritation.',
+    imgUrl: '/assets/organs/micro/esophagus.jpg',
+  },
   'node-stomach': {
     phLabel: 'Gastric pH',
     phValue: '1.5 – 2.0',
@@ -106,7 +115,7 @@ const STAGE_METRICS: Record<
     timeLabel: 'Transit Time',
     timeValue: '4 – 8 sec',
     funFact: 'Peristaltic muscle contractions rapidly propel the capsule down the esophagus into the stomach.',
-    imgUrl: '/assets/organs/micro/mouth.jpg',
+    imgUrl: '/assets/organs/micro/esophagus.jpg',
   },
   'node-amox-stomach': {
     phLabel: 'Gastric pH',
@@ -164,7 +173,7 @@ const STAGE_METRICS: Record<
     timeLabel: 'Transit Time',
     timeValue: '2 – 5 sec',
     funFact: 'Liquid syrup flows smoothly coated by protective oral demulcents.',
-    imgUrl: '/assets/organs/micro/mouth.jpg',
+    imgUrl: '/assets/organs/micro/esophagus.jpg',
   },
   'node-amb-stomach': {
     phLabel: 'Gastric pH',
@@ -267,6 +276,7 @@ const resolveStageImage = (node: PathwayNodeWithDetails): string => {
   const name = node.name.toLowerCase();
 
   if (id.includes('mouth') || name.includes('mouth') || name.includes('oral')) return '/assets/organs/micro/mouth.jpg';
+  if (id.includes('esophag') || name.includes('esophag')) return '/assets/organs/micro/esophagus.jpg';
   if (id.includes('stomach') || name.includes('stomach') || name.includes('gastric')) return '/assets/organs/micro/stomach.jpg';
   if (id.includes('intestine') || name.includes('intestine') || name.includes('enteric')) return '/assets/organs/micro/small-intestine.jpg';
   if (id.includes('liver') || name.includes('liver') || name.includes('hepatic')) return '/assets/organs/micro/liver.jpg';
@@ -363,9 +373,9 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: 'var(--bg-surface-raised)',
-              color: prevNode ? 'var(--text-main)' : 'rgba(186, 201, 204, 0.3)',
-              border: 'none',
+              background: 'var(--color-surface-container-high, #EDF3EF)',
+              color: prevNode ? 'var(--text-main)' : 'rgba(100, 116, 139, 0.4)',
+              border: '1px solid var(--border-subtle)',
               cursor: prevNode ? 'pointer' : 'not-allowed',
               display: 'flex',
               alignItems: 'center',
@@ -386,9 +396,9 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: 'var(--bg-surface-raised)',
-              color: nextNode ? 'var(--text-main)' : 'rgba(186, 201, 204, 0.3)',
-              border: 'none',
+              background: 'var(--color-surface-container-high, #EDF3EF)',
+              color: nextNode ? 'var(--text-main)' : 'rgba(100, 116, 139, 0.4)',
+              border: '1px solid var(--border-subtle)',
               cursor: nextNode ? 'pointer' : 'not-allowed',
               display: 'flex',
               alignItems: 'center',
@@ -415,6 +425,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
         aria-label={`Open high-magnification zoom view of ${selectedNode.name}`}
       >
         <img
+          key={metrics.imgUrl}
           alt={`${selectedNode.name} Close-up View`}
           className="inspector-organ-img"
           src={metrics.imgUrl}
@@ -465,15 +476,15 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '0.35rem',
-            background: 'rgba(0, 229, 255, 0.2)',
-            border: '1px solid rgba(0, 229, 255, 0.5)',
+            background: 'rgba(22, 125, 120, 0.3)',
+            border: '1px solid rgba(22, 125, 120, 0.6)',
             backdropFilter: 'blur(8px)',
             padding: '0.25rem 0.6rem',
             borderRadius: '9999px',
             fontSize: '0.675rem',
-            color: '#00e5ff',
+            color: '#ffffff',
             fontWeight: 700,
-            boxShadow: '0 0 12px rgba(0, 229, 255, 0.3)',
+            boxShadow: '0 0 12px rgba(22, 125, 120, 0.3)',
             transition: 'transform 0.2s ease',
           }}
           className="organ-zoom-badge"
@@ -507,7 +518,7 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
         aria-label="Inspector perspectives"
         style={{
           display: 'flex',
-          background: '#080f18',
+          background: 'var(--color-surface-container-high, #EDF3EF)',
           padding: '0.25rem',
           borderRadius: 'var(--radius-lg, 10px)',
           border: '1px solid var(--border-subtle)',
@@ -529,11 +540,12 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
                 padding: '0.5rem 0.25rem',
                 minHeight: '36px',
                 fontSize: '0.75rem',
-                fontWeight: isActive ? 700 : 500,
+                fontWeight: isActive ? 700 : 600,
                 textAlign: 'center',
-                borderRadius: '6px',
-                background: isActive ? 'var(--bg-surface-raised)' : 'transparent',
-                color: isActive ? 'var(--text-main)' : 'var(--text-muted)',
+                borderRadius: '8px',
+                background: isActive ? 'var(--color-primary, #167D78)' : 'transparent',
+                color: isActive ? '#ffffff' : 'var(--text-muted)',
+                boxShadow: isActive ? '0 2px 6px rgba(22, 125, 120, 0.25)' : 'none',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',

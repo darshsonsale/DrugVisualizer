@@ -87,9 +87,6 @@ export const LearnPage: React.FC = () => {
                   className={`learn-drug-tab ${isActive ? 'learn-drug-tab--active' : ''}`}
                   onClick={() => handleSelectDrug(tab)}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                    {tab.icon}
-                  </span>
                   <span>{tab.label}</span>
                   <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>({tab.form})</span>
                 </button>
@@ -98,22 +95,6 @@ export const LearnPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Scientific Review Status Notification */}
-        <div className="learn-review-banner">
-          <span className="material-symbols-outlined" style={{ color: '#ffb800', fontSize: '20px' }}>
-            policy
-          </span>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-              <span className="learn-review-badge">Flagged For Scientific Review</span>
-              <strong style={{ fontSize: '0.85rem' }}>Educational MVP Draft</strong>
-            </div>
-            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
-              All 27 pathway nodes, pH values, and kinetic models are annotated with peer-reviewed references (PMIDs/DOIs/FDA NDAs)
-              and marked for formal institutional faculty review.
-            </p>
-          </div>
-        </div>
 
         {/* 4 ADME Metric Highlights */}
         <div className="learn-metrics-grid">

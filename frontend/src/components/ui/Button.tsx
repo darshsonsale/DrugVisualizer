@@ -45,11 +45,23 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <span className="ui-btn__spinner" aria-hidden="true" />
         )}
         {!isLoading && icon && iconPosition === 'left' && (
-          <span className="ui-btn__icon ui-btn__icon--left">{icon}</span>
+          <span className="ui-btn__icon ui-btn__icon--left">
+            {typeof icon === 'string' ? (
+              <span className="material-symbols-outlined">{icon}</span>
+            ) : (
+              icon
+            )}
+          </span>
         )}
         <span className="ui-btn__content">{children}</span>
         {!isLoading && icon && iconPosition === 'right' && (
-          <span className="ui-btn__icon ui-btn__icon--right">{icon}</span>
+          <span className="ui-btn__icon ui-btn__icon--right">
+            {typeof icon === 'string' ? (
+              <span className="material-symbols-outlined">{icon}</span>
+            ) : (
+              icon
+            )}
+          </span>
         )}
       </button>
     );

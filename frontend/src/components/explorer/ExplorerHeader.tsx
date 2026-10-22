@@ -46,9 +46,9 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
               gap: '0.4rem',
               padding: '0.45rem 0.85rem',
               borderRadius: '9999px',
-              background: 'rgba(0, 229, 255, 0.08)',
-              border: '1px solid rgba(0, 229, 255, 0.3)',
-              color: 'var(--brand-cyan, #00e5ff)',
+              background: 'var(--color-primary-light, #E6F5F4)',
+              border: '1px solid rgba(22, 125, 120, 0.25)',
+              color: 'var(--color-primary, #167D78)',
               fontSize: '0.8rem',
               fontWeight: 700,
               cursor: 'pointer',
@@ -62,14 +62,14 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
 
         <div className="explorer-drug-badge">
           <div className="explorer-drug-icon" aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--brand-cyan, #00e5ff)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary, #167D78)' }}>
               <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
               <path d="m8.5 8.5 7 7" />
             </svg>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
                 {drug.name}
               </span>
               <span
@@ -78,9 +78,9 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
                   fontWeight: 700,
                   padding: '0.15rem 0.5rem',
                   borderRadius: '9999px',
-                  background: 'var(--bg-surface-raised)',
-                  color: 'var(--brand-cyan)',
-                  border: '1px solid rgba(0, 229, 255, 0.25)',
+                  background: 'var(--color-primary-light, #E6F5F4)',
+                  color: 'var(--color-primary, #167D78)',
+                  border: '1px solid rgba(22, 125, 120, 0.25)',
                 }}
               >
                 {drug.dosage || '400 mg'}
@@ -113,8 +113,7 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
                   width: '6px',
                   height: '6px',
                   borderRadius: '50%',
-                  background: 'var(--brand-emerald)',
-                  boxShadow: '0 0 6px rgba(78, 222, 163, 0.8)',
+                  background: 'var(--color-secondary, #4A7C59)',
                 }}
                 aria-hidden="true"
               />
@@ -139,9 +138,9 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
           <span
             style={{
               fontSize: '0.68rem',
-              color: 'var(--brand-cyan, #00e5ff)',
-              background: 'rgba(0, 229, 255, 0.08)',
-              border: '1px solid rgba(0, 229, 255, 0.25)',
+              color: 'var(--color-primary, #167D78)',
+              background: 'var(--color-primary-light, #E6F5F4)',
+              border: '1px solid rgba(22, 125, 120, 0.25)',
               borderRadius: '9999px',
               padding: '0.15rem 0.6rem',
               letterSpacing: '0.01em',
@@ -189,11 +188,11 @@ export const ExplorerHeader: React.FC<ExplorerHeaderProps> = ({
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: 'var(--bg-surface-raised)',
+              background: 'var(--color-primary-light, #E6F5F4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--brand-cyan)',
+              color: 'var(--color-primary, #167D78)',
             }}
             aria-hidden="true"
           >

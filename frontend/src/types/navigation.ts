@@ -7,6 +7,7 @@ export interface NavItem {
 
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { label: 'Home', path: '/' },
+  { label: 'About Us', path: '/about' },
   { label: 'Explore', path: '/explore' },
   { label: 'Learn', path: '/learn' },
   { label: 'Quiz', path: '/quiz' },
@@ -14,6 +15,7 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
 ];
 
 export const FOOTER_QUICK_LINKS: NavItem[] = [
+  { label: 'About Us', path: '/about' },
   { label: 'Pathway Stages', path: '/explore' },
   { label: 'Bioavailability Docs', path: '/learn' },
   { label: 'Assessment Center', path: '/quiz' },

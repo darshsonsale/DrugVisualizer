@@ -88,8 +88,8 @@ export const CircularGauge: React.FC<CircularGaugeProps> = ({
         <span
           style={{
             fontSize: size > 70 ? '1rem' : '0.8rem',
-            fontWeight: 700,
-            color: 'var(--color-on-surface, #dce3f0)',
+            fontWeight: 800,
+            color: 'var(--color-on-surface, #1E293B)',
             lineHeight: 1.1,
           }}
         >
@@ -99,10 +99,10 @@ export const CircularGauge: React.FC<CircularGaugeProps> = ({
           <span
             style={{
               fontSize: '0.625rem',
-              fontWeight: 600,
+              fontWeight: 700,
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
-              color: 'var(--color-on-surface-variant, #bac9cc)',
+              color: 'var(--color-on-surface-variant, #475569)',
             }}
           >
             {sublabel}

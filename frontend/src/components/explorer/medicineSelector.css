@@ -1,6 +1,6 @@
 /* ==========================================================================
    Medicine Selector Styles (Choose a Medicine)
-   Matches high-fidelity Stitch medical dark mode design
+   BioLumen Refined Healthcare Theme: Soft Sage Green, Medical Teal, Warm Off-White
    ========================================================================== */
 
 .medicine-selector-container {
@@ -27,8 +27,8 @@
   z-index: 0;
   background: radial-gradient(
     circle at 75% 25%,
-    rgba(0, 162, 255, 0.12) 0%,
-    rgba(0, 229, 255, 0.05) 35%,
+    rgba(22, 125, 120, 0.08) 0%,
+    rgba(74, 124, 89, 0.06) 35%,
     transparent 70%
   );
   opacity: 0.9;
@@ -51,14 +51,14 @@
   align-self: flex-start;
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
-  background: rgba(0, 229, 255, 0.08);
-  border: 1px solid rgba(0, 229, 255, 0.3);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+  background: var(--color-primary-light);
+  border: 1px solid rgba(22, 125, 120, 0.25);
+  box-shadow: var(--shadow-sm);
 }
 
 .medicine-explore-badge-icon {
   font-size: 15px;
-  color: var(--brand-cyan, #00e5ff);
+  color: var(--color-primary);
 }
 
 .medicine-explore-badge-text {
@@ -66,28 +66,28 @@
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--brand-cyan, #00e5ff);
+  color: var(--color-primary);
 }
 
 .medicine-selector-title {
   font-size: 2.75rem;
   font-weight: 800;
   line-height: 1.15;
-  color: #ffffff;
+  color: var(--color-on-surface);
   letter-spacing: -0.02em;
   margin: 0;
 }
 
 .medicine-title-highlight {
-  background: linear-gradient(135deg, #00e5ff 0%, #38bdf8 60%, #60a5fa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-primary);
+  background: none;
+  -webkit-text-fill-color: initial;
 }
 
 .medicine-selector-subtitle {
   font-size: 1.05rem;
   line-height: 1.5;
-  color: var(--color-on-surface-variant, #94a3b8);
+  color: var(--color-on-surface-variant);
   margin: 0;
   max-width: 680px;
 }
@@ -107,17 +107,17 @@
   gap: 0.45rem;
   padding: 0.4rem 0.9rem;
   border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  backdrop-filter: blur(8px);
-  color: #cbd5e1;
+  background: var(--color-secondary-container);
+  border: 1px solid var(--color-outline-sage);
+  color: var(--color-on-secondary-container);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
 .medicine-feature-pill .material-symbols-outlined {
   font-size: 16px;
-  color: var(--brand-cyan, #00e5ff);
+  color: var(--color-secondary);
 }
 
 /* 4-Card Medicine Grid */
@@ -136,22 +136,21 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(180deg, rgba(13, 23, 38, 0.82) 0%, rgba(7, 13, 24, 0.92) 100%);
-  border: 1px solid rgba(0, 229, 255, 0.14);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
   border-radius: 18px;
   padding: 1.25rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(16px);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.3s ease,
-              box-shadow 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
   overflow: hidden;
 }
 
 .medicine-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(0, 229, 255, 0.4);
-  box-shadow: 0 16px 40px rgba(0, 229, 255, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Card Header (Category Form) */
@@ -175,14 +174,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 229, 255, 0.12);
-  color: var(--brand-cyan, #00e5ff);
+  background: var(--color-secondary-container);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-outline-sage);
 }
 
 .medicine-category-name {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--color-on-surface);
   letter-spacing: 0.02em;
 }
 
@@ -193,14 +193,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  border: 1px solid var(--border-subtle);
   transition: all 0.2s ease;
 }
 
 .medicine-card:hover .medicine-card-chevron {
-  background: rgba(0, 229, 255, 0.2);
-  color: var(--brand-cyan, #00e5ff);
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
   transform: translateX(2px);
 }
 
@@ -215,7 +217,7 @@
 .medicine-card-name {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-on-surface);
   letter-spacing: -0.01em;
   margin: 0;
 }
@@ -227,15 +229,15 @@
   font-weight: 700;
   padding: 0.2rem 0.6rem;
   border-radius: 9999px;
-  background: rgba(14, 165, 233, 0.15);
-  border: 1px solid rgba(14, 165, 233, 0.3);
-  color: #38bdf8;
+  background: var(--color-primary-light);
+  border: 1px solid rgba(22, 125, 120, 0.25);
+  color: var(--color-primary);
 }
 
 .medicine-card-indication {
   font-size: 0.78rem;
   line-height: 1.45;
-  color: #94a3b8;
+  color: var(--color-on-surface-variant);
   margin: 0;
   min-height: 38px;
 }
@@ -248,8 +250,8 @@
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  background: radial-gradient(circle at 50% 50%, #0d1e34 0%, #060c16 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--color-surface-container-high);
+  border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -268,18 +270,17 @@
 
 /* Drug Journey Pipeline Section */
 .medicine-journey-box {
-  background: rgba(8, 14, 25, 0.85);
-  border: 1px solid rgba(0, 229, 255, 0.12);
+  background: var(--color-surface-container-high);
+  border: 1px solid var(--border-subtle);
   border-radius: 14px;
   padding: 0.85rem 0.75rem;
   margin: 0.65rem 0 1rem;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .medicine-journey-title {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--color-on-surface-variant);
   margin: 0 0 0.65rem 0;
   letter-spacing: 0.02em;
 }
@@ -314,25 +315,27 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .medicine-organ-img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 80%;
+  max-height: 80%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s ease;
 }
 
 .medicine-journey-node:hover .medicine-organ-img {
-  transform: scale(1.18);
-  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+  transform: scale(1.15);
 }
 
 .medicine-node-label {
   font-size: 0.58rem;
-  font-weight: 600;
-  color: #e2e8f0;
+  font-weight: 700;
+  color: var(--color-on-surface);
   line-height: 1.2;
   text-align: center;
   white-space: normal;
@@ -343,7 +346,7 @@
 
 .medicine-node-sublabel {
   font-size: 0.52rem;
-  color: #94a3b8;
+  color: var(--color-on-surface-variant);
   line-height: 1.1;
   text-align: center;
   max-width: 65px;
@@ -351,14 +354,13 @@
 }
 
 .medicine-journey-arrow {
-  color: #00e5ff;
+  color: var(--color-primary);
   font-size: 13px;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 1px;
-  text-shadow: 0 0 8px rgba(0, 229, 255, 0.7);
   flex-shrink: 0;
 }
 
@@ -379,18 +381,18 @@
   padding: 0.75rem 1rem;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0077b6 100%);
+  background: var(--color-primary);
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
-  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(22, 125, 120, 0.25);
+  transition: all 0.2s ease;
 }
 
 .medicine-explore-btn:hover {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0284c7 100%);
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+  background: #126460;
+  box-shadow: 0 4px 14px rgba(22, 125, 120, 0.35);
   transform: translateY(-1px);
 }
 
@@ -403,7 +405,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  color: #38bdf8;
+  color: var(--color-primary);
   font-size: 0.75rem;
   font-weight: 600;
   text-decoration: none;
@@ -412,7 +414,7 @@
 }
 
 .medicine-learn-link:hover {
-  color: #7dd3fc;
+  color: #126460;
   text-decoration: underline;
 }
 

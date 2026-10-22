@@ -17,61 +17,127 @@ export interface Viewport3DCanvasProps {
   drugName?: string;
 }
 
+// Standard anatomical organ landmarks exactly calibrated to the 3D human torso visualization (Screenshot 2 reference)
+export const ORGAN_LANDMARKS = {
+  mouth: { top: '14.1%', left: '50.6%', ringColor: 'var(--brand-cyan, #00e5ff)', dotColor: '#00e5ff', defaultLabel: 'Mouth', alignment: 'right' as const },
+  esophagus: { top: '28.1%', left: '53.9%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Esophagus', alignment: 'right' as const },
+  respiratory: { top: '41.4%', left: '45.6%', ringColor: '#ffc589', dotColor: '#ffc589', defaultLabel: 'Respiratory', alignment: 'left' as const },
+  bloodstream: { top: '44.4%', left: '55.8%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Bloodstream', alignment: 'right' as const },
+  liver: { top: '60.5%', left: '50.0%', ringColor: '#ff9e92', dotColor: '#ff9e92', defaultLabel: 'Liver', alignment: 'left' as const },
+  stomach: { top: '65.2%', left: '57.5%', ringColor: '#ffb86b', dotColor: '#ffb86b', defaultLabel: 'Stomach', alignment: 'top' as const },
+  kidneys: { top: '63.4%', left: '63.9%', ringColor: '#6ffbbe', dotColor: '#6ffbbe', defaultLabel: 'Kidneys', alignment: 'right' as const },
+  smallIntestine: { top: '79.8%', left: '49.7%', ringColor: '#4edea3', dotColor: '#4edea3', defaultLabel: 'Small Intestine', alignment: 'right' as const },
+  targetSites: { top: '73.0%', left: '62.0%', ringColor: '#ffc589', dotColor: '#ffc589', defaultLabel: 'Target Tissue', alignment: 'right' as const },
+  injectionSite: { top: '65.0%', left: '38.0%', ringColor: '#00e5ff', dotColor: '#00e5ff', defaultLabel: 'Injection Site', alignment: 'left' as const },
+};
+
 // Highly accurate anatomical coordinates aligned with the 3D human torso visualization
-const HOTSPOT_COORDINATES: Record<string, { top: string; left: string; ringColor: string; dotColor: string; defaultLabel: string }> = {
+const HOTSPOT_COORDINATES: Record<string, { top: string; left: string; ringColor: string; dotColor: string; defaultLabel: string; alignment?: 'left' | 'right' | 'top' }> = {
   // Ibuprofen
-  'node-oral-cavity': { top: '14%', left: '49%', ringColor: 'var(--brand-cyan, #00e5ff)', dotColor: '#00e5ff', defaultLabel: 'Mouth' },
-  'node-stomach': { top: '48%', left: '58%', ringColor: '#ffb86b', dotColor: '#ffb86b', defaultLabel: 'Stomach' },
-  'node-small-intestine': { top: '67%', left: '50%', ringColor: '#4edea3', dotColor: '#4edea3', defaultLabel: 'Small Intestine' },
-  'node-liver': { top: '47%', left: '38%', ringColor: '#ff9e92', dotColor: '#ff9e92', defaultLabel: 'Liver' },
-  'node-bloodstream': { top: '38%', left: '50%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Bloodstream' },
-  'node-target-sites': { top: '78%', left: '57%', ringColor: '#ffc589', dotColor: '#ffc589', defaultLabel: 'Target Tissue' },
-  'node-kidneys': { top: '59%', left: '38%', ringColor: '#6ffbbe', dotColor: '#6ffbbe', defaultLabel: 'Kidneys' },
+  'node-oral-cavity': ORGAN_LANDMARKS.mouth,
+  'node-esophagus': ORGAN_LANDMARKS.esophagus,
+  'node-stomach': ORGAN_LANDMARKS.stomach,
+  'node-small-intestine': ORGAN_LANDMARKS.smallIntestine,
+  'node-liver': ORGAN_LANDMARKS.liver,
+  'node-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-target-sites': ORGAN_LANDMARKS.respiratory,
+  'node-kidneys': ORGAN_LANDMARKS.kidneys,
 
   // Amoxicillin
-  'node-amox-mouth': { top: '14%', left: '49%', ringColor: 'var(--brand-cyan, #00e5ff)', dotColor: '#00e5ff', defaultLabel: 'Mouth' },
-  'node-amox-esophagus': { top: '25%', left: '49%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Esophagus' },
-  'node-amox-stomach': { top: '48%', left: '58%', ringColor: '#ffb86b', dotColor: '#ffb86b', defaultLabel: 'Stomach' },
-  'node-amox-small-intestine': { top: '67%', left: '50%', ringColor: '#4edea3', dotColor: '#4edea3', defaultLabel: 'Small Intestine' },
-  'node-amox-bloodstream': { top: '38%', left: '50%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Bloodstream' },
-  'node-amox-infected-tissues': { top: '78%', left: '57%', ringColor: '#ff9e92', dotColor: '#ff9e92', defaultLabel: 'Infected Tissues' },
-  'node-amox-kidneys': { top: '59%', left: '38%', ringColor: '#6ffbbe', dotColor: '#6ffbbe', defaultLabel: 'Kidneys' },
+  'node-amox-mouth': ORGAN_LANDMARKS.mouth,
+  'node-amox-esophagus': ORGAN_LANDMARKS.esophagus,
+  'node-amox-stomach': ORGAN_LANDMARKS.stomach,
+  'node-amox-small-intestine': ORGAN_LANDMARKS.smallIntestine,
+  'node-amox-liver': ORGAN_LANDMARKS.liver,
+  'node-amox-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-amox-infected-tissues': ORGAN_LANDMARKS.respiratory,
+  'node-amox-respiratory-tissues': ORGAN_LANDMARKS.respiratory,
+  'node-amox-kidneys': ORGAN_LANDMARKS.kidneys,
 
   // Ambroxol
-  'node-amb-mouth': { top: '14%', left: '49%', ringColor: 'var(--brand-cyan, #00e5ff)', dotColor: '#00e5ff', defaultLabel: 'Mouth' },
-  'node-amb-esophagus': { top: '25%', left: '49%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Esophagus' },
-  'node-amb-stomach': { top: '48%', left: '58%', ringColor: '#ffb86b', dotColor: '#ffb86b', defaultLabel: 'Stomach' },
-  'node-amb-small-intestine': { top: '67%', left: '50%', ringColor: '#4edea3', dotColor: '#4edea3', defaultLabel: 'Small Intestine' },
-  'node-amb-bloodstream': { top: '38%', left: '50%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Bloodstream' },
-  'node-amb-respiratory-tissues': { top: '35%', left: '38%', ringColor: '#ffc589', dotColor: '#ffc589', defaultLabel: 'Respiratory Tissues' },
-  'node-amb-liver': { top: '47%', left: '38%', ringColor: '#ff9e92', dotColor: '#ff9e92', defaultLabel: 'Liver' },
-  'node-amb-kidneys': { top: '59%', left: '38%', ringColor: '#6ffbbe', dotColor: '#6ffbbe', defaultLabel: 'Kidneys' },
+  'node-amb-mouth': ORGAN_LANDMARKS.mouth,
+  'node-amb-esophagus': ORGAN_LANDMARKS.esophagus,
+  'node-amb-stomach': ORGAN_LANDMARKS.stomach,
+  'node-amb-small-intestine': ORGAN_LANDMARKS.smallIntestine,
+  'node-amb-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-amb-respiratory-tissues': ORGAN_LANDMARKS.respiratory,
+  'node-amb-liver': ORGAN_LANDMARKS.liver,
+  'node-amb-kidneys': ORGAN_LANDMARKS.kidneys,
 
   // Insulin
-  'node-ins-injection-site': { top: '63%', left: '35%', ringColor: '#00e5ff', dotColor: '#00e5ff', defaultLabel: 'Injection Site' },
-  'node-ins-bloodstream': { top: '38%', left: '50%', ringColor: '#00daf3', dotColor: '#00daf3', defaultLabel: 'Bloodstream' },
-  'node-ins-body-tissues': { top: '78%', left: '57%', ringColor: '#6ffbbe', dotColor: '#6ffbbe', defaultLabel: 'Body Tissues' },
-  'node-ins-liver': { top: '48%', left: '41%', ringColor: '#ff9e92', dotColor: '#ff9e92', defaultLabel: 'Liver' },
-  'node-ins-kidneys': { top: '59%', left: '39%', ringColor: '#4edea3', dotColor: '#4edea3', defaultLabel: 'Kidneys' },
+  'node-ins-injection-site': ORGAN_LANDMARKS.injectionSite,
+  'node-ins-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-ins-body-tissues': ORGAN_LANDMARKS.targetSites,
+  'node-ins-liver': ORGAN_LANDMARKS.liver,
+  'node-ins-kidneys': ORGAN_LANDMARKS.kidneys,
+
+  // Direct Standard Anatomical Landmark Keys
+  'landmark-mouth': ORGAN_LANDMARKS.mouth,
+  'landmark-esophagus': ORGAN_LANDMARKS.esophagus,
+  'landmark-respiratory': ORGAN_LANDMARKS.respiratory,
+  'landmark-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'landmark-liver': ORGAN_LANDMARKS.liver,
+  'landmark-stomach': ORGAN_LANDMARKS.stomach,
+  'landmark-kidneys': ORGAN_LANDMARKS.kidneys,
+  'landmark-smallIntestine': ORGAN_LANDMARKS.smallIntestine,
+  'landmark-small-intestine': ORGAN_LANDMARKS.smallIntestine,
+};
+
+export const STANDARD_ANATOMICAL_LANDMARKS = [
+  { key: 'mouth', defaultLabel: 'Mouth', landmark: ORGAN_LANDMARKS.mouth },
+  { key: 'esophagus', defaultLabel: 'Esophagus', landmark: ORGAN_LANDMARKS.esophagus },
+  { key: 'respiratory', defaultLabel: 'Respiratory', landmark: ORGAN_LANDMARKS.respiratory },
+  { key: 'bloodstream', defaultLabel: 'Bloodstream', landmark: ORGAN_LANDMARKS.bloodstream },
+  { key: 'liver', defaultLabel: 'Liver', landmark: ORGAN_LANDMARKS.liver },
+  { key: 'stomach', defaultLabel: 'Stomach', landmark: ORGAN_LANDMARKS.stomach },
+  { key: 'kidneys', defaultLabel: 'Kidneys', landmark: ORGAN_LANDMARKS.kidneys },
+  { key: 'smallIntestine', defaultLabel: 'Small Intestine', landmark: ORGAN_LANDMARKS.smallIntestine },
+];
+
+export const matchLandmarkToNode = (key: string, nodes: PathwayNodeWithDetails[]) => {
+  return nodes.find((n) => {
+    const text = `${n.id} ${n.name} ${n.anatomical_location || ''} ${n.organ_system || ''}`.toLowerCase();
+    switch (key) {
+      case 'mouth':
+        return text.includes('mouth') || text.includes('oral') || text.includes('deglutition');
+      case 'esophagus':
+        return text.includes('esophag');
+      case 'respiratory':
+        return text.includes('respir') || text.includes('lung') || text.includes('bronch') || text.includes('alveolar') || text.includes('infect') || text.includes('target');
+      case 'bloodstream':
+        return text.includes('blood') || text.includes('plasma') || text.includes('cardio') || text.includes('circulat') || text.includes('vascular') || text.includes('systemic');
+      case 'liver':
+        return text.includes('liver') || text.includes('hepatic') || text.includes('cyp2c9') || text.includes('glucuronid');
+      case 'stomach':
+        return text.includes('stomach') || text.includes('gastric');
+      case 'kidneys':
+        return text.includes('kidney') || text.includes('renal') || text.includes('tubular') || text.includes('glomerul') || text.includes('urine') || text.includes('excret');
+      case 'smallIntestine':
+      case 'small-intestine':
+        return text.includes('small intestine') || text.includes('duoden') || text.includes('jejun') || text.includes('enteral') || text.includes('enterocyte') || text.includes('intestine');
+      default:
+        return false;
+    }
+  });
 };
 
 const resolveNodeConfig = (node: PathwayNodeWithDetails, index: number, total: number) => {
   if (HOTSPOT_COORDINATES[node.id]) return HOTSPOT_COORDINATES[node.id];
   const name = node.name.toLowerCase();
   const id = node.id.toLowerCase();
+  const location = (node.anatomical_location || '').toLowerCase();
+  const system = (node.organ_system || '').toLowerCase();
+  const text = `${id} ${name} ${location} ${system}`;
 
-  if (id.includes('mouth') || name.includes('mouth') || name.includes('oral')) return HOTSPOT_COORDINATES['node-oral-cavity'];
-  if (id.includes('esophag') || name.includes('esophag')) return HOTSPOT_COORDINATES['node-amox-esophagus'];
-  if (id.includes('stomach') || name.includes('stomach') || name.includes('gastric')) return HOTSPOT_COORDINATES['node-stomach'];
-  if (id.includes('intestine') || name.includes('intestine')) return HOTSPOT_COORDINATES['node-small-intestine'];
-  if (id.includes('liver') || name.includes('hepatic')) return HOTSPOT_COORDINATES['node-liver'];
-  if (id.includes('blood') || name.includes('plasma')) return HOTSPOT_COORDINATES['node-bloodstream'];
-  if (id.includes('respiratory') || name.includes('lung')) return HOTSPOT_COORDINATES['node-amb-respiratory-tissues'];
-  if (id.includes('inject') || name.includes('inject')) return HOTSPOT_COORDINATES['node-ins-injection-site'];
-  if (id.includes('kidney') || name.includes('renal')) return HOTSPOT_COORDINATES['node-kidneys'];
-  if (id.includes('target') || name.includes('tissue') || id.includes('infect') || name.includes('infect')) {
-    return HOTSPOT_COORDINATES['node-target-sites'];
-  }
+  if (text.includes('mouth') || text.includes('oral') || text.includes('deglutition')) return ORGAN_LANDMARKS.mouth;
+  if (text.includes('esophag')) return ORGAN_LANDMARKS.esophagus;
+  if (text.includes('stomach') || text.includes('gastric')) return ORGAN_LANDMARKS.stomach;
+  if (text.includes('small intestine') || text.includes('duoden') || text.includes('jejun') || text.includes('enteral') || text.includes('enterocyte') || text.includes('intestine')) return ORGAN_LANDMARKS.smallIntestine;
+  if (text.includes('liver') || text.includes('hepatic') || text.includes('cyp2c9') || text.includes('glucuronid')) return ORGAN_LANDMARKS.liver;
+  if (text.includes('respiratory') || text.includes('lung') || text.includes('bronch') || text.includes('alveolar') || text.includes('infect') || text.includes('target') || text.includes('tissue')) return ORGAN_LANDMARKS.respiratory;
+  if (text.includes('blood') || text.includes('plasma') || text.includes('cardio') || text.includes('circulat') || text.includes('vascular') || text.includes('systemic')) return ORGAN_LANDMARKS.bloodstream;
+  if (text.includes('kidney') || text.includes('renal') || text.includes('tubular') || text.includes('glomerul') || text.includes('urine') || text.includes('excret')) return ORGAN_LANDMARKS.kidneys;
+  if (text.includes('inject') || text.includes('subcutaneous') || text.includes('depot')) return ORGAN_LANDMARKS.injectionSite;
 
   return {
     top: `${14 + (index / Math.max(1, total - 1)) * 64}%`,
@@ -152,19 +218,39 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
   }, [nodes, selectedNodeId]);
 
   const activeNode = nodes[activeIndex] || nodes[0];
-  const activeConfig = resolveNodeConfig(activeNode, activeIndex, nodes.length);
+  const activeConfig = useMemo(() => {
+    if (selectedNodeId) {
+      if (HOTSPOT_COORDINATES[selectedNodeId]) return HOTSPOT_COORDINATES[selectedNodeId];
+      const matched = STANDARD_ANATOMICAL_LANDMARKS.find((item) => item.key === selectedNodeId.replace('landmark-', ''));
+      if (matched) return matched.landmark;
+    }
+    return resolveNodeConfig(activeNode, activeIndex, nodes.length);
+  }, [selectedNodeId, activeNode, activeIndex, nodes.length]);
 
   // Dynamic SVG trajectory path connecting the exact anatomical coordinates of each organ node
   const trajectoryPath = useMemo(() => {
     if (!nodes.length) return '';
-    const points = nodes.map((node, i) => {
+
+    const hasOral = nodes.some(n => n.name.toLowerCase().includes('mouth') || n.id.includes('oral'));
+    const hasStomach = nodes.some(n => n.name.toLowerCase().includes('stomach') || n.id.includes('stomach'));
+    const hasEsoph = nodes.some(n => n.name.toLowerCase().includes('esophag') || n.id.includes('esophag'));
+
+    const points: { x: number; y: number }[] = [];
+    nodes.forEach((node, i) => {
       const cfg = resolveNodeConfig(node, i, nodes.length);
-      const topVal = parseFloat(cfg.top);
-      const leftVal = parseFloat(cfg.left);
-      return {
-        x: Math.round(600 * (leftVal / 100)),
-        y: Math.round(800 * (topVal / 100)),
-      };
+      points.push({
+        x: Math.round(600 * (parseFloat(cfg.left) / 100)),
+        y: Math.round(800 * (parseFloat(cfg.top) / 100)),
+      });
+
+      // Route smoothly through esophagus landmark if not an explicit node in pathway
+      if (hasOral && hasStomach && !hasEsoph && (node.name.toLowerCase().includes('mouth') || node.id.includes('oral'))) {
+        const esophCfg = HOTSPOT_COORDINATES['node-esophagus'];
+        points.push({
+          x: Math.round(600 * (parseFloat(esophCfg.left) / 100)),
+          y: Math.round(800 * (parseFloat(esophCfg.top) / 100)),
+        });
+      }
     });
 
     if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
@@ -188,9 +274,8 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
     if (name.includes('liver')) return 'Liver';
     if (name.includes('bloodstream')) return 'Bloodstream';
     if (name.includes('kidney')) return 'Kidneys';
-    if (name.includes('respiratory') || name.includes('lung')) return 'Respiratory';
+    if (name.includes('respiratory') || name.includes('lung') || name.includes('infect') || name.includes('target') || name.includes('tissue')) return 'Respiratory';
     if (name.includes('inject')) return 'Injection Site';
-    if (name.includes('target') || name.includes('tissue') || name.includes('infect')) return 'Target Tissue';
     return node.name.split(' ')[0];
   };
 
@@ -290,22 +375,24 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
           </div>
         )}
 
-        {/* Data-Driven Interactive Hotspots Overlaid directly at Anatomical Organ Landmarks */}
-        {nodes.map((node, index) => {
-          const isActive = node.id === selectedNodeId;
-          const config = resolveNodeConfig(node, index, nodes.length);
-          const label = getDisplayName(node);
+        {/* All 8 Standard Anatomical Organ Landmarks accurately mapped to 3D Torso (Screenshot 2 Reference) */}
+        {STANDARD_ANATOMICAL_LANDMARKS.map((item) => {
+          const matchedNode = matchLandmarkToNode(item.key, nodes);
+          const nodeId = matchedNode ? matchedNode.id : `landmark-${item.key}`;
+          const isActive = selectedNodeId === nodeId || (matchedNode && matchedNode.id === selectedNodeId);
+          const label = matchedNode ? getDisplayName(matchedNode) : item.defaultLabel;
+          const config = item.landmark;
 
           return (
             <button
-              key={node.id}
+              key={nodeId}
               type="button"
-              className={`viewport-hotspot ${isActive ? 'viewport-hotspot--active' : ''}`}
+              className={`viewport-hotspot ${isActive ? 'viewport-hotspot--active' : ''} ${config.alignment === 'left' ? 'viewport-hotspot--pill-left' : config.alignment === 'top' ? 'viewport-hotspot--pill-top' : ''}`}
               style={{
                 top: config.top,
                 left: config.left,
               }}
-              onClick={() => onSelectNode(node.id)}
+              onClick={() => onSelectNode(nodeId)}
               aria-label={`Select landmark waypoint: ${label}`}
             >
               {/* Pulsing halo */}
@@ -341,6 +428,60 @@ export const Viewport3DCanvas: React.FC<Viewport3DCanvasProps> = ({
             </button>
           );
         })}
+
+        {/* Any extra non-standard pathway waypoint (e.g., Injection Site for Subcutaneous Injections) */}
+        {nodes
+          .filter(
+            (n) =>
+              !STANDARD_ANATOMICAL_LANDMARKS.some((item) => matchLandmarkToNode(item.key, [n]))
+          )
+          .map((extraNode, idx) => {
+            const isActive = extraNode.id === selectedNodeId;
+            const config = resolveNodeConfig(extraNode, idx, nodes.length);
+            const label = getDisplayName(extraNode);
+
+            return (
+              <button
+                key={extraNode.id}
+                type="button"
+                className={`viewport-hotspot ${isActive ? 'viewport-hotspot--active' : ''} ${config.alignment === 'left' ? 'viewport-hotspot--pill-left' : config.alignment === 'top' ? 'viewport-hotspot--pill-top' : ''}`}
+                style={{
+                  top: config.top,
+                  left: config.left,
+                }}
+                onClick={() => onSelectNode(extraNode.id)}
+                aria-label={`Select landmark waypoint: ${label}`}
+              >
+                <div
+                  className="viewport-hotspot__ring"
+                  style={{ borderColor: isActive ? 'var(--brand-cyan, #00e5ff)' : config.ringColor }}
+                >
+                  {isActive && <span className="viewport-hotspot__pulse" />}
+                  <span
+                    className="viewport-hotspot__dot"
+                    style={{ background: isActive ? 'var(--brand-cyan, #00e5ff)' : config.dotColor }}
+                  />
+                </div>
+                <div className="viewport-hotspot__pill">
+                  <span>{label}</span>
+                  {isActive && (
+                    <span
+                      style={{
+                        fontSize: '0.65rem',
+                        padding: '0.1rem 0.35rem',
+                        borderRadius: '4px',
+                        background: 'rgba(0, 229, 255, 0.25)',
+                        color: 'var(--brand-cyan, #00e5ff)',
+                        fontWeight: 800,
+                      }}
+                    >
+                      Active
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
       </div>
 
       {/* Floating Top Camera & Parallax Controls */}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PathwayNodeWithDetails } from '../../api/types';
+import { ORGAN_LANDMARKS, STANDARD_ANATOMICAL_LANDMARKS, matchLandmarkToNode } from './Viewport3DCanvas';
 
 export interface Viewport3DPlaceholderProps {
   nodes: PathwayNodeWithDetails[];
@@ -10,12 +11,51 @@ export interface Viewport3DPlaceholderProps {
 }
 
 // Landmark anatomical hotspot relative coordinates (percentage based)
-const HOTSPOT_COORDINATES: Record<string, { top: string; left: string; alignment?: 'left' | 'right' }> = {
-  'node-oral-cavity': { top: '16%', left: '50%' },
-  'node-stomach': { top: '35%', left: '56%' },
-  'node-liver': { top: '43%', left: '30%', alignment: 'left' },
-  'node-small-intestine': { top: '56%', left: '52%' },
-  'node-systemic-circulation': { top: '76%', left: '50%' },
+const HOTSPOT_COORDINATES: Record<string, { top: string; left: string; alignment?: 'left' | 'right' | 'top' }> = {
+  'node-oral-cavity': ORGAN_LANDMARKS.mouth,
+  'node-esophagus': ORGAN_LANDMARKS.esophagus,
+  'node-amox-esophagus': ORGAN_LANDMARKS.esophagus,
+  'node-amb-esophagus': ORGAN_LANDMARKS.esophagus,
+  'node-stomach': ORGAN_LANDMARKS.stomach,
+  'node-amox-stomach': ORGAN_LANDMARKS.stomach,
+  'node-amb-stomach': ORGAN_LANDMARKS.stomach,
+  'node-liver': ORGAN_LANDMARKS.liver,
+  'node-amb-liver': ORGAN_LANDMARKS.liver,
+  'node-ins-liver': ORGAN_LANDMARKS.liver,
+  'node-small-intestine': ORGAN_LANDMARKS.smallIntestine,
+  'node-amox-small-intestine': ORGAN_LANDMARKS.smallIntestine,
+  'node-amb-small-intestine': ORGAN_LANDMARKS.smallIntestine,
+  'node-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-amox-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-amb-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-ins-bloodstream': ORGAN_LANDMARKS.bloodstream,
+  'node-amb-respiratory-tissues': ORGAN_LANDMARKS.respiratory,
+  'node-kidneys': ORGAN_LANDMARKS.kidneys,
+  'node-amox-kidneys': ORGAN_LANDMARKS.kidneys,
+  'node-amb-kidneys': ORGAN_LANDMARKS.kidneys,
+  'node-ins-kidneys': ORGAN_LANDMARKS.kidneys,
+  'node-target-sites': ORGAN_LANDMARKS.targetSites,
+  'node-amox-infected-tissues': ORGAN_LANDMARKS.targetSites,
+  'node-ins-body-tissues': ORGAN_LANDMARKS.targetSites,
+  'node-ins-injection-site': ORGAN_LANDMARKS.injectionSite,
+};
+
+const resolvePlaceholderCoords = (node: PathwayNodeWithDetails) => {
+  if (HOTSPOT_COORDINATES[node.id]) return HOTSPOT_COORDINATES[node.id];
+  const text = `${node.id} ${node.name} ${node.anatomical_location || ''} ${node.organ_system || ''}`.toLowerCase();
+
+  if (text.includes('mouth') || text.includes('oral') || text.includes('deglutition')) return ORGAN_LANDMARKS.mouth;
+  if (text.includes('esophag')) return ORGAN_LANDMARKS.esophagus;
+  if (text.includes('stomach') || text.includes('gastric')) return ORGAN_LANDMARKS.stomach;
+  if (text.includes('small intestine') || text.includes('duoden') || text.includes('jejun') || text.includes('enteral') || text.includes('enterocyte') || text.includes('intestine')) return ORGAN_LANDMARKS.smallIntestine;
+  if (text.includes('liver') || text.includes('hepatic')) return ORGAN_LANDMARKS.liver;
+  if (text.includes('respiratory') || text.includes('lung') || text.includes('bronch')) return ORGAN_LANDMARKS.respiratory;
+  if (text.includes('blood') || text.includes('plasma') || text.includes('cardio') || text.includes('circulat')) return ORGAN_LANDMARKS.bloodstream;
+  if (text.includes('kidney') || text.includes('renal')) return ORGAN_LANDMARKS.kidneys;
+  if (text.includes('inject') || text.includes('subcutaneous')) return ORGAN_LANDMARKS.injectionSite;
+  if (text.includes('target') || text.includes('infect') || text.includes('body tissue')) return ORGAN_LANDMARKS.targetSites;
+
+  return { top: '50%', left: '50%' };
 };
 
 export const Viewport3DPlaceholder: React.FC<Viewport3DPlaceholderProps> = ({
@@ -153,33 +193,35 @@ export const Viewport3DPlaceholder: React.FC<Viewport3DPlaceholderProps> = ({
         </div>
       </div>
 
-      {/* Interactive Anatomical Landmark Hotspots */}
-      {nodes.map((node) => {
-        const coords = HOTSPOT_COORDINATES[node.id] || { top: '50%', left: '50%' };
-        const isActive = node.id === selectedNodeId;
+      {/* Interactive Anatomical Landmark Hotspots (Screenshot 2 Parity) */}
+      {STANDARD_ANATOMICAL_LANDMARKS.map((item) => {
+        const matchedNode = matchLandmarkToNode(item.key, nodes);
+        const nodeId = matchedNode ? matchedNode.id : `landmark-${item.key}`;
+        const isActive = selectedNodeId === nodeId || (matchedNode && matchedNode.id === selectedNodeId);
+        const label = matchedNode ? matchedNode.name : item.defaultLabel;
+        const coords = item.landmark;
 
         return (
           <button
-            key={node.id}
+            key={nodeId}
             type="button"
-            className={`viewport-hotspot ${isActive ? 'viewport-hotspot--active' : ''}`}
+            className={`viewport-hotspot ${isActive ? 'viewport-hotspot--active' : ''} ${coords.alignment === 'left' ? 'viewport-hotspot--pill-left' : coords.alignment === 'top' ? 'viewport-hotspot--pill-top' : ''}`}
             style={{
               top: coords.top,
               left: coords.left,
-              flexDirection: coords.alignment === 'left' ? 'row-reverse' : 'row',
             }}
-            onClick={() => onSelectNode(node.id)}
-            aria-label={`Hotspot milestone: ${node.name} (${isActive ? 'active' : 'inactive'})`}
+            onClick={() => onSelectNode(nodeId)}
+            aria-label={`Hotspot milestone: ${label} (${isActive ? 'active' : 'inactive'})`}
           >
             {/* Pulsing ring indicator */}
-            <div className="viewport-hotspot__ring">
+            <div className="viewport-hotspot__ring" style={{ borderColor: isActive ? 'var(--brand-cyan, #00e5ff)' : coords.ringColor }}>
               {isActive && <span className="viewport-hotspot__pulse" />}
-              <span className="viewport-hotspot__dot" />
+              <span className="viewport-hotspot__dot" style={{ background: isActive ? 'var(--brand-cyan, #00e5ff)' : coords.dotColor }} />
             </div>
 
             {/* Floating label pill */}
             <div className="viewport-hotspot__pill">
-              <span>{node.name}</span>
+              <span>{label}</span>
               {isActive && (
                 <span
                   style={{
@@ -198,6 +240,50 @@ export const Viewport3DPlaceholder: React.FC<Viewport3DPlaceholderProps> = ({
           </button>
         );
       })}
+
+      {/* Non-standard extra waypoints (e.g., Injection Site for Subcutaneous Injections) */}
+      {nodes
+        .filter((n) => !STANDARD_ANATOMICAL_LANDMARKS.some((item) => matchLandmarkToNode(item.key, [n])))
+        .map((extraNode) => {
+          const coords = resolvePlaceholderCoords(extraNode);
+          const isActive = extraNode.id === selectedNodeId;
+
+          return (
+            <button
+              key={extraNode.id}
+              type="button"
+              className={`viewport-hotspot ${isActive ? 'viewport-hotspot--active' : ''} ${coords.alignment === 'left' ? 'viewport-hotspot--pill-left' : coords.alignment === 'top' ? 'viewport-hotspot--pill-top' : ''}`}
+              style={{
+                top: coords.top,
+                left: coords.left,
+              }}
+              onClick={() => onSelectNode(extraNode.id)}
+              aria-label={`Hotspot milestone: ${extraNode.name} (${isActive ? 'active' : 'inactive'})`}
+            >
+              <div className="viewport-hotspot__ring">
+                {isActive && <span className="viewport-hotspot__pulse" />}
+                <span className="viewport-hotspot__dot" />
+              </div>
+              <div className="viewport-hotspot__pill">
+                <span>{extraNode.name}</span>
+                {isActive && (
+                  <span
+                    style={{
+                      fontSize: '0.65rem',
+                      padding: '0.1rem 0.35rem',
+                      borderRadius: '4px',
+                      background: 'rgba(0, 229, 255, 0.2)',
+                      color: 'var(--brand-cyan)',
+                      fontWeight: 700,
+                    }}
+                  >
+                    Active
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })}
 
       {/* Floating Minimal Viewport Controls */}
       <div className="viewport-controls" aria-label="Viewport camera action controls">

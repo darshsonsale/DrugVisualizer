@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuiz } from '../hooks/useQuiz';
+import { useAuth } from '../context/AuthContext';
+import { saveLatestQuizResult } from '../services/quizProgressService';
+import {
+  getQuizSetsForDrug,
+  evaluateQuizSetAttempt,
+  DrugQuizSet,
+} from '../data/quizQuestionBank';
+import { QuizAttemptSubmission, QuizAttemptResult } from '../api/types';
 import { CircularGauge } from '../components/ui/CircularGauge';
 import { Button } from '../components/ui/Button';
 import '../styles/quiz.css';
@@ -23,38 +30,55 @@ const MEDICATIONS: MedicationMeta[] = [
 export const QuizPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
 
   // 1. Resolve selected medication from query params
   const rawDrugParam = (searchParams.get('drug') || 'ibuprofen').toLowerCase().trim();
   const selectedMed =
     MEDICATIONS.find((m) => m.key === rawDrugParam || m.id === rawDrugParam) || MEDICATIONS[0];
 
-  const {
-    data,
-    loading,
-    error,
-    currentQuestionIndex,
-    selectedAnswers,
-    flaggedQuestions,
-    submitted,
-    submissionResult,
-    submitting,
-    selectAnswer,
-    toggleFlagQuestion,
-    goToNextQuestion,
-    goToPrevQuestion,
-    goToQuestion,
-    submitQuiz,
-    resetQuiz,
-    refetch,
-  } = useQuiz(selectedMed.id);
+  // 2. Resolve available quiz sets for this medicine (Set 1, Set 2, Set 3, etc.)
+  const availableSets: DrugQuizSet[] = useMemo(() => {
+    return getQuizSetsForDrug(selectedMed.key);
+  }, [selectedMed.key]);
 
-  // Timer countdown simulation (15 minutes per session)
+  // Read set index from query param (?set=1, ?set=2, etc.)
+  const rawSetParam = parseInt(searchParams.get('set') || '1', 10);
+  const initialSetIndex = !isNaN(rawSetParam) && rawSetParam >= 1 && rawSetParam <= availableSets.length
+    ? rawSetParam - 1
+    : 0;
+
+  const [currentSetIndex, setCurrentSetIndex] = useState<number>(initialSetIndex);
+
+  // Sync set index if searchParams changes
+  useEffect(() => {
+    const setParam = parseInt(searchParams.get('set') || '1', 10);
+    if (!isNaN(setParam) && setParam >= 1 && setParam <= availableSets.length) {
+      setCurrentSetIndex(setParam - 1);
+    } else {
+      setCurrentSetIndex(0);
+    }
+  }, [selectedMed.key, searchParams, availableSets.length]);
+
+  // Active quiz set & questions
+  const activeQuizSet: DrugQuizSet = availableSets[currentSetIndex] || availableSets[0];
+  const questions = activeQuizSet.questions;
+
+  // 3. Quiz workstation interactive state
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [submissionResult, setSubmissionResult] = useState<QuizAttemptResult | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+
+  // Timer countdown simulation (14:28 minutes per session)
   const [secondsRemaining, setSecondsRemaining] = useState<number>(14 * 60 + 28);
+  const savedAttemptKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     setSecondsRemaining(14 * 60 + 28);
-  }, [selectedMed.id]);
+  }, [selectedMed.id, currentSetIndex]);
 
   useEffect(() => {
     if (submitted) return;
@@ -64,61 +88,141 @@ export const QuizPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [submitted]);
 
+  // Persist quiz attempt to progress report service upon submission
+  useEffect(() => {
+    if (submitted && submissionResult && questions.length > 0) {
+      const attemptKey = `${selectedMed.id}-${activeQuizSet.id}-${submissionResult.score}-${submissionResult.completed_at || ''}`;
+      if (savedAttemptKeyRef.current === attemptKey) {
+        return;
+      }
+      savedAttemptKeyRef.current = attemptKey;
+      saveLatestQuizResult({
+        questions,
+        selectedMed: {
+          id: selectedMed.id,
+          key: selectedMed.key,
+          name: `${selectedMed.name} (Set ${activeQuizSet.setNumber})`,
+        },
+        user,
+        submissionResult,
+        selectedAnswers,
+      });
+    }
+  }, [submitted, submissionResult, questions, selectedMed, activeQuizSet, user, selectedAnswers]);
+
   const formatTimer = (totalSec: number) => {
     const mins = Math.floor(totalSec / 60);
     const secs = totalSec % 60;
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
+  // Handlers for switching medication & question sets
   const handleSelectMedication = (med: MedicationMeta) => {
     if (med.key === selectedMed.key) return;
-    setSearchParams({ drug: med.key });
+    setCurrentSetIndex(0);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswers({});
+    setFlaggedQuestions(new Set());
+    setSubmitted(false);
+    setSubmissionResult(null);
+    setSecondsRemaining(14 * 60 + 28);
+    setSearchParams({ drug: med.key, set: '1' });
   };
 
-  if (loading && !data) {
-    return (
-      <div className="quiz-container" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-          <div
-            style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '50%',
-              border: '3px solid var(--color-surface-container-highest, #2e353f)',
-              borderTopColor: 'var(--color-primary-container, #00e5ff)',
-              animation: 'spin 1s linear infinite',
-            }}
-          />
-          <span style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant, #bac9cc)' }}>
-            Loading {selectedMed.name} Pharmacokinetics Assessment...
-          </span>
-        </div>
-      </div>
-    );
-  }
+  const handleSelectSet = (index: number) => {
+    const safeIndex = Math.max(0, Math.min(availableSets.length - 1, index));
+    setCurrentSetIndex(safeIndex);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswers({});
+    setFlaggedQuestions(new Set());
+    setSubmitted(false);
+    setSubmissionResult(null);
+    setSecondsRemaining(14 * 60 + 28);
+    setSearchParams({ drug: selectedMed.key, set: String(safeIndex + 1) });
+  };
 
-  if (error && !data) {
-    return (
-      <div className="quiz-container" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <div className="quiz-results-card">
-          <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'var(--color-error, #ffb4ab)' }}>
-            error
-          </span>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface, #dce3f0)', margin: 0 }}>
-            Unable to Load Assessment
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant, #bac9cc)', margin: 0 }}>
-            {error}
-          </p>
-          <Button variant="primary" onClick={() => refetch()}>
-            Retry Connection
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const handleCycleQuestionSet = () => {
+    const nextIndex = (currentSetIndex + 1) % availableSets.length;
+    handleSelectSet(nextIndex);
+  };
 
-  const questions = data?.questions || [];
+  const selectAnswer = (questionId: string, optionId: string) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [questionId]: optionId,
+    }));
+  };
+
+  const toggleFlagQuestion = (questionId: string) => {
+    setFlaggedQuestions((prev) => {
+      const next = new Set(prev);
+      if (next.has(questionId)) {
+        next.delete(questionId);
+      } else {
+        next.add(questionId);
+      }
+      return next;
+    });
+  };
+
+  const goToNextQuestion = () => {
+    setCurrentQuestionIndex((prev) => Math.min(questions.length - 1, prev + 1));
+  };
+
+  const goToPrevQuestion = () => {
+    setCurrentQuestionIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const goToQuestion = (index: number) => {
+    if (index >= 0 && index < questions.length) {
+      setCurrentQuestionIndex(index);
+    }
+  };
+
+  const resetQuiz = () => {
+    setSelectedAnswers({});
+    setFlaggedQuestions(new Set());
+    setSubmitted(false);
+    setSubmissionResult(null);
+    setCurrentQuestionIndex(0);
+    setSecondsRemaining(14 * 60 + 28);
+  };
+
+  const handleSubmitQuiz = () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const submission: QuizAttemptSubmission = {
+        answers: Object.entries(selectedAnswers).map(([question_id, selected_option_id]) => ({
+          question_id,
+          selected_option_id,
+        })),
+      };
+
+      // Genuine clinical grading against the active question set
+      const evaluated = evaluateQuizSetAttempt(activeQuizSet, submission);
+
+      saveLatestQuizResult({
+        questions,
+        selectedMed: {
+          id: selectedMed.id,
+          key: selectedMed.key,
+          name: `${selectedMed.name} (Set ${activeQuizSet.setNumber})`,
+        },
+        user,
+        submissionResult: evaluated,
+        selectedAnswers,
+      });
+
+      setSubmissionResult(evaluated);
+      setSubmitted(true);
+    } catch (err) {
+      console.error('[QuizPage] Submission grading error:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const currentQ = questions[currentQuestionIndex] || questions[0];
   const totalQuestions = questions.length;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
@@ -126,7 +230,7 @@ export const QuizPage: React.FC = () => {
   const isCurrentFlagged = currentQ ? flaggedQuestions.has(currentQ.id) : false;
 
   // =========================================================================
-  // RESULTS STATE VIEW (Post-submission with server-returned feedback)
+  // RESULTS STATE VIEW (Post-submission with verified scientific feedback)
   // =========================================================================
   if (submitted && submissionResult) {
     const detailsMap = new Map((submissionResult.details || []).map((d) => [d.question_id, d]));
@@ -134,7 +238,7 @@ export const QuizPage: React.FC = () => {
     return (
       <div className="quiz-container">
         {/* Medication Selector Tabs in Result View */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {MEDICATIONS.map((med) => {
             const isSelected = med.key === selectedMed.key;
             return (
@@ -170,6 +274,43 @@ export const QuizPage: React.FC = () => {
           })}
         </div>
 
+        {/* Set Selector Bar in Result View */}
+        <div className="quiz-set-selector-bar" style={{ maxWidth: '840px', width: '100%', margin: '0 auto 1.5rem' }}>
+          <div className="quiz-set-pills-group">
+            <span className="quiz-set-label">
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-primary)' }}>
+                layers
+              </span>
+              Question Set:
+            </span>
+            {availableSets.map((s, idx) => {
+              const isSelected = currentSetIndex === idx;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`quiz-set-pill ${isSelected ? 'quiz-set-pill--active' : ''}`}
+                  onClick={() => handleSelectSet(idx)}
+                >
+                  Set {s.setNumber}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            className="quiz-change-set-btn"
+            onClick={handleCycleQuestionSet}
+            title="Load the next set of 5 questions for this medication"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              autorenew
+            </span>
+            <span>Change Question Set</span>
+          </button>
+        </div>
+
         <div className="quiz-results-card" style={{ maxWidth: '840px', width: '100%', margin: '0 auto' }}>
           <div
             style={{
@@ -190,15 +331,15 @@ export const QuizPage: React.FC = () => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-primary-container, #00e5ff)' }}>
-              {selectedMed.name} • Assessment Completed
+              {selectedMed.name} • Set {activeQuizSet.setNumber} Assessment Completed
             </span>
             <h2 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-on-surface, #dce3f0)', margin: 0 }}>
               {submissionResult.passed ? 'Proficiency Verified!' : 'Review Recommended'}
             </h2>
             <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant, #bac9cc)', margin: 0 }}>
               {submissionResult.passed
-                ? `You have demonstrated clinical comprehension of ${selectedMed.name} physiological transit, molecular mechanism, and clearance kinetics.`
-                : `Review the detailed feedback below to strengthen your grasp of ${selectedMed.name} pharmacokinetics.`}
+                ? `You have demonstrated clinical comprehension of ${selectedMed.name} (${activeQuizSet.title}) parameters.`
+                : `Review the detailed feedback below to strengthen your grasp of ${selectedMed.name} Set ${activeQuizSet.setNumber} questions.`}
             </p>
           </div>
 
@@ -229,9 +370,18 @@ export const QuizPage: React.FC = () => {
           {/* Action buttons */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
             <Button variant="outline" onClick={resetQuiz} icon="replay">
-              Retake Assessment
+              Retake Set {activeQuizSet.setNumber}
             </Button>
-            <Button variant="primary" onClick={() => navigate('/progress')} icon="arrow_forward">
+            <Button variant="secondary" onClick={handleCycleQuestionSet} icon="autorenew">
+              Try Next Question Set
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                navigate('/progress');
+              }}
+              icon="arrow_forward"
+            >
               View Learning Progress
             </Button>
           </div>
@@ -239,7 +389,7 @@ export const QuizPage: React.FC = () => {
           {/* Post-Submission Question Review Section */}
           <div style={{ width: '100%', textAlign: 'left', marginTop: '1rem', borderTop: '1px solid var(--color-surface-container-highest, #2e353f)', paddingTop: '1.5rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-on-surface, #dce3f0)', marginBottom: '1rem' }}>
-              Detailed Question Review & Scientific Feedback
+              Detailed Question Review & Scientific Feedback (Set {activeQuizSet.setNumber})
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -266,7 +416,7 @@ export const QuizPage: React.FC = () => {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                       <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-primary-container, #00e5ff)' }}>
-                        Question {qIndex + 1}
+                        Question {qIndex + 1} • {q.stage}
                       </span>
                       <span
                         style={{
@@ -296,7 +446,13 @@ export const QuizPage: React.FC = () => {
                       Your Answer: <strong style={{ color: isCorrect ? 'var(--color-secondary, #4edea3)' : 'var(--color-error, #ffb4ab)' }}>{selectedOpt?.option_text || 'None selected'}</strong>
                     </div>
 
-                    {detail?.explanation && (
+                    {!isCorrect && (
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-secondary, #4edea3)' }}>
+                        Correct Answer: <strong>{q.correct_answer_text}</strong>
+                      </div>
+                    )}
+
+                    {q.explanation && (
                       <div
                         style={{
                           background: 'rgba(0, 229, 255, 0.05)',
@@ -311,7 +467,7 @@ export const QuizPage: React.FC = () => {
                         <strong style={{ color: 'var(--color-primary, #c3f5ff)', display: 'block', marginBottom: '0.25rem' }}>
                           Scientific Rationale:
                         </strong>
-                        {detail.explanation}
+                        {q.explanation}
                       </div>
                     )}
                   </div>
@@ -333,7 +489,7 @@ export const QuizPage: React.FC = () => {
       <div className="quiz-glow-2" aria-hidden="true" />
 
       {/* Medication Selector Tab Bar */}
-      <nav aria-label="Select Medication Assessment" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+      <nav aria-label="Select Medication Assessment" style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
         {MEDICATIONS.map((med) => {
           const isSelected = med.key === selectedMed.key;
           return (
@@ -369,6 +525,49 @@ export const QuizPage: React.FC = () => {
         })}
       </nav>
 
+      {/* Question Set Selector Bar (New Set Options per Medicine) */}
+      <section
+        className="quiz-set-selector-bar"
+        aria-label="Question Set Selector"
+      >
+        <div className="quiz-set-pills-group">
+          <span className="quiz-set-label">
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>
+              layers
+            </span>
+            Question Set:
+          </span>
+          {availableSets.map((s, idx) => {
+            const isSelected = currentSetIndex === idx;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                className={`quiz-set-pill ${isSelected ? 'quiz-set-pill--active' : ''}`}
+                onClick={() => handleSelectSet(idx)}
+                aria-pressed={isSelected}
+                aria-label={`Select Question Set ${s.setNumber}: ${s.title}`}
+              >
+                <span>Set {s.setNumber}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          className="quiz-change-set-btn"
+          onClick={handleCycleQuestionSet}
+          aria-label="Change Question Set to load a new set of 5 questions"
+          title="Click to load a new set of 5 questions for this medicine"
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+            autorenew
+          </span>
+          <span>Change Question Set</span>
+        </button>
+      </section>
+
       {/* Header & Telemetry Pills */}
       <header className="quiz-header">
         <div className="quiz-header__top">
@@ -377,11 +576,13 @@ export const QuizPage: React.FC = () => {
               <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                 biotech
               </span>
-              <span>Clinical Pharmacokinetics Exam • {selectedMed.name}</span>
+              <span>
+                {selectedMed.name} • Set {activeQuizSet.setNumber} Assessment
+              </span>
             </div>
-            <h1 className="quiz-title">{data?.title || `${selectedMed.name} Assessment`}</h1>
+            <h1 className="quiz-title">{activeQuizSet.title}</h1>
             <p className="quiz-subtitle">
-              {data?.description || 'Assess your understanding of physiological transit, molecular mechanism, and clearance kinetics.'}
+              {activeQuizSet.subtitle || activeQuizSet.description}
             </p>
           </div>
 
@@ -429,7 +630,7 @@ export const QuizPage: React.FC = () => {
           <article className="quiz-question-card" aria-label={`Question ${currentQuestionIndex + 1}`}>
             <div className="quiz-question-card__header">
               <span className="quiz-stage-tag">
-                STAGE {currentQuestionIndex + 1} • {currentQ.id.toUpperCase()}
+                STAGE {currentQuestionIndex + 1} • {currentQ.stage.toUpperCase()}
               </span>
 
               <button
@@ -526,7 +727,7 @@ export const QuizPage: React.FC = () => {
                     color: 'var(--color-primary, #c3f5ff)',
                   }}
                 >
-                  Examination Guidance
+                  Examination Guidance • {currentQ.topic}
                 </span>
                 <p style={{ fontSize: '0.825rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant, #bac9cc)', margin: 0 }}>
                   Evaluate physiological transit parameters, metabolic transformation, and carrier interactions. Verified scientific explanations unlock upon submission.
@@ -566,7 +767,7 @@ export const QuizPage: React.FC = () => {
                     type="button"
                     className="quiz-btn-next"
                     disabled={submitting}
-                    onClick={submitQuiz}
+                    onClick={handleSubmitQuiz}
                   >
                     <span>{submitting ? 'Submitting...' : 'Submit Assessment'}</span>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -598,7 +799,7 @@ export const QuizPage: React.FC = () => {
                   Question Matrix
                 </span>
                 <span style={{ fontSize: '0.675rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-secondary, #4edea3)' }}>
-                  {selectedMed.name}
+                  {selectedMed.name} • Set {activeQuizSet.setNumber}
                 </span>
               </div>
 

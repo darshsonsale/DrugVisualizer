@@ -4,46 +4,78 @@
    =================================================== */
 
 :root {
-  /* Surfaces & Backgrounds */
-  --color-surface: #0d141d;
-  --color-surface-dim: #0d141d;
-  --color-surface-bright: #333a44;
-  --color-surface-container-lowest: #080f18;
-  --color-surface-container-low: #151c26;
-  --color-surface-container: #19202a;
-  --color-surface-container-high: #242a34;
-  --color-surface-container-highest: #2e353f;
+  /* Coordinated 2–3 Color Healthcare Palette
+     1. Muted Medical Teal (Actions, Active States, Highlights)
+     2. Soft Sage Green (Surfaces, Section Accents, Health Well Backgrounds)
+     3. Warm Off-White & Light Neutral (Main Background, Elevated Cards)
+     Supported by Deep Slate for accessible typography and restrained borders.
+  */
 
-  /* Typography Colors */
-  --color-on-surface: #dce3f0;
-  --color-on-surface-variant: #bac9cc;
-  --color-outline: #849396;
-  --color-outline-variant: #3b494c;
+  /* Surfaces & Backgrounds (Warm off-white base with gentle sage tint) */
+  --color-surface: #F4F7F5;
+  --color-surface-dim: #E9EFEA;
+  --color-surface-bright: #FFFFFF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F8FAF9;
+  --color-surface-container: #FFFFFF;
+  --color-surface-container-high: #EDF3EF;
+  --color-surface-container-highest: #E1ECE5;
+  --color-surface-sage: #E8F1EC;
+  --color-surface-sage-alt: #DFECE5;
 
-  /* Primary Brand (Luminous Cyan) */
-  --color-primary: #c3f5ff;
-  --color-on-primary: #00363d;
-  --color-primary-container: #00e5ff;
-  --color-on-primary-container: #00626e;
-  --color-surface-tint: #00daf3;
+  /* Typography Colors (Deep Slate / Charcoal for high contrast and calm reading) */
+  --color-on-surface: #1E293B;
+  --color-on-surface-variant: #475569;
+  --color-outline: #94A3B8;
+  --color-outline-variant: #CBD5E1;
+  --color-outline-sage: #C5D8CD;
 
-  /* Secondary Accent (Biological Emerald) */
-  --color-secondary: #4edea3;
-  --color-on-secondary: #003824;
-  --color-secondary-container: #00a572;
-  --color-on-secondary-container: #00311f;
+  /* Primary Brand (Muted Medical Teal) */
+  --color-primary: #167D78;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #167D78;
+  --color-on-primary-container: #FFFFFF;
+  --color-primary-light: #E6F5F4;
+  --color-surface-tint: #167D78;
+  --brand-teal: #167D78;
+  --brand-cyan: #167D78; /* Aliased to prevent legacy breakage */
 
-  /* Tertiary Accent (Warm Amber) */
-  --color-tertiary: #ffe8d5;
-  --color-on-tertiary: #492900;
-  --color-tertiary-container: #ffc589;
-  --color-on-tertiary-container: #814c00;
+  /* Secondary Accent (Soft Pharmacological Sage Green) */
+  --color-secondary: #4A7C59;
+  --color-on-secondary: #FFFFFF;
+  --color-secondary-container: #E5EFE9;
+  --color-on-secondary-container: #20412B;
+  --brand-sage: #4A7C59;
+  --brand-sage-light: #EDF5F0;
+
+  /* Tertiary Accent (Pharmacology Amber / Caution) */
+  --color-tertiary: #B86B1F;
+  --color-on-tertiary: #FFFFFF;
+  --color-tertiary-container: #FEF3E7;
+  --color-on-tertiary-container: #7C3700;
 
   /* Status Colors */
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-  --color-error-container: #93000a;
-  --color-on-error-container: #ffdad6;
+  --color-error: #D32F2F;
+  --color-on-error: #FFFFFF;
+  --color-error-container: #FDECEA;
+  --color-on-error-container: #7F1D1D;
+
+  /* Semantic Aliases for Component Framework */
+  --text-main: #1E293B;
+  --text-muted: #64748B;
+  --border-subtle: #D6E2DC;
+  --border-muted: #CBD5E1;
+  --border-focus: #167D78;
+  --bg-surface: #F4F7F5;
+  --bg-surface-raised: #FFFFFF;
+  --bg-surface-alt: #EBF2ED;
+  --bg-surface-sage: #E8F1EC;
+
+  /* Shadows (Subtle, restrained, elegant clinical elevation) */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+  --shadow-xl: 0 20px 35px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
 
   /* Typography Scales */
   --font-headline: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -57,10 +89,10 @@
   --space-xl: 32px;
 
   /* Radii */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-full: 9999px;
 }
 
@@ -132,6 +164,7 @@ button {
   display: flex;
   flex-direction: column;
   background-color: var(--color-surface);
+  color: var(--color-on-surface);
 }
 
 .app-navbar {
@@ -139,17 +172,17 @@ button {
   top: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 76px;
   z-index: 50;
-  background-color: rgba(13, 20, 29, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(59, 73, 76, 0.25);
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+  background-color: rgba(244, 247, 245, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .navbar-inner {
-  max-width: 1280px;
+  max-width: 1320px;
   height: 100%;
   margin: 0 auto;
   padding: 0 var(--space-lg);
@@ -167,29 +200,38 @@ button {
 }
 
 .brand-icon-box {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-lg);
-  background-color: var(--color-surface-container-high);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-primary-container);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(22, 125, 120, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.brand-link:hover .brand-icon-box {
+  transform: scale(1.05);
 }
 
 .brand-title {
   font-family: var(--font-headline);
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--color-on-surface);
 }
 
 .nav-links-desktop {
   display: none;
   align-items: center;
-  gap: var(--space-lg);
+  gap: 6px;
+  background-color: var(--color-surface-container-high);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
 }
 
 @media (min-width: 768px) {
@@ -201,22 +243,22 @@ button {
 .nav-item-link {
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   color: var(--color-on-surface-variant);
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: var(--radius-full);
   transition: all 0.2s ease;
 }
 
 .nav-item-link:hover {
   color: var(--color-on-surface);
-  background-color: rgba(36, 42, 52, 0.5);
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
 .nav-item-link.active {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(22, 125, 120, 0.3);
   font-weight: 600;
 }
 
@@ -227,29 +269,32 @@ button {
 }
 
 .icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-on-surface-variant);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--color-surface-container);
   transition: all 0.2s ease;
 }
 
 .icon-btn:hover {
-  color: var(--color-on-surface);
-  background-color: var(--color-surface-container-high);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
 }
 
 .sign-in-btn {
   display: none;
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-on-surface-variant);
-  background: transparent;
-  border: none;
-  padding: 6px 14px;
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  border: 1px solid rgba(22, 125, 120, 0.2);
+  padding: 7px 16px;
   border-radius: var(--radius-full);
   transition: all 0.2s ease;
   cursor: pointer;
@@ -267,8 +312,10 @@ button {
 }
 
 .sign-in-btn:hover:not(:disabled) {
-  color: var(--color-on-surface);
-  background-color: var(--color-surface-container-high);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(22, 125, 120, 0.25);
 }
 
 .sign-in-btn:disabled {
@@ -277,23 +324,24 @@ button {
 }
 
 .avatar-badge {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-full);
   background-color: var(--color-primary);
-  color: var(--color-on-primary);
-  border: none;
+  color: #ffffff;
+  border: 2px solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
   padding: 0;
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
 .avatar-badge.authenticated {
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
+  box-shadow: 0 0 0 2px rgba(22, 125, 120, 0.35);
 }
 
 .avatar-img {
@@ -307,28 +355,28 @@ button {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: 240px;
-  background-color: var(--color-surface-container);
-  border: 1px solid var(--color-surface-container-highest);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  width: 250px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-lg);
   z-index: 100;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   animation: fadeIn 0.15s ease-out;
 }
 
 .profile-dropdown-user {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .profile-dropdown-name {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-on-surface);
 }
 
@@ -348,15 +396,15 @@ button {
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.5px;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
-  background-color: var(--color-surface-container-highest);
-  color: var(--color-primary-container);
+  background-color: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
 }
 
 .profile-dropdown-divider {
   height: 1px;
-  background-color: var(--color-surface-container-highest);
+  background-color: var(--color-outline-variant);
   margin: 4px 0;
 }
 
@@ -366,9 +414,9 @@ button {
   gap: 8px;
   width: 100%;
   background: transparent;
-  border: 1px solid var(--color-outline-variant);
+  border: 1px solid var(--color-error);
   color: var(--color-error);
-  padding: 6px 12px;
+  padding: 7px 12px;
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
@@ -379,7 +427,6 @@ button {
 .profile-sign-out-btn:hover {
   background-color: var(--color-error-container);
   color: var(--color-on-error-container);
-  border-color: var(--color-error);
 }
 
 .auth-error-banner {
@@ -389,11 +436,12 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background-color: rgba(147, 0, 10, 0.4);
-  border: 1px solid var(--color-error);
-  color: var(--color-on-surface);
+  background-color: var(--color-error-container);
+  border-bottom: 1px solid #fecaca;
+  color: var(--color-on-error-container);
   padding: 8px 16px;
   font-size: 12px;
+  font-weight: 500;
   margin: 0;
 }
 
@@ -405,10 +453,10 @@ button {
 }
 
 .auth-error-demo-btn {
-  background: var(--color-primary-container);
-  color: var(--color-on-primary);
-  border: 1px solid var(--color-primary);
-  padding: 3px 10px;
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  padding: 4px 12px;
   border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 600;
@@ -417,14 +465,14 @@ button {
 }
 
 .auth-error-demo-btn:hover {
-  background: var(--color-primary);
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+  background: #126460;
+  box-shadow: var(--shadow-sm);
 }
 
 .auth-error-dismiss {
   background: transparent;
   border: none;
-  color: var(--color-on-surface);
+  color: var(--color-on-error-container);
   font-size: 18px;
   cursor: pointer;
   line-height: 1;
@@ -439,6 +487,7 @@ button {
   border-radius: var(--radius-md);
   color: var(--color-on-surface);
   background-color: var(--color-surface-container);
+  border: 1px solid var(--border-subtle);
 }
 
 @media (min-width: 768px) {
@@ -451,9 +500,10 @@ button {
   display: flex;
   flex-direction: column;
   padding: var(--space-md) var(--space-lg);
-  background-color: var(--color-surface-container-low);
-  border-bottom: 1px solid var(--color-outline-variant);
-  gap: var(--space-sm);
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: var(--space-xs);
+  box-shadow: var(--shadow-md);
 }
 
 @media (min-width: 768px) {
@@ -463,7 +513,7 @@ button {
 }
 
 .mobile-nav-link {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   padding: 10px 16px;
   border-radius: var(--radius-md);
@@ -473,31 +523,31 @@ button {
 
 .mobile-nav-link:hover {
   color: var(--color-on-surface);
-  background-color: var(--color-surface-container);
+  background-color: var(--color-surface-container-high);
 }
 
 .mobile-nav-link.active {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.3);
+  background-color: var(--color-primary);
+  color: #ffffff;
 }
 
 .app-main {
   flex: 1;
-  padding-top: 80px;
-  min-height: calc(100vh - 80px);
+  padding-top: 76px;
+  min-height: calc(100vh - 76px);
   display: flex;
   flex-direction: column;
 }
 
 .app-footer {
-  border-top: 1px solid rgba(59, 73, 76, 0.25);
-  background-color: var(--color-surface-container-lowest);
-  padding: var(--space-lg) var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--color-surface-sage);
+  padding: var(--space-xl) var(--space-lg);
+  margin-top: auto;
 }
 
 .footer-inner {
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -518,6 +568,8 @@ button {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  color: var(--color-on-surface);
+  font-weight: 700;
 }
 
 .footer-links {
@@ -529,10 +581,11 @@ button {
 .footer-link {
   color: var(--color-on-surface-variant);
   transition: color 0.2s ease;
+  font-weight: 500;
 }
 
 .footer-link:hover {
-  color: var(--color-on-surface);
+  color: var(--color-primary);
 }
 
 /* ===================================================
@@ -553,6 +606,8 @@ button {
   white-space: nowrap;
   position: relative;
   user-select: none;
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
 .ui-btn--sm {
@@ -567,7 +622,7 @@ button {
 
 .ui-btn--lg {
   font-size: 15px;
-  padding: 13px 28px;
+  padding: 12px 26px;
 }
 
 .ui-btn--full {
@@ -575,13 +630,16 @@ button {
 }
 
 .ui-btn--primary {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(22, 125, 120, 0.25);
 }
 
 .ui-btn--primary:hover:not(:disabled) {
-  box-shadow: 0 0 24px rgba(0, 229, 255, 0.55);
+  background-color: #126460;
+  border-color: #126460;
+  box-shadow: 0 4px 14px rgba(22, 125, 120, 0.35);
   transform: translateY(-1px);
 }
 
@@ -590,25 +648,27 @@ button {
 }
 
 .ui-btn--secondary {
-  background-color: var(--color-surface-container-high);
-  color: var(--color-on-surface);
-  border: 1px solid rgba(59, 73, 76, 0.3);
+  background-color: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  border: 1px solid var(--color-outline-sage);
 }
 
 .ui-btn--secondary:hover:not(:disabled) {
-  background-color: var(--color-surface-container-highest);
-  color: var(--color-primary);
+  background-color: #D9E7DF;
+  color: #183321;
 }
 
 .ui-btn--outline {
-  background-color: transparent;
+  background-color: #ffffff;
   color: var(--color-on-surface);
-  border: 1px solid var(--color-outline-variant);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-btn--outline:hover:not(:disabled) {
-  background-color: rgba(36, 42, 52, 0.4);
-  border-color: var(--color-outline);
+  background-color: var(--color-surface-container-high);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .ui-btn--ghost {
@@ -628,6 +688,20 @@ button {
   transform: none;
 }
 
+.ui-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.ui-btn__icon .material-symbols-outlined {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .ui-btn__spinner {
   width: 14px;
   height: 14px;
@@ -645,20 +719,22 @@ button {
 
 /* --- 2. Card Styles --- */
 .ui-card {
-  background-color: var(--color-surface-container-low);
-  border: 1px solid rgba(59, 73, 76, 0.25);
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   overflow: hidden;
   transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-card--default {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-card--elevated {
-  background-color: var(--color-surface-container);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  background-color: #ffffff;
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-subtle);
 }
 
 .ui-card--interactive {
@@ -666,23 +742,25 @@ button {
 }
 
 .ui-card--interactive:hover {
-  border-color: rgba(0, 229, 255, 0.4);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 229, 255, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
 .ui-card--highlight {
-  border-color: var(--color-primary-container);
-  box-shadow: 0 0 24px rgba(0, 229, 255, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary), var(--shadow-md);
 }
 
 .ui-card--glow {
-  box-shadow: 0 0 28px rgba(0, 229, 255, 0.25);
+  box-shadow: 0 4px 20px rgba(22, 125, 120, 0.15);
+  border-color: rgba(22, 125, 120, 0.4);
 }
 
 .ui-card__header {
   padding: var(--space-md) var(--space-lg);
-  border-bottom: 1px solid rgba(59, 73, 76, 0.2);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--color-surface-container-low);
 }
 
 .ui-card__title {
@@ -704,8 +782,8 @@ button {
 
 .ui-card__footer {
   padding: var(--space-md) var(--space-lg);
-  border-top: 1px solid rgba(59, 73, 76, 0.2);
-  background-color: rgba(8, 15, 24, 0.4);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--color-surface-container-high);
 }
 
 /* --- 3. Badge Styles --- */
@@ -737,48 +815,46 @@ button {
   height: 6px;
   border-radius: 50%;
   background-color: currentColor;
-  box-shadow: 0 0 6px currentColor;
 }
 
 .ui-badge--cyan {
-  background-color: rgba(0, 229, 255, 0.1);
-  color: var(--color-primary-container);
-  border-color: rgba(0, 229, 255, 0.3);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  border-color: rgba(22, 125, 120, 0.25);
 }
 
 .ui-badge--emerald {
-  background-color: rgba(78, 222, 163, 0.1);
-  color: var(--color-secondary);
-  border-color: rgba(78, 222, 163, 0.3);
+  background-color: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  border-color: var(--color-outline-sage);
 }
 
 .ui-badge--amber {
-  background-color: rgba(255, 197, 137, 0.1);
-  color: var(--color-tertiary-container);
-  border-color: rgba(255, 197, 137, 0.3);
+  background-color: var(--color-tertiary-container);
+  color: var(--color-on-tertiary-container);
+  border-color: #FED7AA;
 }
 
 .ui-badge--error {
-  background-color: rgba(255, 180, 171, 0.1);
-  color: var(--color-error);
-  border-color: rgba(255, 180, 171, 0.3);
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border-color: #FECACA;
 }
 
 .ui-badge--neutral {
-  background-color: var(--color-surface-container);
+  background-color: var(--color-surface-container-high);
   color: var(--color-on-surface-variant);
-  border-color: rgba(59, 73, 76, 0.4);
+  border-color: var(--border-subtle);
 }
 
 /* --- 4. Segmented Toggle --- */
 .ui-segmented {
   display: inline-flex;
   align-items: center;
-  background-color: rgba(8, 15, 24, 0.85);
-  padding: 5px;
+  background-color: var(--color-surface-container-high);
+  padding: 4px;
   border-radius: var(--radius-full);
-  border: 1px solid rgba(59, 73, 76, 0.25);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-subtle);
 }
 
 .ui-segmented--full {
@@ -800,8 +876,9 @@ button {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-on-surface-variant);
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   user-select: none;
+  cursor: pointer;
 }
 
 .ui-segmented--sm .ui-segmented__item {
@@ -818,9 +895,9 @@ button {
 }
 
 .ui-segmented__item--active {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(22, 125, 120, 0.25);
   font-weight: 700;
 }
 
@@ -835,23 +912,25 @@ button {
 
 /* --- 5. StatCard Styles --- */
 .ui-stat {
-  background-color: var(--color-surface-container-low);
-  border: 1px solid rgba(59, 73, 76, 0.25);
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   padding: var(--space-md) var(--space-lg);
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
   transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-stat:hover {
-  border-color: rgba(59, 73, 76, 0.5);
+  border-color: var(--color-outline);
+  box-shadow: var(--shadow-md);
 }
 
 .ui-stat--highlight {
-  border-color: rgba(0, 229, 255, 0.35);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.1);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
 }
 
 .ui-stat__header {
@@ -873,7 +952,7 @@ button {
 }
 
 .ui-stat--cyan .ui-stat__icon {
-  color: var(--color-primary-container);
+  color: var(--color-primary);
 }
 
 .ui-stat--emerald .ui-stat__icon {
@@ -881,7 +960,7 @@ button {
 }
 
 .ui-stat--amber .ui-stat__icon {
-  color: var(--color-tertiary-container);
+  color: var(--color-tertiary);
 }
 
 .ui-stat__body {
@@ -893,7 +972,7 @@ button {
 .ui-stat__value {
   font-family: var(--font-headline);
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-on-surface);
   letter-spacing: -0.01em;
 }
@@ -912,22 +991,23 @@ button {
 
 /* --- 6. Panel Styles --- */
 .ui-panel {
-  background-color: var(--color-surface-container-low);
-  border: 1px solid rgba(59, 73, 76, 0.25);
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-panel--floating {
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-xl);
 }
 
 .ui-panel__header {
   padding: var(--space-md) var(--space-lg);
-  border-bottom: 1px solid rgba(59, 73, 76, 0.25);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--color-surface-container-low);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -954,8 +1034,8 @@ button {
 
 .ui-panel__footer {
   padding: var(--space-md) var(--space-lg);
-  border-top: 1px solid rgba(59, 73, 76, 0.25);
-  background-color: rgba(8, 15, 24, 0.4);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--color-surface-container-high);
 }
 
 /* --- 7. Progress Bar --- */
@@ -992,10 +1072,9 @@ button {
 
 .ui-progress__track {
   width: 100%;
-  background-color: var(--color-surface-container-lowest);
+  background-color: var(--color-surface-container-highest);
   border-radius: var(--radius-full);
   overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .ui-progress__track--sm {
@@ -1013,18 +1092,15 @@ button {
 }
 
 .ui-progress__fill--cyan {
-  background-color: var(--color-primary-container);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
+  background-color: var(--color-primary);
 }
 
 .ui-progress__fill--emerald {
   background-color: var(--color-secondary);
-  box-shadow: 0 0 12px rgba(78, 222, 163, 0.6);
 }
 
 .ui-progress__fill--amber {
-  background-color: var(--color-tertiary-container);
-  box-shadow: 0 0 12px rgba(255, 197, 137, 0.6);
+  background-color: var(--color-tertiary);
 }
 
 /* --- 8. Accordion --- */
@@ -1036,15 +1112,17 @@ button {
 }
 
 .ui-accordion__item {
-  background-color: var(--color-surface-container-low);
-  border: 1px solid rgba(59, 73, 76, 0.25);
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-accordion__item--expanded {
-  border-color: rgba(0, 229, 255, 0.3);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .ui-accordion__trigger {
@@ -1056,10 +1134,12 @@ button {
   gap: var(--space-md);
   text-align: left;
   transition: background-color 0.2s ease;
+  cursor: pointer;
+  background-color: #ffffff;
 }
 
 .ui-accordion__trigger:hover {
-  background-color: rgba(36, 42, 52, 0.3);
+  background-color: var(--color-surface-container-low);
 }
 
 .ui-accordion__title-group {
@@ -1070,7 +1150,7 @@ button {
 
 .ui-accordion__icon {
   font-size: 20px;
-  color: var(--color-primary-container);
+  color: var(--color-primary);
 }
 
 .ui-accordion__title {
@@ -1088,7 +1168,7 @@ button {
 
 .ui-accordion__chevron--expanded {
   transform: rotate(180deg);
-  color: var(--color-primary-container);
+  color: var(--color-primary);
 }
 
 .ui-accordion__panel {
@@ -1096,8 +1176,9 @@ button {
   color: var(--color-on-surface-variant);
   font-size: 14px;
   line-height: 1.6;
-  border-top: 1px solid rgba(59, 73, 76, 0.15);
+  border-top: 1px solid var(--border-subtle);
   padding-top: var(--space-md);
+  background-color: var(--color-surface-container-low);
 }
 
 /* ===================================================
